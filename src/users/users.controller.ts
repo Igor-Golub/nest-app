@@ -1,19 +1,13 @@
-import { Controller, Delete, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
   @Get()
-  getAll() {
-
-  }
+  getAll() {}
 
   @Post()
-  create() {
-
-  }
+  create(@Body() createUserDto: ApiDTO.UserCreate) {}
 
   @Delete()
-  delete() {
-
-  }
+  delete(@Param('id') id: string) {}
 }

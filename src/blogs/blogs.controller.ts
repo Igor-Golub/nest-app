@@ -1,39 +1,42 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { BlogsService } from './blogs.service';
 
 @Controller('blogs')
 export class BlogsController {
-  @Get()
-  getAll() {
-
-  }
+  constructor(private readonly blogsService: BlogsService) {}
 
   @Get()
-  getById() {
-
-  }
+  getAll() {}
 
   @Get()
-  getPosts() {
+  getById(@Param('id') id: string) {}
 
-  }
+  @Get()
+  getPosts(@Param('id') blogId: string) {}
 
   @Post()
-  create() {
-
-  }
+  create(@Body() createBlogDto: ApiDTO.BlogCreateAndUpdate) {}
 
   @Post()
-  createPost() {
-
-  }
+  createPost(
+    @Param('id') blogId: string,
+    @Body() createCommentDto: ApiDTO.PostCreateAndUpdate,
+  ) {}
 
   @Put()
-  update() {
-
-  }
+  update(
+    @Param('id') id: string,
+    @Body() updateBlogDto: ApiDTO.BlogCreateAndUpdate,
+  ) {}
 
   @Delete()
-  delete() {
-
-  }
+  delete(@Param('id') id: string) {}
 }
