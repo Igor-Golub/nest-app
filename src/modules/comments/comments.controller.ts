@@ -5,6 +5,8 @@ import { CommentsService } from './comments.service';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Get()
-  getById(@Param('id') id: string) {}
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    return this.commentsService.findById(id);
+  }
 }

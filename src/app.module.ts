@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TestingController } from './testing/testing.controller';
-import { CommentsController } from './comments/comments.controller';
-import { CommentsService } from './comments/comments.service';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { PostsController } from './posts/posts.controller';
-import { PostsService } from './posts/posts.service';
-import { BlogsController } from './blogs/blogs.controller';
-import { BlogsService } from './blogs/blogs.service';
-
+import { TestingController } from './modules/testing/testing.controller';
+import { CommentsController } from './modules/comments/comments.controller';
+import { CommentsService } from './modules/comments/comments.service';
+import { UsersController } from './modules/users/users.controller';
+import { UsersService } from './modules/users/users.service';
+import { PostsController } from './modules/posts/posts.controller';
+import { PostsService } from './modules/posts/posts.service';
+import { BlogsController } from './modules/blogs/blogs.controller';
+import { BlogsService } from './modules/blogs/blogs.service';
 
 @Module({
   imports: [],
@@ -19,13 +18,6 @@ import { BlogsService } from './blogs/blogs.service';
     TestingController,
     CommentsController,
   ],
-  providers: [
-    BlogsService,
-    UsersService,
-    PostsService,
-    CommentsService,
-  ],
+  providers: [BlogsService, UsersService, PostsService, CommentsService],
 })
-
-export class AppModule {
-}
+export class AppModule {}
