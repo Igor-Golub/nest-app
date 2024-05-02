@@ -1,28 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/createUserDto';
+import { UserModel } from './domain/userEntity';
 
 @Injectable()
 export class UsersService {
-  private readonly users: { id: string }[] = [];
+  constructor(
+    @InjectModel(UserModel.name) private readonly userModel: Model<UserModel>,
+  ) {}
 
   public async findWithPagination() {
-    return [];
+    return this.userModel.find();
   }
 
   public async crete(createUserDto: CreateUserDto) {
-    const newUser = {
-      ...createUserDto,
-      id: Date.now().toString(),
-    };
-
-    this.users.push(newUser);
-
-    return newUser;
+    return this.userModel.create(createUserDto);
   }
 
   public async delete(id: string) {
-    this.users.filter((i) => i.id !== id);
-
-    return true;
+    return this.userModel.deleteOne({ _id: id });
   }
 }

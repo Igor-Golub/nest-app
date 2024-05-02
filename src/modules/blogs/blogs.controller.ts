@@ -18,11 +18,13 @@ export class BlogsController {
   constructor(private readonly blogsService: BlogsService) {}
 
   @Get()
-  public async getAll(@Query() query: Api.BlogQuery) {}
+  public async getAll(@Query() query: Api.BlogQuery) {
+    return this.blogsService.getWithPagination();
+  }
 
   @Post()
   public async create(@Body() createBlogDto: CreateBlogDto) {
-    this.blogsService.create(createBlogDto);
+    return this.blogsService.create(createBlogDto);
   }
 
   @Get(':id')

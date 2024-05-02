@@ -1,40 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBlogDto } from './dto/createBlogDto';
 import { UpdateBlogDto } from './dto/updateBlogDto';
+import { BlogsRepo } from './blogs.repo';
 
 @Injectable()
 export class BlogsService {
-  private readonly blogs: { id: string }[] = [];
+  constructor(private readonly blogsRepo: BlogsRepo) {}
+
+  public async getWithPagination() {
+    return this.blogsRepo.getWithPagination();
+  }
 
   public async findById(id: string) {
-    return this.blogs.find((i) => i.id === id);
+    return this.blogsRepo.findById(id);
   }
 
   public async create(createBlogDto: CreateBlogDto) {
-    const newBlog = {
-      ...createBlogDto,
-      id: Date.now().toString(),
-    };
-
-    this.blogs.push(newBlog);
-
-    return newBlog;
+    return this.blogsRepo.create(createBlogDto);
   }
 
   public async update(id: string, updateBlogDto: UpdateBlogDto) {
-    return this.blogs.map((i) =>
-      i.id === id
-        ? {
-            id: id,
-            updateBlogDto,
-          }
-        : i,
-    );
+    return this.blogsRepo.update(id, updateBlogDto);
   }
 
   public async delete(id: string) {
-    this.blogs.filter((i) => i.id !== id);
-
-    return true;
+    return this.blogsRepo.delete(id);
   }
 }
