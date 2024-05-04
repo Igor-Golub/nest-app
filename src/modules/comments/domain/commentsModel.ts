@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({
+  collection: 'comments',
   timestamps: true,
 })
 export class CommentsModel {

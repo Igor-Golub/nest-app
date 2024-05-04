@@ -32,5 +32,11 @@ export declare global {
       login: string;
       email: string;
     }
+
+    interface Comment extends BaseModel {
+      content: string;
+      commentatorInfo: CommentatorInfo;
+      likesInfo: LikesInfo;
+    }
   }
 }
