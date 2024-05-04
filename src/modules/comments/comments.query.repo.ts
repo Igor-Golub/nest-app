@@ -11,7 +11,7 @@ export class CommentsQueryRepo {
     private readonly commentsModel: Model<CommentsModel>,
   ) {}
 
-  public async getById(id: number) {
+  public async getById(id: string) {
     const comment = this.commentsModel.findById(id);
 
     return this.mapToViewModel(comment);
