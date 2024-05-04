@@ -12,14 +12,32 @@ import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/createBlogDto';
 import { UpdateBlogDto } from './dto/updateBlogDto';
 import { CreateCommentDto } from '../comments/dto/createCommentDto';
+import { PaginationService } from '../../application/pagination.service';
+import { ClientSortingService } from '../../application/clientSorting.service';
+import { BlogsQueryRepo } from './blogs.query.repo';
+import { ClientFilterService } from '../../application/filter.service';
+import { FiltersType } from '../../enums/Filters';
 
 @Controller('blogs')
 export class BlogsController {
-  constructor(private readonly blogsService: BlogsService) {}
+  constructor(
+    private readonly blogsService: BlogsService,
+    private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly paginationService: PaginationService,
+    private readonly sortingService: ClientSortingService,
+    private readonly filterService: ClientFilterService<ViewModels.Blog>,
+  ) {}
 
   @Get()
   public async getAll(@Query() query: Api.BlogQuery) {
-    return this.blogsService.getWithPagination();
+    const { sortBy, sortDirection, pageNumber, pageSize, searchNameTerm } =
+      query;
+
+    this.paginationService.setValues({ pageSize, pageNumber });
+    this.filterService.setValue('name', searchNameTerm, FiltersType.InnerText);
+    this.sortingService.setValue(sortBy, sortDirection);
+
+    return this.blogsQueryRepo.getWithPagination();
   }
 
   @Post()
@@ -29,7 +47,7 @@ export class BlogsController {
 
   @Get(':id')
   public async getById(@Param('id') id: string) {
-    return this.blogsService.findById(id);
+    return this.blogsQueryRepo.getById(id);
   }
 
   @Get(':id')

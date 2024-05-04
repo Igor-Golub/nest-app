@@ -18,7 +18,7 @@ export class BlogModel {
   @Prop({
     required: true,
   })
-  description: number;
+  description: string;
 
   @Prop({
     required: true,
@@ -27,7 +27,7 @@ export class BlogModel {
 
   @Prop({
     required: true,
-    default: false,
+    default: true,
   })
   isMembership: boolean;
 }

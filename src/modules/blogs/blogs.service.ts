@@ -7,10 +7,6 @@ import { BlogsRepo } from './blogs.repo';
 export class BlogsService {
   constructor(private readonly blogsRepo: BlogsRepo) {}
 
-  public async getWithPagination() {
-    return this.blogsRepo.getWithPagination();
-  }
-
   public async findById(id: string) {
     return this.blogsRepo.findById(id);
   }

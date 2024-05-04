@@ -11,10 +11,6 @@ export class BlogsRepo {
     @InjectModel(BlogModel.name) private readonly blogModel: Model<BlogModel>,
   ) {}
 
-  public async getWithPagination() {
-    return this.blogModel.find();
-  }
-
   public async findById(id: string) {
     return this.blogModel.findById(id);
   }
