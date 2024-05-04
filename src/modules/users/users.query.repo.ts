@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogModel } from './domain/blogEntity';
+import { Model } from 'mongoose';
+import { UserModel } from './domain/userEntity';
 import { PaginationService } from '../../application/pagination.service';
 import { ClientSortingService } from '../../application/clientSorting.service';
 import { ClientFilterService } from '../../application/filter.service';
 
 @Injectable()
-export class BlogsQueryRepo {
+export class UsersQueryRepo {
   constructor(
-    @InjectModel(BlogModel.name) private readonly blogModel: Model<BlogModel>,
+    @InjectModel(UserModel.name) private readonly userModel: Model<UserModel>,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Blog>,
@@ -20,39 +20,31 @@ export class BlogsQueryRepo {
     const sort = this.sortingService.createSortCondition() as any;
     const filters = this.filterService.getFilters();
 
-    const data = await this.blogModel
+    const data = await this.userModel
       .find(filters)
       .sort(sort)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize);
 
-    const amountOfItems = await this.blogModel.countDocuments(filters);
+    const amountOfItems = await this.userModel.countDocuments(filters);
 
     return {
       page: pageNumber,
       pageSize,
       totalCount: amountOfItems,
-      items: this.mapToViewModels(data),
+      items: data.map(this.mapToViewModel),
       pagesCount: Math.ceil(amountOfItems / pageSize),
     };
   }
 
-  public async getById(id: string) {
-    const result = await this.blogModel.findById(id);
-
-    return this.mapToViewModels([result])[0];
-  }
-
-  private mapToViewModels(
-    data: DBModels.MongoResponseEntity<DBModels.Blog>[],
-  ): ViewModels.Blog[] {
-    return data.map(({ _id, name, isMembership, websiteUrl, description }) => ({
-      id: _id.toString(),
-      createdAt: _id.getTimestamp().toISOString(),
-      name,
-      isMembership,
-      websiteUrl,
-      description,
-    }));
+  private mapToViewModel(
+    data: DBModels.MongoResponseEntity<DBModels.User>,
+  ): ViewModels.User {
+    return {
+      email: data.email,
+      login: data.login,
+      id: data._id.toString(),
+      createdAt: data._id.getTimestamp().toISOString(),
+    };
   }
 }

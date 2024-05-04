@@ -38,10 +38,7 @@ export class ClientFilterService<ViewEntity>
     this.value = this.mangoMapper[type](filed, value);
   }
 
-  public setValues(
-    data: Record<string, string | undefined>,
-    type: FiltersType,
-  ) {
+  public setValues(data: Record<string, string | null>, type: FiltersType) {
     this.value = this.mangoMapper[type](data);
   }
 

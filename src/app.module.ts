@@ -16,6 +16,7 @@ import { BlogsRepo } from './modules/blogs/blogs.repo';
 import { BlogsQueryRepo } from './modules/blogs/blogs.query.repo';
 import { PostsRepo } from './modules/posts/posts.repo';
 import { UsersRepo } from './modules/users/users.repo';
+import { UsersQueryRepo } from './modules/users/users.query.repo';
 import { BlogsService } from './modules/blogs/blogs.service';
 import { BlogModel, BlogSchema } from './modules/blogs/domain/blogEntity';
 import { UserModel, UserSchema } from './modules/users/domain/userEntity';
@@ -66,6 +67,7 @@ import dbConfiguration from './config/dbConfiguration';
     BlogsQueryRepo,
     UsersService,
     UsersRepo,
+    UsersQueryRepo,
     PostsService,
     PostsRepo,
     CommentsService,

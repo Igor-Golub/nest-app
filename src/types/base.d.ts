@@ -18,7 +18,7 @@ export declare global {
         type: FiltersType,
       );
       setValues(
-        data: Record<keyof ViewEntity | string, string | undefined>,
+        data: Record<keyof ViewEntity | string, string | null>,
         type: FiltersType,
       );
       getFilters(): FilterQuery<ViewEntity>;
