@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "express-app",
+  "name": "nest-app",
   "builds": [
     {
       "src": "src/main.ts",
