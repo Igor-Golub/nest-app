@@ -15,6 +15,7 @@ import { BlogsController } from './modules/blogs/blogs.controller';
 import { BlogsRepo } from './modules/blogs/blogs.repo';
 import { BlogsQueryRepo } from './modules/blogs/blogs.query.repo';
 import { PostsRepo } from './modules/posts/posts.repo';
+import { PostsQueryRepo } from './modules/posts/posts.query.repo';
 import { UsersRepo } from './modules/users/users.repo';
 import { UsersQueryRepo } from './modules/users/users.query.repo';
 import { BlogsService } from './modules/blogs/blogs.service';
@@ -26,54 +27,65 @@ import {
   CommentsSchema,
 } from './modules/comments/domain/commentsModel';
 import dbConfiguration from './config/dbConfiguration';
+import { CommentsQueryRepo } from './modules/comments/comments.query.repo';
+import { CommentsRepo } from './modules/comments/comments.repo';
+
+const imports = [
+  ConfigModule.forRoot({
+    load: [dbConfiguration],
+  }),
+  MongooseModule.forRoot(
+    'mongodb+srv://gitihonovich:OogKFXMl7zIWdip4@cluster0.ugjfheu.mongodb.net/blogs',
+  ),
+  MongooseModule.forFeature([
+    {
+      name: BlogModel.name,
+      schema: BlogSchema,
+    },
+    {
+      name: UserModel.name,
+      schema: UserSchema,
+    },
+    {
+      name: PostModel.name,
+      schema: PostSchema,
+    },
+    {
+      name: CommentsModel.name,
+      schema: CommentsSchema,
+    },
+  ]),
+];
+
+const controllers = [
+  BlogsController,
+  UsersController,
+  PostsController,
+  TestingController,
+  CommentsController,
+];
+
+const providers = [
+  BlogsService,
+  BlogsRepo,
+  BlogsQueryRepo,
+  UsersService,
+  UsersRepo,
+  UsersQueryRepo,
+  PostsService,
+  PostsRepo,
+  PaginationService,
+  ClientSortingService,
+  ClientFilterService,
+  PostsQueryRepo,
+  CommentsService,
+  CommentsQueryRepo,
+  CommentsRepo,
+];
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      load: [dbConfiguration],
-    }),
-    MongooseModule.forRoot(
-      'mongodb+srv://gitihonovich:OogKFXMl7zIWdip4@cluster0.ugjfheu.mongodb.net/blogs',
-    ),
-    MongooseModule.forFeature([
-      {
-        name: BlogModel.name,
-        schema: BlogSchema,
-      },
-      {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-      {
-        name: PostModel.name,
-        schema: PostSchema,
-      },
-      {
-        name: CommentsModel.name,
-        schema: CommentsSchema,
-      },
-    ]),
-  ],
-  controllers: [
-    BlogsController,
-    UsersController,
-    PostsController,
-    TestingController,
-    CommentsController,
-  ],
-  providers: [
-    BlogsService,
-    BlogsRepo,
-    BlogsQueryRepo,
-    UsersService,
-    UsersRepo,
-    UsersQueryRepo,
-    PostsService,
-    PostsRepo,
-    CommentsService,
-    PaginationService,
-    ClientSortingService,
-    ClientFilterService,
-  ],
+  imports,
+  controllers,
+  providers,
 })
 export class AppModule {}

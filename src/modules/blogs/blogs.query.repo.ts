@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogModel } from './domain/blogEntity';
@@ -38,9 +38,11 @@ export class BlogsQueryRepo {
   }
 
   public async getById(id: string) {
-    const result = await this.blogModel.findById(id);
+    const blog = await this.blogModel.findById(id);
 
-    return this.mapToViewModels([result])[0];
+    if (!blog) throw new NotFoundException();
+
+    return this.mapToViewModels([blog])[0];
   }
 
   private mapToViewModels(

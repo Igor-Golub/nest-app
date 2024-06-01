@@ -4,6 +4,4 @@ export class CreateCommentDto {
   shortDescription: string;
 
   content: string;
-
-  blogId: string;
 }

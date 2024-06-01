@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, ObjectId } from 'mongoose';
 
-export type BlogDocument = HydratedDocument<BlogModel>;
+export type BlogDocument = HydratedDocument<BlogModel> & { createdAt: string };
 
 @Schema({
   collection: 'blogs',

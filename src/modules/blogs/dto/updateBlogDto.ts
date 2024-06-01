@@ -4,6 +4,4 @@ export class UpdateBlogDto {
   description: string;
 
   websiteUrl: string;
-
-  isMembership: boolean;
 }

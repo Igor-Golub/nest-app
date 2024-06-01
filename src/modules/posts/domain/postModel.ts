@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema()
+@Schema({
+  collection: 'posts',
+  timestamps: true,
+})
 export class PostModel {
   @Prop({
     required: true,

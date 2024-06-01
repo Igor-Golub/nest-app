@@ -3,6 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -11,18 +14,20 @@ import {
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/createBlogDto';
 import { UpdateBlogDto } from './dto/updateBlogDto';
-import { CreateCommentDto } from '../comments/dto/createCommentDto';
 import { PaginationService } from '../../application/pagination.service';
 import { ClientSortingService } from '../../application/clientSorting.service';
 import { BlogsQueryRepo } from './blogs.query.repo';
 import { ClientFilterService } from '../../application/filter.service';
 import { FiltersType } from '../../enums/Filters';
+import { CreatePostDto } from '../posts/dto/createPostDto';
+import { PostsQueryRepo } from '../posts/posts.query.repo';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly postsQueryRepo: PostsQueryRepo,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Blog>,
@@ -50,16 +55,37 @@ export class BlogsController {
     return this.blogsQueryRepo.getById(id);
   }
 
-  @Get(':id')
-  public async getPosts(@Param('id') blogId: string) {}
-
-  @Post(':id')
-  public async createPost(
+  @Get(':id/posts')
+  public async getPostsOfBlog(
     @Param('id') blogId: string,
-    @Body() createCommentDto: CreateCommentDto,
-  ) {}
+    @Query() query: Api.CommonQuery,
+  ) {
+    const blog = await this.blogsQueryRepo.getById(blogId);
+
+    if (!blog) throw new NotFoundException();
+
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+
+    this.paginationService.setValues({ pageSize, pageNumber });
+    this.sortingService.setValue(sortBy, sortDirection);
+
+    return this.postsQueryRepo.getWithPagination();
+  }
+
+  @Post(':id/posts')
+  public async createPostForBlog(
+    @Param('id') blogId: string,
+    @Body() createCommentDto: Omit<CreatePostDto, 'blogId'>,
+  ) {
+    const blog = await this.blogsQueryRepo.getById(blogId);
+
+    if (!blog) throw new NotFoundException();
+
+    return this.blogsService.createPostForBlog(blogId, createCommentDto);
+  }
 
   @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async update(
     @Param('id') id: string,
     @Body() updateBlogDto: UpdateBlogDto,
@@ -68,6 +94,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async delete(@Param('id') id: string) {
     return this.blogsService.delete(id);
   }

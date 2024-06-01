@@ -8,7 +8,8 @@ import { BlogDocument, BlogModel } from './domain/blogEntity';
 @Injectable()
 export class BlogsRepo {
   constructor(
-    @InjectModel(BlogModel.name) private readonly blogModel: Model<BlogModel>,
+    @InjectModel(BlogModel.name)
+    private readonly blogModel: Model<BlogDocument>,
   ) {}
 
   public async findById(id: string) {
@@ -20,21 +21,10 @@ export class BlogsRepo {
   }
 
   public async update(id: string, updateBlogDto: UpdateBlogDto) {
-    return this.blogModel.findOneAndUpdate(
-      {
-        _id: id,
-      },
-      updateBlogDto,
-    );
+    return this.blogModel.findByIdAndUpdate(id, updateBlogDto);
   }
 
   public async delete(id: string) {
-    this.blogModel.deleteOne({ _id: id });
-
-    return true;
-  }
-
-  public async save(blog: BlogDocument) {
-    await blog.save();
+    return this.blogModel.findByIdAndDelete(id);
   }
 }
