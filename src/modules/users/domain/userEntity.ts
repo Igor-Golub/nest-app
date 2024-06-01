@@ -1,4 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type PostDocument = HydratedDocument<UserModel> & { createdAt: string };
 
 @Schema({
   collection: 'users',

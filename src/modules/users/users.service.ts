@@ -1,24 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUserDto';
-import { UserModel } from './domain/userEntity';
+import { UsersRepo } from './users.repo';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(UserModel.name) private readonly userModel: Model<UserModel>,
-  ) {}
-
-  public async findWithPagination() {
-    return this.userModel.find();
-  }
+  constructor(private readonly usersRepo: UsersRepo) {}
 
   public async crete(createUserDto: CreateUserDto) {
-    return this.userModel.create(createUserDto);
+    const { id, login, email, createdAt } =
+      await this.usersRepo.create(createUserDto);
+
+    const newUser: ViewModels.User = {
+      id,
+      createdAt,
+      login,
+      email,
+    };
+
+    return newUser;
   }
 
   public async delete(id: string) {
-    return this.userModel.deleteOne({ _id: id });
+    const result = await this.usersRepo.delete(id);
+
+    if (!result) throw new NotFoundException();
+
+    return true;
   }
 }
