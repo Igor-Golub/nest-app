@@ -67,13 +67,13 @@ export class PostsController {
 
   @Put()
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(@Param(':id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(id, updatePostDto);
   }
 
   @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id') id: string) {
+  delete(@Param(':id') id: string) {
     return this.postsService.delete(id);
   }
 }
