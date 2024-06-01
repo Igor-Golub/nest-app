@@ -62,13 +62,7 @@ export class PostsQueryRepo {
           likesCount: 0,
           dislikesCount: 0,
           myStatus: LikeStatus.None,
-          newestLikes: [
-            {
-              addedAt: '2024-05-04T10:15:04.856Z',
-              userId: 'string',
-              login: 'string',
-            },
-          ],
+          newestLikes: [],
         },
       }),
     );
