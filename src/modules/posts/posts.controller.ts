@@ -46,7 +46,7 @@ export class PostsController {
     return this.postsQueryRepo.getById(id);
   }
 
-  @Get()
+  @Get(':id')
   public async getComments(
     @Param('id') id: string,
     @Query() query: Api.CommonQuery,
