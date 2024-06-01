@@ -1,22 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { CreateBlogDto } from './dto/createBlogDto';
-import { UpdateBlogDto } from './dto/updateBlogDto';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogDocument, BlogModel } from './domain/blogEntity';
+import { Model } from 'mongoose';
+import { BlogModel } from './domain/blogEntity';
+import { UpdateBlogDto } from './dto/updateBlogDto';
 
 @Injectable()
 export class BlogsRepo {
   constructor(
     @InjectModel(BlogModel.name)
-    private readonly blogModel: Model<BlogDocument>,
+    private readonly blogModel: Model<BlogModel>,
   ) {}
 
   public async findById(id: string) {
     return this.blogModel.findById(id);
   }
 
-  public async create(createBlogDto: CreateBlogDto) {
+  public async create(createBlogDto: DBModels.Blog) {
     return this.blogModel.create(createBlogDto);
   }
 

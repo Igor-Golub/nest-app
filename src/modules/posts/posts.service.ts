@@ -16,14 +16,14 @@ export class PostsService {
 
     if (!blog) throw new NotFoundException();
 
-    const { id, title, shortDescription, content, createdAt } =
+    const { _id, id, title, shortDescription, content } =
       await this.postsRepo.create({ blogName: blog.name, ...createPostDto });
 
     const newPost: ViewModels.PostWithFullLikes = {
       id,
       title,
       content,
-      createdAt,
+      createdAt: _id._id.getTimestamp().toISOString(),
       shortDescription,
       blogId: blog.id,
       blogName: blog.name,

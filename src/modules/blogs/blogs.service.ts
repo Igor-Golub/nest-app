@@ -17,16 +17,16 @@ export class BlogsService {
   }
 
   public async create(createBlogDto: CreateBlogDto) {
-    const { id, createdAt, isMembership, websiteUrl, description, name } =
+    const { id, _id, isMembership, websiteUrl, description, name } =
       await this.blogsRepo.create(createBlogDto);
 
     const newEntity: ViewModels.Blog = {
       id,
       name,
-      createdAt,
       websiteUrl,
       description,
       isMembership,
+      createdAt: _id._id.getTimestamp().toISOString(),
     };
 
     return newEntity;

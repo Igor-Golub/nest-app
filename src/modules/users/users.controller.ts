@@ -53,10 +53,10 @@ export class UsersController {
 
   @Post()
   public async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.crete(createUserDto);
+    return this.usersService.create(createUserDto);
   }
 
-  @Delete('id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete(@Param('id') id: string) {
     return this.usersService.delete(id);

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type PostDocument = HydratedDocument<UserModel> & { createdAt: string };
+export type UserDocument = HydratedDocument<UserModel>;
 
 @Schema({
   collection: 'users',
@@ -17,11 +17,6 @@ export class UserModel {
     required: true,
   })
   email: string;
-
-  @Prop({
-    required: true,
-  })
-  hash: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);

@@ -10,7 +10,7 @@ export declare global {
       name: string;
       description: string;
       websiteUrl: string;
-      isMembership: boolean;
+      isMembership?: boolean;
     }
 
     interface Post {
