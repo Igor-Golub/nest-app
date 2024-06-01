@@ -16,7 +16,7 @@ export class TestingController {
     private readonly commentsModel: Model<CommentsModel>,
   ) {}
 
-  @Delete('all-data')
+  @Delete('/all-data')
   public async delete() {
     this.blogModel.deleteMany({});
     this.userModel.deleteMany({});
