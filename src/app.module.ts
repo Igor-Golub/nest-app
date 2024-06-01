@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
 import { PaginationService } from './application/pagination.service';
 import { ClientSortingService } from './application/clientSorting.service';
 import { ClientFilterService } from './application/filter.service';
@@ -26,17 +25,13 @@ import {
   CommentsModel,
   CommentsSchema,
 } from './modules/comments/domain/commentsModel';
-import dbConfiguration from './config/dbConfiguration';
 import { CommentsQueryRepo } from './modules/comments/comments.query.repo';
 import { CommentsRepo } from './modules/comments/comments.repo';
+import { ConfigModule } from '@nestjs/config';
 
 const imports = [
-  ConfigModule.forRoot({
-    load: [dbConfiguration],
-  }),
-  MongooseModule.forRoot(
-    'mongodb+srv://gitihonovich:OogKFXMl7zIWdip4@cluster0.ugjfheu.mongodb.net/blogs',
-  ),
+  ConfigModule.forRoot(),
+  MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
   MongooseModule.forFeature([
     {
       name: BlogModel.name,
