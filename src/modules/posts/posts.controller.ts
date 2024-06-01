@@ -65,15 +65,15 @@ export class PostsController {
     return this.postsService.create(createPostDto);
   }
 
-  @Put()
+  @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(@Param(':id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(id, updatePostDto);
   }
 
-  @Delete()
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param(':id') id: string) {
+  delete(@Param('id') id: string) {
     return this.postsService.delete(id);
   }
 }
