@@ -3,6 +3,7 @@ import { CreatePostDto } from './dto/createPostDto';
 import { PostsRepo } from './posts.repo';
 import { BlogsQueryRepo } from '../blogs/blogs.query.repo';
 import { UpdatePostDto } from './dto/updatePostDto';
+import { LikeStatus } from '../../enums/Common';
 
 @Injectable()
 export class PostsService {
@@ -28,16 +29,10 @@ export class PostsService {
       blogId: blog.id,
       blogName: blog.name,
       extendedLikesInfo: {
+        myStatus: LikeStatus.None,
         likesCount: 0,
         dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [
-          {
-            addedAt: '2024-06-01T13:02:58.793Z',
-            userId: 'string',
-            login: 'string',
-          },
-        ],
+        newestLikes: [],
       },
     };
 

@@ -32,7 +32,7 @@ export class PostsController {
   ) {}
 
   @Get()
-  getAll(@Query() query: Api.CommonQuery) {
+  public async getAll(@Query() query: Api.CommonQuery) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
@@ -42,12 +42,15 @@ export class PostsController {
   }
 
   @Get(':id')
-  getById(@Param('id') id: string) {
+  public async getById(@Param('id') id: string) {
     return this.postsQueryRepo.getById(id);
   }
 
   @Get()
-  getComments(@Param('id') id: string, @Query() query: Api.CommonQuery) {
+  public async getComments(
+    @Param('id') id: string,
+    @Query() query: Api.CommonQuery,
+  ) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });

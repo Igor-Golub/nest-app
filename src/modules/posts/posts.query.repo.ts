@@ -5,6 +5,7 @@ import { PostModel } from './domain/postModel';
 import { PaginationService } from '../../application/pagination.service';
 import { ClientSortingService } from '../../application/clientSorting.service';
 import { ClientFilterService } from '../../application/filter.service';
+import { LikeStatus } from '../../enums/Common';
 
 @Injectable()
 export class PostsQueryRepo {
@@ -60,7 +61,7 @@ export class PostsQueryRepo {
         extendedLikesInfo: {
           likesCount: 0,
           dislikesCount: 0,
-          myStatus: 'None',
+          myStatus: LikeStatus.None,
           newestLikes: [
             {
               addedAt: '2024-05-04T10:15:04.856Z',

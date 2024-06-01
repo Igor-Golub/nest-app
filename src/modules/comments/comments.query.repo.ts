@@ -3,12 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CommentsModel } from './domain/commentsModel';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../enums/Common';
+import { PaginationService } from '../../application/pagination.service';
+import { ClientSortingService } from '../../application/clientSorting.service';
+import { ClientFilterService } from '../../application/filter.service';
 
 @Injectable()
 export class CommentsQueryRepo {
   constructor(
     @InjectModel(CommentsModel.name)
     private readonly commentsModel: Model<CommentsModel>,
+    private readonly paginationService: PaginationService,
+    private readonly sortingService: ClientSortingService,
+    private readonly filterService: ClientFilterService<ViewModels.Comment>,
   ) {}
 
   public async getById(id: string) {
@@ -19,7 +25,11 @@ export class CommentsQueryRepo {
     return this.mapToViewModel(comment);
   }
 
-  public async getWithPagination() {}
+  public async getWithPagination() {
+    const { pageNumber, pageSize } = this.paginationService.getPagination();
+    const sort = this.sortingService.createSortCondition();
+    const filters = this.filterService.getFilters();
+  }
 
   private mapToViewModel(
     comment: DBModels.MongoResponseEntity<DBModels.Comment>,
