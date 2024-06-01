@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentsModel } from './domain/commentsModel';
 import { Model } from 'mongoose';
@@ -12,10 +12,14 @@ export class CommentsQueryRepo {
   ) {}
 
   public async getById(id: string) {
-    const comment = this.commentsModel.findById(id);
+    const comment = this.commentsModel.findById(id).lean();
+
+    if (!comment) throw new NotFoundException();
 
     return this.mapToViewModel(comment);
   }
+
+  public async getWithPagination() {}
 
   private mapToViewModel(
     comment: DBModels.MongoResponseEntity<DBModels.Comment>,

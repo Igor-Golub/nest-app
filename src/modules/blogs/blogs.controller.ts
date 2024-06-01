@@ -68,6 +68,7 @@ export class BlogsController {
 
     this.paginationService.setValues({ pageSize, pageNumber });
     this.sortingService.setValue(sortBy, sortDirection);
+    this.filterService.setValue('blogId', blogId, FiltersType.ById);
 
     return this.postsQueryRepo.getWithPagination();
   }

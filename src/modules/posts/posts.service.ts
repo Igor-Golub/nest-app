@@ -1,43 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/createPostDto';
+import { PostsRepo } from './posts.repo';
+import { BlogsQueryRepo } from '../blogs/blogs.query.repo';
 import { UpdatePostDto } from './dto/updatePostDto';
 
 @Injectable()
 export class PostsService {
-  private readonly posts: { id: string }[] = [];
-
-  public async findAll() {
-    return this.posts;
-  }
-
-  public async findById(id: string) {
-    return this.posts.find((i) => i.id === id);
-  }
+  constructor(
+    private readonly postsRepo: PostsRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepo,
+  ) {}
 
   public async create(createPostDto: CreatePostDto) {
-    const newPost = {
-      ...createPostDto,
-      id: Date.now().toString(),
-    };
+    const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
 
-    this.posts.push(newPost);
+    if (!blog) throw new NotFoundException();
+
+    const { id, title, shortDescription, content, createdAt } =
+      await this.postsRepo.create(createPostDto);
+
+    const newPost: ViewModels.PostWithFullLikes = {
+      id,
+      title,
+      content,
+      createdAt,
+      shortDescription,
+      blogId: blog.id,
+      blogName: blog.name,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [
+          {
+            addedAt: '2024-06-01T13:02:58.793Z',
+            userId: 'string',
+            login: 'string',
+          },
+        ],
+      },
+    };
 
     return newPost;
   }
 
   public async update(id: string, updatePostDto: UpdatePostDto) {
-    return this.posts.map((i) =>
-      i.id === id
-        ? {
-            id: id,
-            updatePostDto,
-          }
-        : i,
-    );
+    const result = await this.postsRepo.update(id, updatePostDto);
+
+    if (!result) throw new NotFoundException();
+
+    return true;
   }
 
   public async delete(id: string) {
-    this.posts.filter((i) => i.id !== id);
+    const result = await this.postsRepo.delete(id);
+
+    if (!result) throw new NotFoundException();
 
     return true;
   }

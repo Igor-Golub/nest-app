@@ -1,4 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type PostDocument = HydratedDocument<PostModel> & { createdAt: string };
 
 @Schema({
   collection: 'posts',
@@ -24,11 +27,6 @@ export class PostModel {
     required: true,
   })
   blogId: string;
-
-  @Prop({
-    required: true,
-  })
-  blogName: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(PostModel);
