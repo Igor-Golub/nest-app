@@ -27,7 +27,7 @@ export class BlogModel {
 
   @Prop({
     required: true,
-    default: true,
+    default: false,
   })
   isMembership: boolean;
 }

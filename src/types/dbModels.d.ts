@@ -18,6 +18,7 @@ export declare global {
       shortDescription: string;
       content: string;
       blogId: string;
+      blogName: string;
     }
 
     interface User {

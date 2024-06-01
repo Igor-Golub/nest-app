@@ -27,6 +27,13 @@ export class PostModel {
     required: true,
   })
   blogId: string;
+
+  @Prop({
+    required: true,
+  })
+  blogName: {
+    required: true;
+  };
 }
 
 export const PostSchema = SchemaFactory.createForClass(PostModel);

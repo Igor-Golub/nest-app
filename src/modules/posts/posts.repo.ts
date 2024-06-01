@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostDocument, PostModel } from './domain/postModel';
-import { CreatePostDto } from './dto/createPostDto';
 import { UpdatePostDto } from './dto/updatePostDto';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class PostsRepo {
     private readonly postModel: Model<PostDocument>,
   ) {}
 
-  public async create(createPostDto: CreatePostDto) {
+  public async create(createPostDto: DBModels.Post) {
     return this.postModel.create(createPostDto);
   }
 

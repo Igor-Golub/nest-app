@@ -3,7 +3,6 @@ import { CreateBlogDto } from './dto/createBlogDto';
 import { UpdateBlogDto } from './dto/updateBlogDto';
 import { BlogsRepo } from './blogs.repo';
 import { PostsService } from '../posts/posts.service';
-import { CreateCommentDto } from '../comments/dto/createCommentDto';
 import { CreatePostDto } from '../posts/dto/createPostDto';
 
 @Injectable()
