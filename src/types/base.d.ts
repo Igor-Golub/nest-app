@@ -23,5 +23,14 @@ export declare global {
       );
       getFilters(): FilterQuery<ViewEntity>;
     }
+
+    interface HttpError {
+      field: string;
+      message: string;
+    }
+
+    interface ErrorResponse {
+      errorsMessages: HttpError[];
+    }
   }
 }
