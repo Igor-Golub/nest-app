@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogModel } from './domain/blogEntity';
-import { PaginationService } from '../../application/pagination.service';
-import { ClientSortingService } from '../../application/clientSorting.service';
-import { ClientFilterService } from '../../application/filter.service';
+import { PaginationService } from '../../application/services/pagination.service';
+import { ClientSortingService } from '../../application/services/clientSorting.service';
+import { ClientFilterService } from '../../application/services/filter.service';
 
 @Injectable()
 export class BlogsQueryRepo {

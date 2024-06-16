@@ -12,9 +12,9 @@ import {
 import { CreateUserDto } from './dto/createUserDto';
 import { UsersService } from './users.service';
 import { UsersQueryRepo } from './users.query.repo';
-import { PaginationService } from '../../application/pagination.service';
-import { ClientSortingService } from '../../application/clientSorting.service';
-import { ClientFilterService } from '../../application/filter.service';
+import { PaginationService } from '../../application/services/pagination.service';
+import { ClientSortingService } from '../../application/services/clientSorting.service';
+import { ClientFilterService } from '../../application/services/filter.service';
 import { FiltersType } from '../../enums/Filters';
 
 @Controller('users')

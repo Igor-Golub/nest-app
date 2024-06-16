@@ -13,12 +13,12 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/createPostDto';
 import { UpdatePostDto } from './dto/updatePostDto';
-import { PaginationService } from '../../application/pagination.service';
-import { ClientSortingService } from '../../application/clientSorting.service';
+import { PaginationService } from '../../application/services/pagination.service';
+import { ClientSortingService } from '../../application/services/clientSorting.service';
 import { PostsQueryRepo } from './posts.query.repo';
 import { CommentsQueryRepo } from '../comments/comments.query.repo';
 import { FiltersType } from '../../enums/Filters';
-import { ClientFilterService } from '../../application/filter.service';
+import { ClientFilterService } from '../../application/services/filter.service';
 
 @Controller('posts')
 export class PostsController {

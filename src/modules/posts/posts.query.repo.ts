@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostModel } from './domain/postModel';
-import { PaginationService } from '../../application/pagination.service';
-import { ClientSortingService } from '../../application/clientSorting.service';
-import { ClientFilterService } from '../../application/filter.service';
+import { PaginationService } from '../../application/services/pagination.service';
+import { ClientSortingService } from '../../application/services/clientSorting.service';
+import { ClientFilterService } from '../../application/services/filter.service';
 import { LikeStatus } from '../../enums/Common';
 
 @Injectable()

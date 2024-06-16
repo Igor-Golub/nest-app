@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PaginationService } from './application/pagination.service';
-import { ClientSortingService } from './application/clientSorting.service';
-import { ClientFilterService } from './application/filter.service';
+import { PaginationService } from './application/services/pagination.service';
+import { ClientSortingService } from './application/services/clientSorting.service';
+import { ClientFilterService } from './application/services/filter.service';
 import { TestingController } from './modules/testing/testing.controller';
 import { CommentsController } from './modules/comments/comments.controller';
 import { CommentsService } from './modules/comments/comments.service';
@@ -28,6 +28,7 @@ import {
 import { CommentsQueryRepo } from './modules/comments/comments.query.repo';
 import { CommentsRepo } from './modules/comments/comments.repo';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 
 const imports = [
   ConfigModule.forRoot(),
@@ -50,6 +51,8 @@ const imports = [
       schema: CommentsSchema,
     },
   ]),
+
+  AuthModule,
 ];
 
 const controllers = [
