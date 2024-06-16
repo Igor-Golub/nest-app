@@ -11,11 +11,23 @@ export class UsersRepo {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  public async create(createUserDto: CreateUserDto) {
+  public async create(createUserDto: DBModels.User) {
     return this.userModel.create(createUserDto);
   }
 
   public async delete(id: string) {
     return this.userModel.findByIdAndDelete(id);
+  }
+
+  public async findByLogin(login: string) {
+    return this.userModel.findOne({
+      login,
+    });
+  }
+
+  public async findByEmail(email: string) {
+    return this.userModel.findOne({
+      email,
+    });
   }
 }
