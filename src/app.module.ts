@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PaginationService } from './infrastructure/pagination.service';
-import { ClientSortingService } from './infrastructure/clientSorting.service';
-import { ClientFilterService } from './infrastructure/filter.service';
+import { PaginationService } from './infrastructure/services/pagination.service';
+import { ClientSortingService } from './infrastructure/services/clientSorting.service';
+import { ClientFilterService } from './infrastructure/services/filter.service';
 import { ConfigModule } from '@nestjs/config';
-import { CryptoService } from './infrastructure/crypto/crypto.service';
+import { CryptoService } from './infrastructure/services/crypto.service';
 import { PostModel, PostSchema } from './features/posts/domain/postModel';
 import { PostsController } from './features/posts/api/posts.controller';
 import { PostsService } from './features/posts/application/posts.service';
@@ -36,6 +36,9 @@ import {
   CommentsSchema,
 } from './features/comments/domain/commentsModel';
 import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
+import { EmailService } from './infrastructure/managers/email.service';
+import { SmtpService } from './infrastructure/managers/smtp.service';
+import { EmailTemplatesCreatorService } from './infrastructure/managers/emailTemplatesCreator.service';
 
 @Module({
   imports: [
@@ -97,6 +100,9 @@ import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
     LocalStrategy,
     JwtStrategy,
     RecoveryRepo,
+    EmailService,
+    SmtpService,
+    EmailTemplatesCreatorService,
   ],
 })
 export class AppModule {}

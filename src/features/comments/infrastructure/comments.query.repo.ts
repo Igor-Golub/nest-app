@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CommentsModel } from '../domain/commentsModel';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../../common/enums/Common';
-import { PaginationService } from '../../../infrastructure/pagination.service';
-import { ClientSortingService } from '../../../infrastructure/clientSorting.service';
-import { ClientFilterService } from '../../../infrastructure/filter.service';
+import { PaginationService } from '../../../infrastructure/services/pagination.service';
+import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
+import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 
 @Injectable()
 export class CommentsQueryRepo {

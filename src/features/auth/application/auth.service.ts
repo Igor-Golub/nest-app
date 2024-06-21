@@ -6,8 +6,9 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { add, isAfter } from 'date-fns';
 import { UsersRepo } from '../../users/infrastructure/users.repo';
-import { CryptoService } from '../../../infrastructure/crypto/crypto.service';
+import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { RecoveryRepo } from '../infrastructure/recovery.repo';
+import { NotifyManager } from '../../../infrastructure/managers/notify.manager';
 
 // TODO:(class) add interlayer manager
 @Injectable()
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
     private readonly recoveryRepo: RecoveryRepo,
+    private readonly notifyManager: NotifyManager,
   ) {}
 
   public async register({
@@ -39,7 +41,11 @@ export class AuthService {
 
     const confirmationCode = uuidv4();
 
-    // TODO:(main) Add send email to user with code and add id of message to meta info!
+    this.notifyManager.sendRegistrationEmail({
+      email,
+      login,
+      data: confirmationCode,
+    });
 
     await this.usersRepo.create({
       accountData: {
@@ -86,7 +92,11 @@ export class AuthService {
 
     await this.recoveryRepo.create(user._id, recoveryCode);
 
-    // TODO:(main) Add send email to user with code and add id of message to meta info!
+    await this.notifyManager.sendRecoveryEmail({
+      email,
+      login: user.login,
+      data: recoveryCode,
+    });
   }
 
   public async confirmPasswordRecovery({
@@ -122,7 +132,11 @@ export class AuthService {
 
     await this.usersRepo.updateConfirmationCode(user._id, confirmationCode);
 
-    // TODO:(main) Add send email to user with code and add id of message to meta info!
+    await this.notifyManager.sendNewConfirmationCodeToEmail({
+      email,
+      login: user!.login,
+      data: confirmationCode,
+    });
   }
 
   public async login({
