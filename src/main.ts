@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './application/exceptionFilters/http-exception.filter';
+import { HttpExceptionFilter } from './common/exceptionFilters/http-exception.filter';
 
 const port = process.env.PORT || 3000;
 

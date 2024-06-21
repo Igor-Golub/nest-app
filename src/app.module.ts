@@ -1,31 +1,100 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PaginationService } from './application/services/pagination.service';
-import { ClientSortingService } from './application/services/clientSorting.service';
-import { ClientFilterService } from './application/services/filter.service';
-import { CommentsRepo } from './modules/comments/comments.repo';
+import { PaginationService } from './common/services/pagination.service';
+import { ClientSortingService } from './common/services/clientSorting.service';
+import { ClientFilterService } from './common/services/filter.service';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { CryptoService } from './application/services/crypto/crypto.service';
-import { BlogsModule } from './modules/blogs/blogs.module';
-import { PostsModule } from './modules/posts/posts.module';
+import { CryptoService } from './common/services/crypto/crypto.service';
+import { PostModel, PostSchema } from './features/posts/domain/postModel';
+import { PostsController } from './features/posts/api/posts.controller';
+import { PostsService } from './features/posts/application/posts.service';
+import { PostsRepo } from './features/posts/infrastructure/posts.repo';
+import { PostsQueryRepo } from './features/posts/infrastructure/posts.query.repo';
+import { BlogsController } from './features/blogs/api/blogs.controller';
+import { BlogsService } from './features/blogs/application/blogs.service';
+import { BlogsRepo } from './features/blogs/infrastructure/blogs.repo';
+import { BlogsQueryRepo } from './features/blogs/infrastructure/blogs.query.repo';
+import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
+import { UsersService } from './features/users/application/users.service';
+import { UsersRepo } from './features/users/infrastructure/users.repo';
+import { UsersQueryRepo } from './features/users/infrastructure/users.query.repo';
+import { UserModel, UserSchema } from './features/users/domain/userEntity';
+import { TestingController } from './features/testing/api/testing.controller';
+import { UsersController } from './features/users/api/users.controller';
+import { AuthController } from './features/auth/api/auth.controller';
+import { CommentsController } from './features/comments/api/comments.controller';
+import { CommentsService } from './features/comments/application/comments.service';
+import { CommentsRepo } from './features/comments/infrastructure/comments.repo';
+import { CommentsQueryRepo } from './features/comments/infrastructure/comments.query.repo';
+import { AuthService } from './features/auth/application/auth.service';
+import { LocalStrategy } from './features/auth/strategies/local.strategy';
+import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import {
+  CommentsModel,
+  CommentsSchema,
+} from './features/comments/domain/commentsModel';
 
 @Module({
   imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: '',
+      signOptions: {
+        expiresIn: '60s',
+      },
+    }),
+    MongooseModule.forFeature([
+      {
+        name: PostModel.name,
+        schema: PostSchema,
+      },
+      {
+        name: BlogModel.name,
+        schema: BlogSchema,
+      },
+      {
+        name: UserModel.name,
+        schema: UserSchema,
+      },
+      {
+        name: CommentsModel.name,
+        schema: CommentsSchema,
+      },
+    ]),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
-    AuthModule,
-    UsersModule,
-    BlogsModule,
-    PostsModule,
-    CommentsRepo,
+  ],
+  controllers: [
+    PostsController,
+    BlogsController,
+    UsersController,
+    AuthController,
+    TestingController,
+    CommentsController,
   ],
   providers: [
+    JwtService,
+    PostsService,
+    PostsRepo,
+    PostsQueryRepo,
     PaginationService,
     ClientSortingService,
     ClientFilterService,
     CryptoService,
+    BlogsService,
+    BlogsRepo,
+    BlogsQueryRepo,
+    UsersService,
+    UsersRepo,
+    UsersQueryRepo,
+    CommentsService,
+    CommentsRepo,
+    CommentsQueryRepo,
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
   ],
 })
 export class AppModule {}
