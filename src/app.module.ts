@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PaginationService } from './common/services/pagination.service';
-import { ClientSortingService } from './common/services/clientSorting.service';
-import { ClientFilterService } from './common/services/filter.service';
+import { PaginationService } from './infrastructure/pagination.service';
+import { ClientSortingService } from './infrastructure/clientSorting.service';
+import { ClientFilterService } from './infrastructure/filter.service';
 import { ConfigModule } from '@nestjs/config';
-import { CryptoService } from './common/services/crypto/crypto.service';
+import { CryptoService } from './infrastructure/crypto/crypto.service';
 import { PostModel, PostSchema } from './features/posts/domain/postModel';
 import { PostsController } from './features/posts/api/posts.controller';
 import { PostsService } from './features/posts/application/posts.service';

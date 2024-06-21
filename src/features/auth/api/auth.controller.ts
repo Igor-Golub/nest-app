@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { AuthService } from '../application/auth.service';
 import { LoginDto } from './models/input/loginDto';
 import { PasswordRecoveryDto } from './models/input/passwordRecoveryDto';
 import { ConfirmPasswordRecoveryDto } from './models/input/confirmPasswordRecoveryDto';
@@ -14,45 +13,70 @@ import { ConfirmRegistrationDto } from './models/input/confirmRegistrationDto';
 import { RegistrationDto } from './models/input/registrationDto';
 import { ResendConfirmationDto } from './models/input/resendConfirmationDto';
 import { UsersService } from '../../users/application/users.service';
+import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
+
+enum AuthRoutes {
+  Me = '/me',
+  Login = '/login',
+  NewPassword = '/new-password',
+  Registration = '/registration',
+  PasswordRecovery = '/password-recovery',
+  Confirmation = '/registration-confirmation',
+  RegistrationEmailResending = '/registration-email-resending',
+}
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly userQueryRepo: UsersQueryRepo,
   ) {}
 
-  @Get('/me')
-  public async getProfile() {}
+  @Get(AuthRoutes.Me)
+  public async getProfile() {
+    return this.userQueryRepo.getProfile();
+  }
 
-  @Post('/login')
-  public async login(@Body() loginDto: LoginDto) {}
+  @Post(AuthRoutes.Login)
+  public async login(@Body() loginDto: LoginDto) {
+    return this.usersService.login(loginDto);
+  }
 
-  @Post('/password-recovery')
+  @Post(AuthRoutes.PasswordRecovery)
   public async recoveryPassword(
     @Body() passwordRecoveryDto: PasswordRecoveryDto,
-  ) {}
+  ) {
+    return this.usersService.passwordRecovery(passwordRecoveryDto);
+  }
 
-  @Post('/new-password')
+  @Post(AuthRoutes.NewPassword)
   public async confirmPasswordRecovery(
     @Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto,
-  ) {}
+  ) {
+    return this.usersService.confirmPasswordRecovery(
+      confirmPasswordRecoveryDto,
+    );
+  }
 
-  @Post('/registration-confirmation')
+  @Post(AuthRoutes.Confirmation)
   public async confirmRegistration(
     @Body() confirmRegistrationDto: ConfirmRegistrationDto,
   ) {
-    return this.usersService.confirmation(confirmRegistrationDto.code);
+    return this.usersService.confirmRegistration(confirmRegistrationDto.code);
   }
 
-  @Post('/registration')
+  @Post(AuthRoutes.Registration)
   @HttpCode(HttpStatus.CREATED)
   public async registration(@Body() registrationDto: RegistrationDto) {
     return this.usersService.register(registrationDto);
   }
 
-  @Post('/registration-email-resending')
+  @Post(AuthRoutes.RegistrationEmailResending)
   public async resendConfirmationRegistration(
     @Body() resendConfirmationRegistrationDto: ResendConfirmationDto,
-  ) {}
+  ) {
+    return this.usersService.resendConfirmationRegistration(
+      resendConfirmationRegistrationDto,
+    );
+  }
 }

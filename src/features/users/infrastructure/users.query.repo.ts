@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserModel } from '../domain/userEntity';
-import { PaginationService } from '../../../common/services/pagination.service';
-import { ClientSortingService } from '../../../common/services/clientSorting.service';
-import { ClientFilterService } from '../../../common/services/filter.service';
+import { PaginationService } from '../../../infrastructure/pagination.service';
+import { ClientSortingService } from '../../../infrastructure/clientSorting.service';
+import { ClientFilterService } from '../../../infrastructure/filter.service';
 
 @Injectable()
 export class UsersQueryRepo {
@@ -14,6 +14,10 @@ export class UsersQueryRepo {
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Blog>,
   ) {}
+
+  public async getProfile() {
+    return 'Profile';
+  }
 
   public async getWithPagination() {
     const { pageNumber, pageSize } = this.paginationService.getPagination();

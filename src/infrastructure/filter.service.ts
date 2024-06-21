@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
-import { FiltersType } from '../enums/Filters';
+import { FiltersType } from '../common/enums/Filters';
 
 @Injectable()
 export class ClientFilterService<ViewEntity>

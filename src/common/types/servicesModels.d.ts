@@ -16,5 +16,18 @@ export declare global {
       loginOrEmail: string;
       password: string;
     }
+
+    interface PasswordRecovery {
+      email: string;
+    }
+
+    interface ConfirmPasswordRecovery {
+      newPassword: string;
+      recoveryCode: string;
+    }
+
+    interface ResendConfirmationRegistration {
+      email: string;
+    }
   }
 }
