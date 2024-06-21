@@ -35,6 +35,7 @@ import {
   CommentsModel,
   CommentsSchema,
 } from './features/comments/domain/commentsModel';
+import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import {
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    RecoveryRepo,
   ],
 })
 export class AppModule {}

@@ -4,20 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtService } from '@nestjs/jwt';
 import { add, isAfter } from 'date-fns';
 import { UsersRepo } from '../../users/infrastructure/users.repo';
 import { CryptoService } from '../../../infrastructure/crypto/crypto.service';
+import { RecoveryRepo } from '../infrastructure/recovery.repo';
 
+// TODO:(class) add interlayer manager
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
-    private readonly jwtService: JwtService,
+    private readonly recoveryRepo: RecoveryRepo,
   ) {}
 
-  // TODO:(method) add interlayer manager
   public async register({
     login,
     email,
@@ -39,12 +39,14 @@ export class AuthService {
 
     const confirmationCode = uuidv4();
 
-    // TODO:(main) Add send email to user with code!
+    // TODO:(main) Add send email to user with code and add id of message to meta info!
 
     await this.usersRepo.create({
-      login,
-      email,
-      hash,
+      accountData: {
+        login,
+        email,
+        hash,
+      },
       confirmation: {
         isConfirmed: false,
         code: confirmationCode,
@@ -55,7 +57,6 @@ export class AuthService {
     });
   }
 
-  // TODO:(method) add interlayer manager
   public async confirmRegistration(code: string) {
     const user = await this.usersRepo.findByConfirmationCode(code);
 
@@ -81,17 +82,48 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const recoveryCode = uuidv4();
+    const recoveryCode = `${uuidv4()}_${user._id}`;
+
+    await this.recoveryRepo.create(user._id, recoveryCode);
+
+    // TODO:(main) Add send email to user with code and add id of message to meta info!
   }
 
   public async confirmPasswordRecovery({
     recoveryCode,
     newPassword,
-  }: ServicesModels.ConfirmPasswordRecovery) {}
+  }: ServicesModels.ConfirmPasswordRecovery) {
+    const recovery = await this.recoveryRepo.getRecoveryByCode(recoveryCode);
+
+    if (!recovery || isAfter(new Date(), recovery.expirationDate)) {
+      throw new BadRequestException();
+    }
+
+    const { hash } = await this.cryptoService.createSaltAndHash(newPassword);
+
+    await this.usersRepo.updateHash(recovery.userId, hash);
+    await this.recoveryRepo.updateStatus(recovery._id, 'recovered');
+  }
 
   public async resendConfirmation({
     email,
-  }: ServicesModels.ResendConfirmation) {}
+  }: ServicesModels.ResendConfirmation) {
+    const user = await this.usersRepo.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.confirmation.isConfirmed) {
+      throw new NotFoundException('User already confirmed');
+    }
+
+    const confirmationCode = `${uuidv4()}_${user._id}`;
+
+    await this.usersRepo.updateConfirmationCode(user._id, confirmationCode);
+
+    // TODO:(main) Add send email to user with code and add id of message to meta info!
+  }
 
   public async login({
     password,
@@ -112,4 +144,6 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
   }
+
+  public async logout(refreshToken: string) {}
 }
