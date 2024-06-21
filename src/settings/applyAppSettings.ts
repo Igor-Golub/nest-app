@@ -5,8 +5,12 @@ import {
 } from '@nestjs/common';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 
+const APP_PREFIX = '/api';
+
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
+
+  app.setGlobalPrefix(APP_PREFIX);
 
   app.useGlobalPipes(
     new ValidationPipe({

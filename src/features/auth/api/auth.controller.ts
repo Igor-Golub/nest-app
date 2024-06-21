@@ -26,9 +26,7 @@ export class AuthController {
   public async getProfile() {}
 
   @Post('/login')
-  public async login(@Body() loginDto: LoginDto) {
-    this.usersService.login();
-  }
+  public async login(@Body() loginDto: LoginDto) {}
 
   @Post('/password-recovery')
   public async recoveryPassword(
