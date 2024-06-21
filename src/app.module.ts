@@ -39,6 +39,12 @@ import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
 import { EmailService } from './infrastructure/managers/email.service';
 import { SmtpService } from './infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from './infrastructure/managers/emailTemplatesCreator.service';
+import { NotifyManager } from './infrastructure/managers/notify.manager';
+import {
+  RecoveryModel,
+  RecoverySchema,
+} from './features/auth/domain/recoveryEntity';
+import * as process from 'node:process';
 
 @Module({
   imports: [
@@ -65,6 +71,10 @@ import { EmailTemplatesCreatorService } from './infrastructure/managers/emailTem
       {
         name: CommentsModel.name,
         schema: CommentsSchema,
+      },
+      {
+        name: RecoveryModel.name,
+        schema: RecoverySchema,
       },
     ]),
     ConfigModule.forRoot(),
@@ -101,6 +111,7 @@ import { EmailTemplatesCreatorService } from './infrastructure/managers/emailTem
     JwtStrategy,
     RecoveryRepo,
     EmailService,
+    NotifyManager,
     SmtpService,
     EmailTemplatesCreatorService,
   ],
