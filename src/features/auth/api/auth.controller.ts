@@ -12,8 +12,8 @@ import { ConfirmPasswordRecoveryDto } from './models/input/confirmPasswordRecove
 import { ConfirmRegistrationDto } from './models/input/confirmRegistrationDto';
 import { RegistrationDto } from './models/input/registrationDto';
 import { ResendConfirmationDto } from './models/input/resendConfirmationDto';
-import { UsersService } from '../../users/application/users.service';
 import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
+import { AuthService } from '../application/auth.service';
 
 enum AuthRoutes {
   Me = '/me',
@@ -25,10 +25,11 @@ enum AuthRoutes {
   RegistrationEmailResending = '/registration-email-resending',
 }
 
+// TODO:(main) add rete limited to some endpoints and metainfo
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
     private readonly userQueryRepo: UsersQueryRepo,
   ) {}
 
@@ -39,44 +40,40 @@ export class AuthController {
 
   @Post(AuthRoutes.Login)
   public async login(@Body() loginDto: LoginDto) {
-    return this.usersService.login(loginDto);
+    return this.authService.login(loginDto);
   }
 
   @Post(AuthRoutes.PasswordRecovery)
   public async recoveryPassword(
     @Body() passwordRecoveryDto: PasswordRecoveryDto,
   ) {
-    return this.usersService.passwordRecovery(passwordRecoveryDto);
+    return this.authService.passwordRecovery(passwordRecoveryDto);
   }
 
   @Post(AuthRoutes.NewPassword)
   public async confirmPasswordRecovery(
     @Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto,
   ) {
-    return this.usersService.confirmPasswordRecovery(
-      confirmPasswordRecoveryDto,
-    );
+    return this.authService.confirmPasswordRecovery(confirmPasswordRecoveryDto);
   }
 
   @Post(AuthRoutes.Confirmation)
   public async confirmRegistration(
     @Body() confirmRegistrationDto: ConfirmRegistrationDto,
   ) {
-    return this.usersService.confirmRegistration(confirmRegistrationDto.code);
+    return this.authService.confirmRegistration(confirmRegistrationDto.code);
   }
 
   @Post(AuthRoutes.Registration)
   @HttpCode(HttpStatus.CREATED)
   public async registration(@Body() registrationDto: RegistrationDto) {
-    return this.usersService.register(registrationDto);
+    return this.authService.register(registrationDto);
   }
 
   @Post(AuthRoutes.RegistrationEmailResending)
-  public async resendConfirmationRegistration(
-    @Body() resendConfirmationRegistrationDto: ResendConfirmationDto,
+  public async resendConfirmation(
+    @Body() resendConfirmation: ResendConfirmationDto,
   ) {
-    return this.usersService.resendConfirmationRegistration(
-      resendConfirmationRegistrationDto,
-    );
+    return this.authService.resendConfirmation(resendConfirmation);
   }
 }

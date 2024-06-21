@@ -26,7 +26,7 @@ export declare global {
       recoveryCode: string;
     }
 
-    interface ResendConfirmationRegistration {
+    interface ResendConfirmation {
       email: string;
     }
   }
