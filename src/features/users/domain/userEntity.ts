@@ -8,6 +8,7 @@ class Confirmation {
   @Prop({
     required: true,
     type: Boolean,
+    default: false,
   })
   isConfirmed: boolean;
 
@@ -24,11 +25,8 @@ class Confirmation {
   expirationDate: Date;
 }
 
-@Schema({
-  collection: 'users',
-  timestamps: true,
-})
-export class UserModel {
+@Schema()
+class AccountData {
   @Prop({
     unique: true,
     required: true,
@@ -48,6 +46,18 @@ export class UserModel {
     type: String,
   })
   hash: string;
+}
+
+@Schema({
+  collection: 'users',
+  timestamps: true,
+})
+export class UserModel {
+  @Prop({
+    required: true,
+    type: AccountData,
+  })
+  accountData: AccountData;
 
   @Prop({
     required: true,

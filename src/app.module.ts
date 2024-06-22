@@ -44,16 +44,13 @@ import {
   RecoveryModel,
   RecoverySchema,
 } from './features/auth/domain/recoveryEntity';
-import * as process from 'node:process';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: '',
-      signOptions: {
-        expiresIn: '60s',
-      },
+      secret: '12345678',
+      signOptions: { expiresIn: '60s' },
     }),
     MongooseModule.forFeature([
       {

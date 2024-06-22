@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { add, isAfter } from 'date-fns';
+import { JwtService } from '@nestjs/jwt';
 import { UsersRepo } from '../../users/infrastructure/users.repo';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { RecoveryRepo } from '../infrastructure/recovery.repo';
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly cryptoService: CryptoService,
     private readonly recoveryRepo: RecoveryRepo,
     private readonly notifyManager: NotifyManager,
+    private readonly jwtService: JwtService,
   ) {}
 
   public async register({
@@ -94,7 +96,7 @@ export class AuthService {
 
     await this.notifyManager.sendRecoveryEmail({
       email,
-      login: user.login,
+      login: user.accountData.login,
       data: recoveryCode,
     });
   }
@@ -134,29 +136,15 @@ export class AuthService {
 
     await this.notifyManager.sendNewConfirmationCodeToEmail({
       email,
-      login: user!.login,
+      login: user!.accountData.login,
       data: confirmationCode,
     });
   }
 
-  public async login({
-    password,
-    loginOrEmail,
-  }: ServicesModels.LoginUserInput) {
-    const user = await this.usersRepo.findByConfirmationCode(loginOrEmail);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const compareResult = this.cryptoService.compareCredential(
-      password,
-      user.hash,
-    );
-
-    if (!compareResult) {
-      throw new NotFoundException('User not found');
-    }
+  public async login(userId: string) {
+    return {
+      accessToken: this.jwtService.sign({ sub: userId }),
+    };
   }
 
   public async logout(refreshToken: string) {}

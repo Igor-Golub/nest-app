@@ -52,9 +52,7 @@ export class UsersController {
   }
 
   @Post()
-  public async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+  public async create(@Body() createUserDto: CreateUserDto) {}
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

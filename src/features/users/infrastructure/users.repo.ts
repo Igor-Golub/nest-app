@@ -22,7 +22,7 @@ export class UsersRepo {
   public async findByLogin(login: string) {
     return this.userModel
       .findOne({
-        login,
+        'accountData.login': login,
       })
       .lean();
   }
@@ -30,15 +30,20 @@ export class UsersRepo {
   public async findByEmail(email: string) {
     return this.userModel
       .findOne({
-        email,
+        'accountData.email': email,
       })
       .lean();
   }
 
-  public async findByOrEmail(emailOrLogin: string) {
-    return this.userModel.findOne({
-      $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-    });
+  public async findByLoginOrEmail(emailOrLogin: string) {
+    return this.userModel
+      .findOne({
+        $or: [
+          { 'accountData.email': emailOrLogin },
+          { 'accountData.login': emailOrLogin },
+        ],
+      })
+      .lean();
   }
 
   public async findByConfirmationCode(code: string) {
@@ -65,7 +70,7 @@ export class UsersRepo {
   public async updateHash(usertId, hash: string) {
     return this.userModel.findByIdAndUpdate(usertId, {
       $set: {
-        hash,
+        'accountData.hash': hash,
       },
     });
   }

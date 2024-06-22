@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { LoginDto } from './models/input/loginDto';
 import { PasswordRecoveryDto } from './models/input/passwordRecoveryDto';
@@ -14,6 +15,9 @@ import { RegistrationDto } from './models/input/registrationDto';
 import { ResendConfirmationDto } from './models/input/resendConfirmationDto';
 import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
 import { AuthService } from '../application/auth.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { LocalAuthGuard } from '../guards/local-auth.guard';
+import { CurrentUserId } from '../../../common/pipes/current.userId';
 
 enum AuthRoutes {
   Me = '/me',
@@ -33,14 +37,19 @@ export class AuthController {
     private readonly userQueryRepo: UsersQueryRepo,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
   public async getProfile() {
     return this.userQueryRepo.getProfile();
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post(AuthRoutes.Login)
-  public async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  public async login(
+    @CurrentUserId() currentUserId: string,
+    @Body() loginDto: LoginDto,
+  ) {
+    return this.authService.login(currentUserId);
   }
 
   @Post(AuthRoutes.PasswordRecovery)

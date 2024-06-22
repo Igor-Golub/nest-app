@@ -12,6 +12,11 @@ export declare global {
       password: string;
     }
 
+    interface ValidateUserInput {
+      loginOrEmail: string;
+      password: string;
+    }
+
     interface LoginUserInput {
       loginOrEmail: string;
       password: string;
