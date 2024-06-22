@@ -143,7 +143,7 @@ export class AuthService {
 
   public async login(userId: string) {
     return {
-      accessToken: this.jwtService.sign({ sub: userId }),
+      accessToken: await this.jwtService.signAsync({ sub: userId }),
     };
   }
 

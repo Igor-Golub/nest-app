@@ -30,7 +30,7 @@ import { AuthService } from './features/auth/application/auth.service';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import {
   CommentsModel,
   CommentsSchema,
@@ -44,12 +44,17 @@ import {
   RecoveryModel,
   RecoverySchema,
 } from './features/auth/domain/recoveryEntity';
+import { jwtConstants } from './constants';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
     PassportModule,
     JwtModule.register({
-      secret: '12345678',
+      global: true,
+      secret: jwtConstants.secret,
       signOptions: { expiresIn: '60s' },
     }),
     MongooseModule.forFeature([
@@ -74,7 +79,6 @@ import {
         schema: RecoverySchema,
       },
     ]),
-    ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
   ],
   controllers: [
@@ -86,7 +90,6 @@ import {
     CommentsController,
   ],
   providers: [
-    JwtService,
     PostsService,
     PostsRepo,
     PostsQueryRepo,
