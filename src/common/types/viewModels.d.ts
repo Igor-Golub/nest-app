@@ -33,6 +33,12 @@ export declare global {
       email: string;
     }
 
+    interface UserAccountInfo {
+      userId: string;
+      login: string;
+      email: string;
+    }
+
     interface Comment extends BaseModel {
       content: string;
       commentatorInfo: CommentatorInfo;

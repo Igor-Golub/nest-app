@@ -39,8 +39,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
-  public async getProfile() {
-    return this.userQueryRepo.getProfile();
+  public async getProfile(@CurrentUserId() currentUserId: string) {
+    return this.userQueryRepo.getProfile(currentUserId);
   }
 
   @UseGuards(LocalAuthGuard)
