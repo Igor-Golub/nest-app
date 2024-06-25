@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './models/input/createUserDto';
 import { UsersService } from '../application/users.service';
@@ -16,6 +17,7 @@ import { PaginationService } from '../../../infrastructure/services/pagination.s
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums/Filters';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
@@ -51,8 +53,11 @@ export class UsersController {
     return this.usersQueryRepo.getWithPagination();
   }
 
+  @UseGuards(AuthGuard)
   @Post()
-  public async create(@Body() createUserDto: CreateUserDto) {}
+  public async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
