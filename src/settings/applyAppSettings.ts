@@ -10,7 +10,7 @@ const APP_PREFIX = '/api';
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
 
-  app.setGlobalPrefix(APP_PREFIX);
+  // app.setGlobalPrefix(APP_PREFIX);
 
   app.useGlobalPipes(
     new ValidationPipe({
