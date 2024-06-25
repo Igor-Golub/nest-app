@@ -45,6 +45,7 @@ import {
   RecoverySchema,
 } from './features/auth/domain/recoveryEntity';
 import { jwtConstants } from './constants';
+import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 
 @Module({
   imports: [
@@ -109,6 +110,7 @@ import { jwtConstants } from './constants';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    BasicStrategy,
     RecoveryRepo,
     EmailService,
     NotifyManager,

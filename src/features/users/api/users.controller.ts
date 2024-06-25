@@ -17,7 +17,7 @@ import { PaginationService } from '../../../infrastructure/services/pagination.s
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums/Filters';
-import { AuthGuard } from '@nestjs/passport';
+import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -53,7 +53,7 @@ export class UsersController {
     return this.usersQueryRepo.getWithPagination();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Post()
   public async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
