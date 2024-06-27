@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateBlogDto } from '../api/models/input/createBlogDto';
 import { UpdateBlogDto } from '../api/models/input/updateBlogDto';
 import { BlogsRepo } from '../infrastructure/blogs.repo';
@@ -33,19 +33,11 @@ export class BlogsService {
   }
 
   public async update(id: string, updateBlogDto: UpdateBlogDto) {
-    const result = await this.blogsRepo.update(id, updateBlogDto);
-
-    if (!result) throw new NotFoundException();
-
-    return result;
+    return this.blogsRepo.update(id, updateBlogDto);
   }
 
   public async delete(id: string) {
-    const result = await this.blogsRepo.delete(id);
-
-    if (!result) throw new NotFoundException();
-
-    return true;
+    return this.blogsRepo.delete(id);
   }
 
   public async createPostForBlog(

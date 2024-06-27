@@ -19,8 +19,8 @@ import { ClientSortingService } from '../../../infrastructure/services/clientSor
 import { BlogsQueryRepo } from '../infrastructure/blogs.query.repo';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums/Filters';
-import { CreatePostDto } from '../../posts/api/models/input/createPostDto';
 import { PostsQueryRepo } from '../../posts/infrastructure/posts.query.repo';
+import { CreatePostForBlogDto } from './models/input/createPostForBlogDto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -76,7 +76,7 @@ export class BlogsController {
   @Post(':id/posts')
   public async createPostForBlog(
     @Param('id') blogId: string,
-    @Body() createCommentDto: Omit<CreatePostDto, 'blogId'>,
+    @Body() createCommentDto: CreatePostForBlogDto,
   ) {
     const blog = await this.blogsQueryRepo.getById(blogId);
 
@@ -91,12 +91,23 @@ export class BlogsController {
     @Param('id') id: string,
     @Body() updateBlogDto: UpdateBlogDto,
   ) {
-    return this.blogsService.update(id, updateBlogDto);
+    const result = await this.blogsService.update(id, updateBlogDto);
+
+    if (!result) throw new NotFoundException();
+
+    return result;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(@Param('id') id: string) {
-    return this.blogsService.delete(id);
+  public async delete(
+    @Param('id')
+    id: string,
+  ) {
+    const result = await this.blogsService.delete(id);
+
+    if (!result) throw new NotFoundException();
+
+    return true;
   }
 }
