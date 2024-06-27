@@ -51,12 +51,10 @@ export class UsersQueryRepo {
     };
   }
 
-  private mapToViewModel(
-    data: DBModels.MongoResponseEntity<DBModels.User>,
-  ): ViewModels.User {
+  private mapToViewModel(data): ViewModels.User {
     return {
-      email: data.email,
-      login: data.login,
+      email: data.accountData.email,
+      login: data.accountData.login,
       id: data._id.toString(),
       createdAt: data._id.getTimestamp().toISOString(),
     };
