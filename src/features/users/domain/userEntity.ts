@@ -3,7 +3,10 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<UserModel>;
 
-@Schema()
+@Schema({
+  id: false,
+  _id: false,
+})
 class Confirmation {
   @Prop({
     required: true,
@@ -25,7 +28,10 @@ class Confirmation {
   expirationDate: Date;
 }
 
-@Schema()
+@Schema({
+  id: false,
+  _id: false,
+})
 class AccountData {
   @Prop({
     unique: true,

@@ -33,7 +33,7 @@ export class UsersService {
         hash,
       },
       confirmation: {
-        code: '',
+        code: 'confirmed',
         isConfirmed: false,
         expirationDate: new Date(),
       },
