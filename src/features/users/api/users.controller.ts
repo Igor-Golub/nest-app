@@ -41,7 +41,11 @@ export class UsersController {
     } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(`accountData.${sortBy}`, sortDirection);
+
+    if (sortBy) {
+      this.sortingService.setValue(`accountData.${sortBy}`, sortDirection);
+    }
+
     this.filterService.setValues(
       {
         login: searchLoginTerm,
