@@ -1,10 +1,10 @@
+import { Model } from 'mongoose';
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogModel } from '../../blogs/domain/blogEntity';
 import { UserModel } from '../../users/domain/userEntity';
 import { PostModel } from '../../posts/domain/postModel';
 import { CommentsModel } from '../../comments/domain/commentsModel';
-import { Model } from 'mongoose';
 
 @Controller('testing')
 export class TestingController {
@@ -20,8 +20,8 @@ export class TestingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete() {
     await this.blogModel.deleteMany({});
-    await this.userModel.deleteMany({});
-    await this.postModel.deleteMany({});
     await this.commentsModel.deleteMany({});
+    await this.postModel.deleteMany({});
+    await this.userModel.deleteMany({});
   }
 }

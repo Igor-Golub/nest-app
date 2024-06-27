@@ -46,10 +46,6 @@ export class UsersService {
   }
 
   public async delete(id: string) {
-    const result = await this.usersRepo.delete(id);
-
-    if (!result) throw new NotFoundException();
-
-    return true;
+    return this.usersRepo.delete(id);
   }
 }
