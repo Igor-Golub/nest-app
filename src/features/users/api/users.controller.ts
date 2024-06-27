@@ -44,7 +44,7 @@ export class UsersController {
     this.paginationService.setValues({ pageSize, pageNumber });
 
     if (sortBy) {
-      this.sortingService.setValue(`accountData.${sortBy}`, sortDirection);
+      this.sortingService.setValue(sortBy, sortDirection);
     }
 
     this.filterService.setValues(

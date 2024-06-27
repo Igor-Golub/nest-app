@@ -39,8 +39,18 @@ export class BlogsController {
       query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
-    this.filterService.setValue('name', searchNameTerm, FiltersType.InnerText);
-    this.sortingService.setValue(sortBy, sortDirection);
+
+    if (searchNameTerm) {
+      this.filterService.setValue(
+        'name',
+        searchNameTerm,
+        FiltersType.InnerText,
+      );
+    }
+
+    if (sortBy || sortDirection) {
+      this.sortingService.setValue(sortBy, sortDirection);
+    }
 
     return this.blogsQueryRepo.getWithPagination();
   }

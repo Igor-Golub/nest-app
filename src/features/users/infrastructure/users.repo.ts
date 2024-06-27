@@ -22,7 +22,7 @@ export class UsersRepo {
   public async findByLogin(login: string) {
     return this.userModel
       .findOne({
-        'accountData.login': login,
+        login: login,
       })
       .lean();
   }
@@ -30,7 +30,7 @@ export class UsersRepo {
   public async findByEmail(email: string) {
     return this.userModel
       .findOne({
-        'accountData.email': email,
+        email: email,
       })
       .lean();
   }
@@ -38,10 +38,7 @@ export class UsersRepo {
   public async findByLoginOrEmail(emailOrLogin: string) {
     return this.userModel
       .findOne({
-        $or: [
-          { 'accountData.email': emailOrLogin },
-          { 'accountData.login': emailOrLogin },
-        ],
+        $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
       })
       .lean();
   }
@@ -70,7 +67,7 @@ export class UsersRepo {
   public async updateHash(usertId, hash: string) {
     return this.userModel.findByIdAndUpdate(usertId, {
       $set: {
-        'accountData.hash': hash,
+        hash: hash,
       },
     });
   }
