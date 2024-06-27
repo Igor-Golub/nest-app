@@ -26,7 +26,7 @@ export class UsersService {
       createUserDto.password,
     );
 
-    return this.usersRepo.create({
+    const { _id } = await this.usersRepo.create({
       accountData: {
         login: createUserDto.login,
         email: createUserDto.email,
@@ -38,6 +38,13 @@ export class UsersService {
         expirationDate: new Date(),
       },
     });
+
+    return {
+      email: createUserDto.email,
+      login: createUserDto.login,
+      id: _id.toString(),
+      createdAt: _id.getTimestamp().toISOString(),
+    };
   }
 
   public async delete(id: string) {
