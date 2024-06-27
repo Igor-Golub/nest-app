@@ -38,7 +38,8 @@ export class UsersQueryRepo {
       .find(filters)
       .sort(sort)
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .lean();
 
     const amountOfItems = await this.userModel.countDocuments(filters);
 

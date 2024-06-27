@@ -41,11 +41,11 @@ export class UsersController {
     } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(sortBy, sortDirection);
+    this.sortingService.setValue(`accountData.${sortBy}`, sortDirection);
     this.filterService.setValues(
       {
-        login: searchLoginTerm,
-        email: searchEmailTerm,
+        'accountData.login': searchLoginTerm,
+        'accountData.email': searchEmailTerm,
       },
       FiltersType.OrAndInnerText,
     );
