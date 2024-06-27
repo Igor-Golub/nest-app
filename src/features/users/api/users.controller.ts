@@ -44,8 +44,8 @@ export class UsersController {
     this.sortingService.setValue(`accountData.${sortBy}`, sortDirection);
     this.filterService.setValues(
       {
-        'accountData.login': searchLoginTerm,
-        'accountData.email': searchEmailTerm,
+        login: searchLoginTerm,
+        email: searchEmailTerm,
       },
       FiltersType.OrAndInnerText,
     );

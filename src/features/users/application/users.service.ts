@@ -27,11 +27,9 @@ export class UsersService {
     );
 
     const { _id } = await this.usersRepo.create({
-      accountData: {
-        login: createUserDto.login,
-        email: createUserDto.email,
-        hash,
-      },
+      login: createUserDto.login,
+      email: createUserDto.email,
+      hash,
       confirmation: {
         code: 'confirmed',
         isConfirmed: false,

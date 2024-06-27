@@ -24,7 +24,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     const compareResult = this.cryptoService.compareCredential(
       password,
-      user.accountData.hash,
+      user.hash,
     );
 
     if (!compareResult) {

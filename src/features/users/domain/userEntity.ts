@@ -29,10 +29,10 @@ class Confirmation {
 }
 
 @Schema({
-  id: false,
-  _id: false,
+  collection: 'users',
+  timestamps: true,
 })
-class AccountData {
+export class UserModel {
   @Prop({
     unique: true,
     required: true,
@@ -52,18 +52,6 @@ class AccountData {
     type: String,
   })
   hash: string;
-}
-
-@Schema({
-  collection: 'users',
-  timestamps: true,
-})
-export class UserModel {
-  @Prop({
-    required: true,
-    type: AccountData,
-  })
-  accountData: AccountData;
 
   @Prop({
     required: true,

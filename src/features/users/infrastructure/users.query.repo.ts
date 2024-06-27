@@ -24,8 +24,8 @@ export class UsersQueryRepo {
 
     return {
       userId: user._id.toString(),
-      login: user.accountData.login,
-      email: user.accountData.email,
+      login: user.login,
+      email: user.email,
     };
   }
 
@@ -54,8 +54,8 @@ export class UsersQueryRepo {
 
   private mapToViewModel(data): ViewModels.User {
     return {
-      email: data.accountData.email,
-      login: data.accountData.login,
+      email: data.email,
+      login: data.login,
       id: data._id.toString(),
       createdAt: data._id.getTimestamp().toISOString(),
     };

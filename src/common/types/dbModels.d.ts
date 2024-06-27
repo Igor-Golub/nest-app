@@ -22,11 +22,9 @@ export declare global {
     }
 
     interface User {
-      accountData: {
-        login: string;
-        email: string;
-        hash: string;
-      };
+      login: string;
+      email: string;
+      hash: string;
       confirmation: {
         isConfirmed: boolean;
         code: string;

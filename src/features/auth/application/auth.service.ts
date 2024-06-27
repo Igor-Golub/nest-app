@@ -50,11 +50,9 @@ export class AuthService {
     });
 
     await this.usersRepo.create({
-      accountData: {
-        login,
-        email,
-        hash,
-      },
+      login,
+      email,
+      hash,
       confirmation: {
         isConfirmed: false,
         code: confirmationCode,
@@ -96,7 +94,7 @@ export class AuthService {
 
     await this.notifyManager.sendRecoveryEmail({
       email,
-      login: user.accountData.login,
+      login: user.login,
       data: recoveryCode,
     });
   }
@@ -136,7 +134,7 @@ export class AuthService {
 
     await this.notifyManager.sendNewConfirmationCodeToEmail({
       email,
-      login: user!.accountData.login,
+      login: user!.login,
       data: confirmationCode,
     });
   }
