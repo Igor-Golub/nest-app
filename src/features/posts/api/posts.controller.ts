@@ -11,15 +11,19 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service';
-import { CreatePostDto } from './models/input/createPostDto';
-import { UpdatePostDto } from './models/input/updatePostDto';
 import { PaginationService } from '@app/infrastructure/services/pagination.service';
 import { ClientSortingService } from '@app/infrastructure/services/clientSorting.service';
 import { PostsQueryRepo } from '../infrastructure/posts.query.repo';
 import { CommentsQueryRepo } from '../../comments/infrastructure/comments.query.repo';
 import { FiltersType } from '@app/common/enums/Filters';
 import { ClientFilterService } from '@app/infrastructure/services/filter.service';
-import { QueryValidator } from './models/input/query';
+import {
+  UpdatePostDto,
+  CreatePostDto,
+  PostsQueryParams,
+  DeletePostParams,
+  UpdatePostParams,
+} from './models/input';
 
 @Controller('posts')
 export class PostsController {
@@ -33,7 +37,7 @@ export class PostsController {
   ) {}
 
   @Get()
-  public async getAll(@Query() query: QueryValidator) {
+  public async getAll(@Query() query: PostsQueryParams) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
@@ -68,13 +72,16 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(
+    @Param() { id }: UpdatePostParams,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
     return this.postsService.update(id, updatePostDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id') id: string) {
+  delete(@Param() { id }: DeletePostParams) {
     return this.postsService.delete(id);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogModel } from '../domain/blogEntity';
-import { UpdateBlogDto } from '../api/models/input/updateBlogDto';
+import { UpdateBlogDto } from '../api/models/input/updateBlog';
 
 @Injectable()
 export class BlogsRepo {

@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePostDto } from '../api/models/input/createPostDto';
 import { PostsRepo } from '../infrastructure/posts.repo';
 import { BlogsQueryRepo } from '../../blogs/infrastructure/blogs.query.repo';
-import { UpdatePostDto } from '../api/models/input/updatePostDto';
-import { LikeStatus } from '../../../common/enums/Common';
+import { LikeStatus } from '@app/common/enums';
+import { CreatePostDto, UpdatePostDto } from '../api/models/input';
 
 @Injectable()
 export class PostsService {

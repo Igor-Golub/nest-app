@@ -1,6 +1,11 @@
 import { IsUrl, Matches } from 'class-validator';
 import { IsStringWithExpectedLength, Trim } from '@app/common/decorators';
 
+export class UpdateBlogParams {
+  @IsStringWithExpectedLength(24, 24)
+  id: string;
+}
+
 export class UpdateBlogDto {
   @Trim()
   @IsStringWithExpectedLength(1, 15)

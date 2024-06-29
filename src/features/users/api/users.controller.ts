@@ -11,13 +11,13 @@ import {
   Query,
   // UseGuards,
 } from '@nestjs/common';
-import { CreateUserDto } from './models/input/createUserDto';
 import { UsersService } from '../application/users.service';
 import { UsersQueryRepo } from '../infrastructure/users.query.repo';
 import { PaginationService } from '@app/infrastructure/services/pagination.service';
 import { ClientSortingService } from '@app/infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '@app/infrastructure/services/filter.service';
 import { FiltersType } from '@app/common/enums/Filters';
+import { DeleteUserDto, UsersQueryDto, CreateUserDto } from './models/input';
 
 @Controller('users')
 export class UsersController {
@@ -30,7 +30,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  public async getAll(@Query() query: Api.UsersQuery) {
+  public async getAll(@Query() query: UsersQueryDto) {
     const {
       sortBy,
       sortDirection,
@@ -60,7 +60,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(@Param('id') id: string) {
+  public async delete(@Param() { id }: DeleteUserDto) {
     const result = await this.usersService.delete(id);
 
     if (!result) throw new NotFoundException();

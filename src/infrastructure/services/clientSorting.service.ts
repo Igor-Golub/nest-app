@@ -9,7 +9,7 @@ export class ClientSortingService {
   };
 
   public setValue(key: string | undefined, value: SortDirection | undefined) {
-    this.value.sortBy = key ?? '_id';
+    this.value.sortBy = key || '_id';
     this.value.sortDirection = value ?? 'desc';
   }
 

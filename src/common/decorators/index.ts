@@ -1,4 +1,4 @@
-export { Trim } from './transform';
+export { Trim, ToNumber } from './transform';
 export {
   EmailIsExist,
   LoginIsExist,
