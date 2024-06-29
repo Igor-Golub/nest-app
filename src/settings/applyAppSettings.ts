@@ -15,6 +15,7 @@ export function applyAppSettings(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
       stopAtFirstError: true,
+      transform: true,
       exceptionFactory: (errors) => {
         const errorsData = errors.reduce<Base.HttpError[]>(
           (acc, { property, constraints }) => {

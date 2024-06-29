@@ -19,6 +19,7 @@ import { PostsQueryRepo } from '../infrastructure/posts.query.repo';
 import { CommentsQueryRepo } from '../../comments/infrastructure/comments.query.repo';
 import { FiltersType } from '../../../common/enums/Filters';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
+import { QueryValidator } from './models/input/query';
 
 @Controller('posts')
 export class PostsController {
@@ -32,7 +33,7 @@ export class PostsController {
   ) {}
 
   @Get()
-  public async getAll(@Query() query: Api.CommonQuery) {
+  public async getAll(@Query() query: QueryValidator) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
