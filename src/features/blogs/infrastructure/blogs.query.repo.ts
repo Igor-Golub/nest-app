@@ -24,7 +24,8 @@ export class BlogsQueryRepo {
       .find(filters)
       .sort(sort)
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .lean();
 
     const amountOfItems = await this.blogModel.countDocuments(filters);
 

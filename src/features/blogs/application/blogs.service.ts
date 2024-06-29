@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBlogDto } from '../api/models/input/createBlog';
-import { UpdateBlogDto } from '../api/models/input/updateBlog';
+import { UpdateBlogDto, CreateBlogDto } from '../api/models/input';
 import { BlogsRepo } from '../infrastructure/blogs.repo';
 import { PostsService } from '../../posts/application/posts.service';
 import { CreatePostDto } from '../../posts/api/models/input';

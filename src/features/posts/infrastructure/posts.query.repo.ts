@@ -33,7 +33,8 @@ export class PostsQueryRepo {
       .find(filters)
       .sort(sort)
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .lean();
 
     const amountOfItems = await this.postModel.countDocuments(filters);
 
