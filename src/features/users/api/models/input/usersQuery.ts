@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
-import { QueryParams } from '@app/common/decorators/validate';
+import { QueryParams } from '../../../../../common/decorators/validate';
 
 export class UsersQueryDto extends QueryParams {
   @IsString()

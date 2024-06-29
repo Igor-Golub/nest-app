@@ -47,9 +47,9 @@ import {
 import { jwtConstants } from './constants';
 import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 import {
-  LoginIsExistConstraint,
   EmailIsExistConstraint,
-} from '@app/common/decorators';
+  LoginIsExistConstraint,
+} from './common/decorators';
 
 @Module({
   imports: [

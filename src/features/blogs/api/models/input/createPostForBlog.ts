@@ -1,4 +1,7 @@
-import { IsStringWithExpectedLength, Trim } from '@app/common/decorators';
+import {
+  IsStringWithExpectedLength,
+  Trim,
+} from '../../../../../common/decorators';
 
 export class CreatePostForBlogParams {
   @IsStringWithExpectedLength(24, 24)

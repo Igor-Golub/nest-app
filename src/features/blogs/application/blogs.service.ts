@@ -3,7 +3,7 @@ import { CreateBlogDto } from '../api/models/input/createBlog';
 import { UpdateBlogDto } from '../api/models/input/updateBlog';
 import { BlogsRepo } from '../infrastructure/blogs.repo';
 import { PostsService } from '../../posts/application/posts.service';
-import { CreatePostDto } from '@app/features/posts/api/models/input';
+import { CreatePostDto } from '../../posts/api/models/input';
 
 @Injectable()
 export class BlogsService {

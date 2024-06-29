@@ -1,4 +1,4 @@
-import { IsStringWithExpectedLength } from '@app/common/decorators';
+import { IsStringWithExpectedLength } from '../../../../../common/decorators';
 
 export class DeleteUserDto {
   @IsStringWithExpectedLength(24, 24)

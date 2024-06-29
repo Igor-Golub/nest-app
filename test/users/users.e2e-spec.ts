@@ -1,8 +1,8 @@
 import request from 'supertest';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '@app/app.module';
-import { applyAppSettings } from '@app/settings/applyAppSettings';
+import { AppModule } from '../../src/app.module';
+import { applyAppSettings } from '../../src/settings/applyAppSettings';
 
 describe('e2e users feature', () => {
   let app: INestApplication;

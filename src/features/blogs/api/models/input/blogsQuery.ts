@@ -1,6 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
-import { IsStringWithExpectedLength } from '@app/common/decorators';
-import { QueryParams } from '@app/common/decorators/validate';
+import { IsStringWithExpectedLength } from '../../../../../common/decorators';
+import { QueryParams } from '../../../../../common/decorators/validate';
 
 export class BlogsQueryDtoParams {
   @IsStringWithExpectedLength(24, 24)

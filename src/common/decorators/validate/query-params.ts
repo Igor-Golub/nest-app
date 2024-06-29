@@ -1,6 +1,6 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { SortDirection } from '@app/common/enums';
 import { ToNumber } from '../transform/to-number';
+import { SortDirection } from '../../enums';
 
 export class QueryParams {
   @IsString()

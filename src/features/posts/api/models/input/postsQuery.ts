@@ -1,3 +1,3 @@
-import { QueryParams } from '@app/common/decorators/validate';
+import { QueryParams } from '../../../../../common/decorators/validate';
 
 export class PostsQueryParams extends QueryParams {}

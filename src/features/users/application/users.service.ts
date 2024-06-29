@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepo } from '../infrastructure/users.repo';
-import { CryptoService } from '@app/infrastructure/services/crypto.service';
+import { CryptoService } from '../../../infrastructure/services/crypto.service';
 
 @Injectable()
 export class UsersService {

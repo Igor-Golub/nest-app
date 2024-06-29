@@ -3,7 +3,7 @@ import {
   IsStringWithExpectedLength,
   LoginIsExist,
   Trim,
-} from '@app/common/decorators';
+} from '../../../../../common/decorators';
 
 export class CreateUserDto {
   @Trim()

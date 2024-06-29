@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { UsersQueryRepo } from '../infrastructure/users.query.repo';
-import { PaginationService } from '@app/infrastructure/services/pagination.service';
-import { ClientSortingService } from '@app/infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '@app/infrastructure/services/filter.service';
-import { FiltersType } from '@app/common/enums/Filters';
 import { DeleteUserDto, UsersQueryDto, CreateUserDto } from './models/input';
+import { PaginationService } from '../../../infrastructure/services/pagination.service';
+import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
+import { ClientFilterService } from '../../../infrastructure/services/filter.service';
+import { FiltersType } from '../../../common/enums';
 
 @Controller('users')
 export class UsersController {

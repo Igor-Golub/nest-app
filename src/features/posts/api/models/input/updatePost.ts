@@ -1,6 +1,8 @@
 import { IsString } from 'class-validator';
-import { Trim } from '@app/common/decorators/transform/trim';
-import { IsStringWithExpectedLength } from '@app/common/decorators';
+import {
+  IsStringWithExpectedLength,
+  Trim,
+} from '../../../../../common/decorators';
 
 export class UpdatePostParams {
   @IsStringWithExpectedLength(24, 24)

@@ -12,11 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
-import { PaginationService } from '@app/infrastructure/services/pagination.service';
-import { ClientSortingService } from '@app/infrastructure/services/clientSorting.service';
 import { BlogsQueryRepo } from '../infrastructure/blogs.query.repo';
-import { ClientFilterService } from '@app/infrastructure/services/filter.service';
-import { FiltersType } from '@app/common/enums/Filters';
 import { PostsQueryRepo } from '../../posts/infrastructure/posts.query.repo';
 import {
   BlogsQueryDtoParams,
@@ -28,6 +24,10 @@ import {
   DeleteBlogParams,
   CreatePostForBlogParams,
 } from './models/input';
+import { PaginationService } from '../../../infrastructure/services/pagination.service';
+import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
+import { ClientFilterService } from '../../../infrastructure/services/filter.service';
+import { FiltersType } from '../../../common/enums';
 
 @Controller('blogs')
 export class BlogsController {

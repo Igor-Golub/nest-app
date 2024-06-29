@@ -1,5 +1,8 @@
 import { IsString } from 'class-validator';
-import { Trim, IsStringWithExpectedLength } from '@app/common/decorators';
+import {
+  IsStringWithExpectedLength,
+  Trim,
+} from '../../../../../common/decorators';
 
 export class CreatePostDto {
   @Trim()

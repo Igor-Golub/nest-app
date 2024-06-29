@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 import { useContainer } from 'class-validator';
-import { AppModule } from '@app/app.module';
+import { AppModule } from '../app.module';
 
 const APP_PREFIX = '/api';
 
