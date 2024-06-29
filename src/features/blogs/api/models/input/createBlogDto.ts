@@ -1,16 +1,16 @@
-import { IsString, Length, Matches } from 'class-validator';
+import { IsUrl, Matches } from 'class-validator';
+import { IsStringWithExpectedLength, Trim } from '@app/common/decorators';
 
 export class CreateBlogDto {
-  @IsString()
-  @Length(1, 15)
+  @Trim()
+  @IsStringWithExpectedLength(1, 15)
   name: string;
 
-  @IsString()
-  @Length(1, 500)
+  @IsStringWithExpectedLength(1, 500)
   description: string;
 
-  @IsString()
-  @Length(1, 100)
+  @IsStringWithExpectedLength(1, 100)
+  @IsUrl()
   @Matches(
     '^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$',
   )

@@ -46,6 +46,10 @@ import {
 } from './features/auth/domain/recoveryEntity';
 import { jwtConstants } from './constants';
 import { BasicStrategy } from './features/auth/strategies/basic.strategy';
+import {
+  LoginIsExistConstraint,
+  EmailIsExistConstraint,
+} from '@app/common/decorators';
 
 @Module({
   imports: [
@@ -116,6 +120,8 @@ import { BasicStrategy } from './features/auth/strategies/basic.strategy';
     NotifyManager,
     SmtpService,
     EmailTemplatesCreatorService,
+    LoginIsExistConstraint,
+    EmailIsExistConstraint,
   ],
 })
 export class AppModule {}

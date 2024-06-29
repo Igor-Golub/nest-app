@@ -1,15 +1,13 @@
-import { IsString, Length } from 'class-validator';
+import { IsStringWithExpectedLength, Trim } from '@app/common/decorators';
 
 export class CreatePostForBlogDto {
-  @IsString()
-  @Length(1, 30)
+  @Trim()
+  @IsStringWithExpectedLength(1, 30)
   title: string;
 
-  @IsString()
-  @Length(1, 100)
+  @IsStringWithExpectedLength(1, 100)
   shortDescription: string;
 
-  @IsString()
-  @Length(1, 1000)
+  @IsStringWithExpectedLength(1, 1000)
   content: string;
 }

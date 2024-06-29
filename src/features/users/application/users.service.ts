@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersRepo } from '../infrastructure/users.repo';
-import { CryptoService } from '../../../infrastructure/services/crypto.service';
+import { CryptoService } from '@app/infrastructure/services/crypto.service';
 
 @Injectable()
 export class UsersService {
@@ -10,18 +10,6 @@ export class UsersService {
   ) {}
 
   public async create(createUserDto: ServicesModels.CreateUserInput) {
-    const userByEmail = await this.usersRepo.findByEmail(createUserDto.email);
-
-    if (userByEmail) {
-      throw new NotFoundException('User already exist');
-    }
-
-    const userByLogin = await this.usersRepo.findByLogin(createUserDto.login);
-
-    if (userByLogin) {
-      throw new NotFoundException('User already exist');
-    }
-
     const { hash } = await this.cryptoService.createSaltAndHash(
       createUserDto.password,
     );

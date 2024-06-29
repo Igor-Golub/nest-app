@@ -18,5 +18,8 @@
     "noFallthroughCasesInSwitch": false,
     "strictNullChecks": true,
     "esModuleInterop": true,
+    "paths": {
+      "@app/*": ["./src/*"]
+    }
   }
 }

@@ -4,11 +4,15 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
+import { useContainer } from 'class-validator';
+import { AppModule } from '@app/app.module';
 
 const APP_PREFIX = '/api';
 
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   // app.setGlobalPrefix(APP_PREFIX);
 
