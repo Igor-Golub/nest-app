@@ -50,17 +50,20 @@ import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
 } from './common/decorators';
+import configuration from './settings/configuration';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      isGlobal: true,
+      load: [configuration],
     }),
     PassportModule,
+    MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME!.toString() },
     }),
     MongooseModule.forFeature([
       {
@@ -84,7 +87,6 @@ import {
         schema: RecoverySchema,
       },
     ]),
-    MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
   ],
   controllers: [
     PostsController,
