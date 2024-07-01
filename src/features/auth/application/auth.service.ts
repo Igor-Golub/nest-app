@@ -27,18 +27,6 @@ export class AuthService {
     email,
     password,
   }: ServicesModels.RegisterUserInput) {
-    const isUserWithTheSameLoginExist = await this.usersRepo.findByLogin(login);
-
-    if (isUserWithTheSameLoginExist) {
-      throw new BadRequestException('User with this login already exist');
-    }
-
-    const isUserWithTheSameEmailExist = await this.usersRepo.findByEmail(email);
-
-    if (isUserWithTheSameEmailExist) {
-      throw new BadRequestException('User with this email already exist');
-    }
-
     const { hash } = await this.cryptoService.createSaltAndHash(password);
 
     const confirmationCode = uuidv4();

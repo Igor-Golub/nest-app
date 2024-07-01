@@ -1,8 +1,8 @@
-import { IsString, Length } from 'class-validator';
+import { IsString } from 'class-validator';
+import { IsStringWithExpectedLength } from '../../../../../common/decorators';
 
 export class ConfirmPasswordRecoveryDto {
-  @IsString()
-  @Length(6, 20)
+  @IsStringWithExpectedLength(6, 20)
   newPassword: string;
 
   @IsString()

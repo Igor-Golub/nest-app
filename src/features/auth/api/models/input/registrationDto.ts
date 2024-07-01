@@ -1,14 +1,19 @@
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail } from 'class-validator';
+import {
+  LoginIsExist,
+  EmailIsExist,
+  IsStringWithExpectedLength,
+} from '../../../../../common/decorators';
 
 export class RegistrationDto {
-  @IsString()
-  @Length(3, 10)
+  @LoginIsExist()
+  @IsStringWithExpectedLength(3, 10)
   login: string;
 
-  @IsString()
-  @Length(6, 20)
+  @IsStringWithExpectedLength(6, 20)
   password: string;
 
+  @EmailIsExist()
   @IsEmail()
   email: string;
 }
