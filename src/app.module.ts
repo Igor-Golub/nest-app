@@ -11,7 +11,6 @@ import { PostsService } from './features/posts/application/posts.service';
 import { PostsRepo } from './features/posts/infrastructure/posts.repo';
 import { PostsQueryRepo } from './features/posts/infrastructure/posts.query.repo';
 import { BlogsController } from './features/blogs/api/blogs.controller';
-import { BlogsService } from './features/blogs/application/blogs.service';
 import { BlogsRepo } from './features/blogs/infrastructure/blogs.repo';
 import { BlogsQueryRepo } from './features/blogs/infrastructure/blogs.query.repo';
 import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
@@ -51,9 +50,22 @@ import {
   LoginIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
+import { CqrsModule } from '@nestjs/cqrs';
+import { CreateBlogHandler } from './features/blogs/application/create.blog.useCase';
+import { DeleteBlogHandler } from './features/blogs/application/delete.blog.useCase';
+import { UpdateBlogHandler } from './features/blogs/application/update.blog.useCase';
+import { CreatePostForBlogHandler } from './features/blogs/application/create.post.for.blog.useCase';
+
+const blogsHandlers = [
+  CreateBlogHandler,
+  UpdateBlogHandler,
+  DeleteBlogHandler,
+  CreatePostForBlogHandler,
+];
 
 @Module({
   imports: [
+    CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -104,7 +116,6 @@ import configuration from './settings/configuration';
     ClientSortingService,
     ClientFilterService,
     CryptoService,
-    BlogsService,
     BlogsRepo,
     BlogsQueryRepo,
     UsersService,
@@ -124,6 +135,7 @@ import configuration from './settings/configuration';
     EmailTemplatesCreatorService,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
+    ...blogsHandlers,
   ],
 })
 export class AppModule {}

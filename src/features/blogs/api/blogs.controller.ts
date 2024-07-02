@@ -10,8 +10,8 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepo } from '../infrastructure/blogs.query.repo';
 import { PostsQueryRepo } from '../../posts/infrastructure/posts.query.repo';
 import {
@@ -28,11 +28,17 @@ import { PaginationService } from '../../../infrastructure/services/pagination.s
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../application/create.blog.useCase';
+import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
+import { DeleteBlogCommand } from '../application/delete.blog.useCase';
+import { UpdateBlogCommand } from '../application/update.blog.useCase';
+import { CreatePostForBlogCommand } from '../application/create.post.for.blog.useCase';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsService: BlogsService,
+    private commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly paginationService: PaginationService,
@@ -55,8 +61,13 @@ export class BlogsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   public async create(@Body() createBlogDto: CreateBlogDto) {
-    return this.blogsService.create(createBlogDto);
+    const command = new CreateBlogCommand(createBlogDto);
+
+    const { id } = await this.commandBus.execute(command);
+
+    return await this.blogsQueryRepo.getById(id);
   }
 
   @Get(':id')
@@ -91,7 +102,14 @@ export class BlogsController {
 
     if (!blog) throw new NotFoundException();
 
-    return this.blogsService.createPostForBlog(blogId, createCommentDto);
+    const command = new CreatePostForBlogCommand({
+      blogId,
+      createData: createCommentDto,
+    });
+
+    const createdBlogId = await this.commandBus.execute(command);
+
+    return this.postsQueryRepo.getById(createdBlogId);
   }
 
   @Put(':id')
@@ -100,7 +118,9 @@ export class BlogsController {
     @Param() { id }: UpdateBlogParams,
     @Body() updateBlogDto: UpdateBlogDto,
   ) {
-    const result = await this.blogsService.update(id, updateBlogDto);
+    const command = new UpdateBlogCommand({ id, updateData: updateBlogDto });
+
+    const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
 
@@ -113,7 +133,9 @@ export class BlogsController {
     @Param()
     { id }: DeleteBlogParams,
   ) {
-    const result = await this.blogsService.delete(id);
+    const command = new DeleteBlogCommand({ id });
+
+    const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
 

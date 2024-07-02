@@ -10,8 +10,8 @@ export class BasicStrategy extends PassportStrategy(Strategy) {
   }
 
   public async validate(login: string, password: string) {
-    const basicEmail = this.configService.get<string>('smtp.email');
-    const basicPassword = this.configService.get<string>('smtp.password');
+    const basicEmail = this.configService.get<string>('auth.basicUser');
+    const basicPassword = this.configService.get<string>('auth.basicPassword');
 
     if (!basicEmail || !basicPassword) {
       throw new UnauthorizedException();
