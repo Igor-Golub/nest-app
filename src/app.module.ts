@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CqrsModule } from '@nestjs/cqrs';
 import { PaginationService } from './infrastructure/services/pagination.service';
 import { ClientSortingService } from './infrastructure/services/clientSorting.service';
 import { ClientFilterService } from './infrastructure/services/filter.service';
-import { ConfigModule } from '@nestjs/config';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { PostModel, PostSchema } from './features/posts/domain/postModel';
 import { PostsController } from './features/posts/api/posts.controller';
@@ -28,8 +32,6 @@ import { CommentsQueryRepo } from './features/comments/infrastructure/comments.q
 import { AuthService } from './features/auth/application/auth.service';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import {
   CommentsModel,
   CommentsSchema,
@@ -50,7 +52,6 @@ import {
   LoginIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
-import { CqrsModule } from '@nestjs/cqrs';
 import { CreateBlogHandler } from './features/blogs/application/create.blog.useCase';
 import { DeleteBlogHandler } from './features/blogs/application/delete.blog.useCase';
 import { UpdateBlogHandler } from './features/blogs/application/update.blog.useCase';
@@ -69,6 +70,14 @@ const blogsHandlers = [
   CreatePostForBlogHandler,
 ];
 
+const blogsProviders = [BlogsRepo, BlogsQueryRepo, ...blogsHandlers];
+
+const postsProviders = [PostsService, PostsRepo, PostsQueryRepo];
+
+const commentsProviders = [CommentsService, CommentsRepo, CommentsQueryRepo];
+
+const usersProviders = [UsersService, UsersRepo, UsersQueryRepo];
+
 const authHandlers = [
   LoginHandler,
   RegisterHandler,
@@ -78,9 +87,21 @@ const authHandlers = [
   ConfirmPasswordRecoveryHandler,
 ];
 
+const authProviders = [AuthService, ...authHandlers];
+
 @Module({
   imports: [
     CqrsModule,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('throttle.ttl')!,
+          limit: config.get('throttle.limit')!,
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
@@ -124,22 +145,15 @@ const authHandlers = [
     CommentsController,
   ],
   providers: [
-    PostsService,
-    PostsRepo,
-    PostsQueryRepo,
+    ...postsProviders,
+    ...blogsProviders,
+    ...usersProviders,
+    ...commentsProviders,
+    ...authProviders,
     PaginationService,
     ClientSortingService,
     ClientFilterService,
     CryptoService,
-    BlogsRepo,
-    BlogsQueryRepo,
-    UsersService,
-    UsersRepo,
-    UsersQueryRepo,
-    CommentsService,
-    CommentsRepo,
-    CommentsQueryRepo,
-    AuthService,
     LocalStrategy,
     JwtStrategy,
     BasicStrategy,
@@ -150,8 +164,6 @@ const authHandlers = [
     EmailTemplatesCreatorService,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
-    ...blogsHandlers,
-    ...authHandlers,
   ],
 })
 export class AppModule {}

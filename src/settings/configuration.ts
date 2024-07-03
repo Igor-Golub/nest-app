@@ -11,6 +11,10 @@ const configuration = () => ({
     email: process.env.SMTP_EMAIL,
     password: process.env.SMTP_PASSWORD,
   },
+  throttle: {
+    ttl: process.env.TH_TTL || 10,
+    limit: process.env.TH_LIMIT || 5,
+  },
 });
 
 export default configuration;

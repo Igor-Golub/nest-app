@@ -24,6 +24,7 @@ import { ResendConfirmationCommand } from '../application/resendConfirmation.use
 import { ConfirmRegistrationCommand } from '../application/confirmRegistration.useCase';
 import { ConfirmPasswordRecoveryCommand } from '../application/confirmPasswordRecovery.useCase';
 import { PasswordRecoveryCommand } from '../application/passwordRecovery.useCase';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 enum AuthRoutes {
   Me = '/me',
@@ -35,7 +36,7 @@ enum AuthRoutes {
   RegistrationEmailResending = '/registration-email-resending',
 }
 
-// TODO:(main) add rete limited to some endpoints and metainfo
+// TODO:(main) Добавить функциональность определения выбрасываемого эксепшена
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -49,6 +50,7 @@ export class AuthController {
     return this.userQueryRepo.getProfile(currentUserId);
   }
 
+  @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @Post(AuthRoutes.Login)
   public async login(
@@ -60,6 +62,7 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.PasswordRecovery)
   public async recoveryPassword(
     @Body() passwordRecoveryDto: PasswordRecoveryDto,
@@ -69,6 +72,7 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.NewPassword)
   public async confirmPasswordRecovery(
     @Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto,
@@ -80,6 +84,7 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Confirmation)
   public async confirmRegistration(
     @Body() confirmRegistrationDto: ConfirmRegistrationDto,
@@ -89,6 +94,7 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Registration)
   @HttpCode(HttpStatus.CREATED)
   public async registration(@Body() registrationDto: RegistrationDto) {
@@ -97,6 +103,7 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.RegistrationEmailResending)
   public async resendConfirmation(
     @Body() resendConfirmation: ResendConfirmationDto,
