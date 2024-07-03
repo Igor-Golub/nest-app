@@ -14,10 +14,16 @@ import { ConfirmRegistrationDto } from './models/input/confirmRegistrationDto';
 import { RegistrationDto } from './models/input/registrationDto';
 import { ResendConfirmationDto } from './models/input/resendConfirmationDto';
 import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
-import { AuthService } from '../application/auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
+import { RegisterCommand } from '../application/register.useCase';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginCommand } from '../application/login.useCase';
+import { ResendConfirmationCommand } from '../application/resendConfirmation.useCase';
+import { ConfirmRegistrationCommand } from '../application/confirmRegistration.useCase';
+import { ConfirmPasswordRecoveryCommand } from '../application/confirmPasswordRecovery.useCase';
+import { PasswordRecoveryCommand } from '../application/passwordRecovery.useCase';
 
 enum AuthRoutes {
   Me = '/me',
@@ -33,7 +39,7 @@ enum AuthRoutes {
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    private readonly commandBus: CommandBus,
     private readonly userQueryRepo: UsersQueryRepo,
   ) {}
 
@@ -49,40 +55,54 @@ export class AuthController {
     @CurrentUserId() currentUserId: string,
     @Body() loginDto: LoginDto,
   ) {
-    return this.authService.login(currentUserId);
+    const command = new LoginCommand({ userId: currentUserId });
+
+    return this.commandBus.execute(command);
   }
 
   @Post(AuthRoutes.PasswordRecovery)
   public async recoveryPassword(
     @Body() passwordRecoveryDto: PasswordRecoveryDto,
   ) {
-    return this.authService.passwordRecovery(passwordRecoveryDto);
+    const command = new PasswordRecoveryCommand(passwordRecoveryDto);
+
+    return this.commandBus.execute(command);
   }
 
   @Post(AuthRoutes.NewPassword)
   public async confirmPasswordRecovery(
     @Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto,
   ) {
-    return this.authService.confirmPasswordRecovery(confirmPasswordRecoveryDto);
+    const command = new ConfirmPasswordRecoveryCommand(
+      confirmPasswordRecoveryDto,
+    );
+
+    return this.commandBus.execute(command);
   }
 
   @Post(AuthRoutes.Confirmation)
   public async confirmRegistration(
     @Body() confirmRegistrationDto: ConfirmRegistrationDto,
   ) {
-    return this.authService.confirmRegistration(confirmRegistrationDto.code);
+    const command = new ConfirmRegistrationCommand(confirmRegistrationDto);
+
+    return this.commandBus.execute(command);
   }
 
   @Post(AuthRoutes.Registration)
   @HttpCode(HttpStatus.CREATED)
   public async registration(@Body() registrationDto: RegistrationDto) {
-    return this.authService.register(registrationDto);
+    const command = new RegisterCommand(registrationDto);
+
+    return this.commandBus.execute(command);
   }
 
   @Post(AuthRoutes.RegistrationEmailResending)
   public async resendConfirmation(
     @Body() resendConfirmation: ResendConfirmationDto,
   ) {
-    return this.authService.resendConfirmation(resendConfirmation);
+    const command = new ResendConfirmationCommand(resendConfirmation);
+
+    return this.commandBus.execute(command);
   }
 }

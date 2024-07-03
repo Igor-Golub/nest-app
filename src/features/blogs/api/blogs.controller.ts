@@ -90,7 +90,7 @@ export class BlogsController {
     this.sortingService.setValue(sortBy, sortDirection);
     this.filterService.setValue('blogId', blogId, FiltersType.ById);
 
-    return this.postsQueryRepo.getWithPagination();
+    return this.postsQueryRepo.getWithPaginationAndSorting();
   }
 
   @Post(':id/posts')

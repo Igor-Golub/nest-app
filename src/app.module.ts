@@ -55,12 +55,27 @@ import { CreateBlogHandler } from './features/blogs/application/create.blog.useC
 import { DeleteBlogHandler } from './features/blogs/application/delete.blog.useCase';
 import { UpdateBlogHandler } from './features/blogs/application/update.blog.useCase';
 import { CreatePostForBlogHandler } from './features/blogs/application/create.post.for.blog.useCase';
+import { RegisterHandler } from './features/auth/application/register.useCase';
+import { LoginHandler } from './features/auth/application/login.useCase';
+import { ResendConfirmationHandler } from './features/auth/application/resendConfirmation.useCase';
+import { ConfirmRegistrationHandler } from './features/auth/application/confirmRegistration.useCase';
+import { PasswordRecoveryHandler } from './features/auth/application/passwordRecovery.useCase';
+import { ConfirmPasswordRecoveryHandler } from './features/auth/application/confirmPasswordRecovery.useCase';
 
 const blogsHandlers = [
   CreateBlogHandler,
   UpdateBlogHandler,
   DeleteBlogHandler,
   CreatePostForBlogHandler,
+];
+
+const authHandlers = [
+  LoginHandler,
+  RegisterHandler,
+  PasswordRecoveryHandler,
+  ResendConfirmationHandler,
+  ConfirmRegistrationHandler,
+  ConfirmPasswordRecoveryHandler,
 ];
 
 @Module({
@@ -136,6 +151,7 @@ const blogsHandlers = [
     LoginIsExistConstraint,
     EmailIsExistConstraint,
     ...blogsHandlers,
+    ...authHandlers,
   ],
 })
 export class AppModule {}
