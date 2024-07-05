@@ -5,31 +5,37 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
-import { PostsService } from '../application/posts.service';
 import { PostsQueryRepo } from '../infrastructure/posts.query.repo';
 import { CommentsQueryRepo } from '../../comments/infrastructure/comments.query.repo';
 import {
-  UpdatePostDto,
   CreatePostDto,
-  PostsQueryParams,
   DeletePostParams,
+  PostsQueryParams,
+  UpdatePostDto,
   UpdatePostParams,
 } from './models/input';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { FiltersType } from '../../../common/enums';
+import { CreatePostCommand } from '../application/create.useCase';
+import { CommandBus } from '@nestjs/cqrs';
+import { BlogsQueryRepo } from '../../blogs/infrastructure/blogs.query.repo';
+import { UpdatePostCommand } from '../application/update.useCase';
+import { DeleteBlogCommand } from '../../blogs/application/delete.blog.useCase';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsService: PostsService,
+    private readonly commandBus: CommandBus,
     private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
@@ -67,7 +73,13 @@ export class PostsController {
 
   @Post()
   public async create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+    const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
+
+    if (!blog) throw new NotFoundException();
+
+    const command = new CreatePostCommand({ blog, data: createPostDto });
+
+    return this.commandBus.execute(command);
   }
 
   @Put(':id')
@@ -76,12 +88,16 @@ export class PostsController {
     @Param() { id }: UpdatePostParams,
     @Body() updatePostDto: UpdatePostDto,
   ) {
-    return this.postsService.update(id, updatePostDto);
+    const command = new UpdatePostCommand({ postId: id, data: updatePostDto });
+
+    return this.commandBus.execute(command);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param() { id }: DeletePostParams) {
-    return this.postsService.delete(id);
+    const command = new DeleteBlogCommand({ id });
+
+    return this.commandBus.execute(command);
   }
 }

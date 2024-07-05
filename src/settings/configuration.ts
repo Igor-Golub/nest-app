@@ -15,6 +15,9 @@ const configuration = () => ({
     ttl: process.env.TH_TTL || 10,
     limit: process.env.TH_LIMIT || 5,
   },
+  front: {
+    host: process.env.HOST_URL,
+  },
 });
 
 export default configuration;

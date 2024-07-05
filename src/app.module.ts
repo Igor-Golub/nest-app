@@ -11,7 +11,6 @@ import { ClientFilterService } from './infrastructure/services/filter.service';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { PostModel, PostSchema } from './features/posts/domain/postModel';
 import { PostsController } from './features/posts/api/posts.controller';
-import { PostsService } from './features/posts/application/posts.service';
 import { PostsRepo } from './features/posts/infrastructure/posts.repo';
 import { PostsQueryRepo } from './features/posts/infrastructure/posts.query.repo';
 import { BlogsController } from './features/blogs/api/blogs.controller';
@@ -62,6 +61,9 @@ import { ResendConfirmationHandler } from './features/auth/application/resendCon
 import { ConfirmRegistrationHandler } from './features/auth/application/confirmRegistration.useCase';
 import { PasswordRecoveryHandler } from './features/auth/application/passwordRecovery.useCase';
 import { ConfirmPasswordRecoveryHandler } from './features/auth/application/confirmPasswordRecovery.useCase';
+import { CreatePostHandler } from './features/posts/application/create.useCase';
+import { UpdatePostHandler } from './features/posts/application/update.useCase';
+import { DeletePostHandler } from './features/posts/application/delete.useCase';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -72,7 +74,9 @@ const blogsHandlers = [
 
 const blogsProviders = [BlogsRepo, BlogsQueryRepo, ...blogsHandlers];
 
-const postsProviders = [PostsService, PostsRepo, PostsQueryRepo];
+const postsHandlers = [CreatePostHandler, UpdatePostHandler, DeletePostHandler];
+
+const postsProviders = [PostsRepo, PostsQueryRepo, ...postsHandlers];
 
 const commentsProviders = [CommentsService, CommentsRepo, CommentsQueryRepo];
 
