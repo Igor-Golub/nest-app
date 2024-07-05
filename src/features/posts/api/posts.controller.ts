@@ -84,13 +84,17 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(
+  public async update(
     @Param() { id }: UpdatePostParams,
     @Body() updatePostDto: UpdatePostDto,
   ) {
     const command = new UpdatePostCommand({ postId: id, data: updatePostDto });
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    if (!result) throw new NotFoundException();
+
+    return true;
   }
 
   @Delete(':id')

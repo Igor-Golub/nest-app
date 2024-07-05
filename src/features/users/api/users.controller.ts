@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../application/users.service';
 import { UsersQueryRepo } from '../infrastructure/users.query.repo';
 import { DeleteUserDto, UsersQueryDto, CreateUserDto } from './models/input';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
@@ -19,12 +18,15 @@ import { ClientSortingService } from '../../../infrastructure/services/clientSor
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums';
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../application/create.useCase';
+import { DeleteUserCommand } from '../application/delete.useCase';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly commandBus: CommandBus,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
@@ -57,13 +59,17 @@ export class UsersController {
 
   @Post()
   public async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    const command = new CreateUserCommand(createUserDto);
+
+    return this.commandBus.execute(command);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete(@Param() { id }: DeleteUserDto) {
-    const result = await this.usersService.delete(id);
+    const command = new DeleteUserCommand({ id });
+
+    const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
 

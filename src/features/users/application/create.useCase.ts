@@ -1,22 +1,26 @@
-import { Injectable } from '@nestjs/common';
 import { UsersRepo } from '../infrastructure/users.repo';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class UsersService {
+export class CreateUserCommand {
+  constructor(readonly payload: ServicesModels.CreateUserInput) {}
+}
+
+@CommandHandler(CreateUserCommand)
+export class UsersService implements ICommandHandler<CreateUserCommand> {
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
   ) {}
 
-  public async create(createUserDto: ServicesModels.CreateUserInput) {
+  public async execute({ payload }: CreateUserCommand) {
     const { hash } = await this.cryptoService.createSaltAndHash(
-      createUserDto.password,
+      payload.password,
     );
 
     const { _id } = await this.usersRepo.create({
-      login: createUserDto.login,
-      email: createUserDto.email,
+      login: payload.login,
+      email: payload.email,
       hash,
       confirmation: {
         code: 'confirmed',
@@ -26,14 +30,10 @@ export class UsersService {
     });
 
     return {
-      email: createUserDto.email,
-      login: createUserDto.login,
+      email: payload.email,
+      login: payload.login,
       id: _id.toString(),
       createdAt: _id.getTimestamp().toISOString(),
     };
-  }
-
-  public async delete(id: string) {
-    return this.usersRepo.delete(id);
   }
 }
