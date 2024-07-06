@@ -50,19 +50,23 @@ import {
   LoginIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
-import { CreateBlogHandler } from './features/blogs/application/create.blog.useCase';
-import { DeleteBlogHandler } from './features/blogs/application/delete.blog.useCase';
-import { UpdateBlogHandler } from './features/blogs/application/update.blog.useCase';
-import { CreatePostForBlogHandler } from './features/blogs/application/create.post.for.blog.useCase';
+import { CreateBlogHandler } from './features/blogs/application/createBlog.useCase';
+import { DeleteBlogHandler } from './features/blogs/application/deleteBlog.useCase';
+import { UpdateBlogHandler } from './features/blogs/application/updateBlog.useCase';
+import { CreatePostForBlogHandler } from './features/blogs/application/createPostForBlog.useCase';
 import { RegisterHandler } from './features/auth/application/register.useCase';
 import { LoginHandler } from './features/auth/application/login.useCase';
 import { ResendConfirmationHandler } from './features/auth/application/resendConfirmation.useCase';
 import { ConfirmRegistrationHandler } from './features/auth/application/confirmRegistration.useCase';
 import { PasswordRecoveryHandler } from './features/auth/application/passwordRecovery.useCase';
 import { ConfirmPasswordRecoveryHandler } from './features/auth/application/confirmPasswordRecovery.useCase';
-import { CreatePostHandler } from './features/posts/application/create.useCase';
-import { UpdatePostHandler } from './features/posts/application/update.useCase';
-import { DeletePostHandler } from './features/posts/application/delete.useCase';
+import {
+  CreatePostHandler,
+  UpdatePostHandler,
+  DeletePostHandler,
+  UpdatePostLikeStatusHandler,
+  CreatePostCommentHandler,
+} from './features/posts/application';
 import { UpdateCommentLikeHandler } from './features/comments/application/update.useCase';
 import { UpdateCommentLikeStatusHandler } from './features/comments/application/updateStatus.useCase';
 import { DeleteCommentHandler } from './features/comments/application/delete.useCase';
@@ -77,7 +81,13 @@ const blogsHandlers = [
 
 const blogsProviders = [BlogsRepo, BlogsQueryRepo, ...blogsHandlers];
 
-const postsHandlers = [CreatePostHandler, UpdatePostHandler, DeletePostHandler];
+const postsHandlers = [
+  CreatePostHandler,
+  UpdatePostHandler,
+  DeletePostHandler,
+  UpdatePostLikeStatusHandler,
+  CreatePostCommentHandler,
+];
 
 const postsProviders = [PostsRepo, PostsQueryRepo, ...postsHandlers];
 

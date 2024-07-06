@@ -6,15 +6,15 @@ interface DeletePostCommandPayload {
   id: string;
 }
 
-export class UpdatePostCommand {
+export class DeletePostCommand {
   constructor(readonly payload: DeletePostCommandPayload) {}
 }
 
-@CommandHandler(UpdatePostCommand)
-export class DeletePostHandler implements ICommandHandler<UpdatePostCommand> {
+@CommandHandler(DeletePostCommand)
+export class DeletePostHandler implements ICommandHandler<DeletePostCommand> {
   constructor(private readonly postsRepo: PostsRepo) {}
 
-  public async execute({ payload: { id } }: UpdatePostCommand) {
+  public async execute({ payload: { id } }: DeletePostCommand) {
     const result = await this.postsRepo.delete(id);
 
     if (!result) throw new NotFoundException();

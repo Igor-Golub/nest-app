@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsQueryRepo } from '../infrastructure/posts.query.repo';
 import { CommentsQueryRepo } from '../../comments/infrastructure/comments.query.repo';
@@ -19,16 +20,25 @@ import {
   PostsQueryParams,
   UpdatePostDto,
   UpdatePostParams,
+  UpdatePostLikeStatus,
+  UpdatePostLikeStatusParams,
+  CreatePostCommentParams,
+  CreatePostComment,
 } from './models/input';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { FiltersType } from '../../../common/enums';
-import { CreatePostCommand } from '../application/create.useCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { BlogsQueryRepo } from '../../blogs/infrastructure/blogs.query.repo';
-import { UpdatePostCommand } from '../application/update.useCase';
-import { DeleteBlogCommand } from '../../blogs/application/delete.blog.useCase';
+import {
+  UpdatePostCommand,
+  DeletePostCommand,
+  CreatePostCommand,
+  UpdatePostLikeStatusCommand,
+  CreatePostCommentCommand,
+} from '../application';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -57,7 +67,7 @@ export class PostsController {
     return this.postsQueryRepo.getById(id);
   }
 
-  @Get(':id')
+  @Get(':id/comments')
   public async getComments(
     @Param('id') id: string,
     @Query() query: Api.CommonQuery,
@@ -99,9 +109,35 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param() { id }: DeletePostParams) {
-    const command = new DeleteBlogCommand({ id });
+  public delete(@Param() { id }: DeletePostParams) {
+    const command = new DeletePostCommand({ id });
 
     return this.commandBus.execute(command);
+  }
+
+  @Post(':id/comments')
+  public async createComment(
+    @Param() { id }: CreatePostCommentParams,
+    @Body() { content }: CreatePostComment,
+  ) {
+    const command = new CreatePostCommentCommand({ postId: id, content });
+
+    return 'createComment';
+  }
+
+  @Put(':id/like-status')
+  @UseGuards(JwtAuthGuard)
+  public async updateLikeStatus(
+    @Param() { id }: UpdatePostLikeStatusParams,
+    @Body() { likeStatus }: UpdatePostLikeStatus,
+  ) {
+    const command = new UpdatePostLikeStatusCommand({
+      postId: id,
+      likeStatus,
+    });
+
+    const result = await this.commandBus.execute(command);
+
+    return 'updateLikeStatus';
   }
 }
