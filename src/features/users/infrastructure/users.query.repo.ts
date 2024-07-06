@@ -76,4 +76,8 @@ export class UsersQueryRepo {
 
     return result > 0;
   }
+
+  public async getById(id: string) {
+    return this.userModel.findById(id);
+  }
 }

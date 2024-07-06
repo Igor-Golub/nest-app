@@ -16,15 +16,17 @@ export class PostsQueryRepo {
     private readonly filterService: ClientFilterService<ViewModels.Post>,
   ) {}
 
-  public async getById(id: string) {
+  public async getById(id: string, isLoggedUser: boolean = false) {
     const post = await this.postModel.findById(id);
 
     if (!post) throw new NotFoundException();
 
-    return this.mapToViewModels([post])[0];
+    console.log(post);
+
+    return this.mapToViewModels([post], isLoggedUser)[0];
   }
 
-  public async getWithPagination() {
+  public async getWithPagination(isLoggedUser: boolean = false) {
     const { pageNumber, pageSize } = this.paginationService.getPagination();
     const sort = this.sortingService.createSortCondition() as any;
     const filters = this.filterService.getFilters();
@@ -42,16 +44,27 @@ export class PostsQueryRepo {
       page: pageNumber,
       pageSize,
       totalCount: amountOfItems,
-      items: this.mapToViewModels(data),
+      items: this.mapToViewModels(data, isLoggedUser),
       pagesCount: Math.ceil(amountOfItems / pageSize),
     };
   }
 
   private mapToViewModels(
-    data: DBModels.MongoResponseEntity<DBModels.Post>[],
+    data,
+    isLoggedUser: boolean,
   ): ViewModels.PostWithFullLikes[] {
     return data.map(
-      ({ _id, content, blogName, blogId, title, shortDescription }) => ({
+      ({
+        _id,
+        content,
+        blogName,
+        blogId,
+        title,
+        shortDescription,
+        likesCount,
+        dislikesCount,
+        currentLikeStatus,
+      }) => ({
         id: _id.toString(),
         createdAt: _id.getTimestamp().toISOString(),
         content,
@@ -60,9 +73,10 @@ export class PostsQueryRepo {
         title,
         shortDescription,
         extendedLikesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatus.None,
+          likesCount,
+          dislikesCount,
+          myStatus: currentLikeStatus,
+          // myStatus: isLoggedUser ? currentLikeStatus : LikeStatus.None,
           newestLikes: [],
         },
       }),

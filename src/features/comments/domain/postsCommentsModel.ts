@@ -2,40 +2,35 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { LikeStatus } from '../../../common/enums';
 
 @Schema({
-  collection: 'posts',
+  collection: 'comments',
   timestamps: true,
-  versionKey: false,
 })
-export class PostModel {
+export class PostsCommentsModel {
   @Prop({
-    required: true,
     type: String,
+    required: true,
   })
-  title: string;
+  postId: string;
 
   @Prop({
-    required: true,
     type: String,
-  })
-  shortDescription: string;
-
-  @Prop({
     required: true,
-    type: String,
+    min: 20,
+    max: 300,
   })
   content: string;
 
   @Prop({
-    required: true,
     type: String,
+    required: true,
   })
-  blogId: string;
+  userId: string;
 
   @Prop({
-    required: true,
     type: String,
+    required: true,
   })
-  blogName: string;
+  userLogin: string;
 
   @Prop({
     type: Number,
@@ -56,4 +51,5 @@ export class PostModel {
   currentLikeStatus: LikeStatus;
 }
 
-export const PostSchema = SchemaFactory.createForClass(PostModel);
+export const PostsCommentsSchema =
+  SchemaFactory.createForClass(PostsCommentsModel);

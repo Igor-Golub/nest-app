@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CommentsModel } from '../domain/commentsModel';
+import { PostsCommentsModel } from '../domain/postsCommentsModel';
 import { Model } from 'mongoose';
-import { LikeStatus } from '../../../common/enums/Common';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
@@ -10,15 +9,15 @@ import { ClientFilterService } from '../../../infrastructure/services/filter.ser
 @Injectable()
 export class CommentsQueryRepo {
   constructor(
-    @InjectModel(CommentsModel.name)
-    private readonly commentsModel: Model<CommentsModel>,
+    @InjectModel(PostsCommentsModel.name)
+    private readonly postsCommentsModel: Model<PostsCommentsModel>,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Comment>,
   ) {}
 
   public async getById(id: string) {
-    const comment = this.commentsModel.findById(id).lean();
+    const comment = this.postsCommentsModel.findById(id).lean();
 
     if (!comment) throw new NotFoundException();
 
@@ -27,28 +26,47 @@ export class CommentsQueryRepo {
 
   public async getWithPagination() {
     const { pageNumber, pageSize } = this.paginationService.getPagination();
-    const sort = this.sortingService.createSortCondition();
+    const sort = this.sortingService.createSortCondition() as any;
     const filters = this.filterService.getFilters();
+
+    const data = await this.postsCommentsModel
+      .find(filters)
+      .sort(sort)
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .lean();
+
+    const amountOfItems = await this.postsCommentsModel.countDocuments(filters);
+
+    return {
+      page: pageNumber,
+      pageSize,
+      totalCount: amountOfItems,
+      items: data.map(this.mapToViewModel),
+      pagesCount: Math.ceil(amountOfItems / pageSize),
+    };
   }
 
-  private mapToViewModel(
-    comment: DBModels.MongoResponseEntity<DBModels.Comment>,
-  ): ViewModels.Comment {
+  private mapToViewModel(comment): ViewModels.Comment {
     const {
       _id,
       content,
-      commentatorInfo: { userId: commentatorInfoUserId, userLogin },
+      userId,
+      userLogin,
+      likesCount,
+      dislikesCount,
+      currentLikeStatus,
     } = comment;
 
     return {
-      id: _id.toString(),
-      createdAt: _id.getTimestamp().toISOString(),
+      id: _id?.toString(),
+      createdAt: _id?.getTimestamp()?.toISOString(),
       content,
-      commentatorInfo: { userId: commentatorInfoUserId, userLogin },
+      commentatorInfo: { userId, userLogin },
       likesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatus.None,
+        likesCount,
+        dislikesCount,
+        myStatus: currentLikeStatus,
       },
     };
   }

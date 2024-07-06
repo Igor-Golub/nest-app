@@ -25,15 +25,15 @@ import { UsersController } from './features/users/api/users.controller';
 import { AuthController } from './features/auth/api/auth.controller';
 import { CommentsController } from './features/comments/api/comments.controller';
 import { CommentsService } from './features/comments/application/comments.service';
-import { CommentsRepo } from './features/comments/infrastructure/comments.repo';
+import { PostsCommentsRepo } from './features/comments/infrastructure/comments.repo';
 import { CommentsQueryRepo } from './features/comments/infrastructure/comments.query.repo';
 import { AuthService } from './features/auth/application/auth.service';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
 import {
-  CommentsModel,
-  CommentsSchema,
-} from './features/comments/domain/commentsModel';
+  PostsCommentsModel,
+  PostsCommentsSchema,
+} from './features/comments/domain/postsCommentsModel';
 import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
 import { EmailService } from './infrastructure/managers/email.service';
 import { SmtpService } from './infrastructure/managers/smtp.service';
@@ -71,6 +71,11 @@ import { UpdateCommentLikeHandler } from './features/comments/application/update
 import { UpdateCommentLikeStatusHandler } from './features/comments/application/updateStatus.useCase';
 import { DeleteCommentHandler } from './features/comments/application/delete.useCase';
 import { CreateUserHandler } from './features/users/application/create.useCase';
+import {
+  PostLikesModel,
+  PostLikesSchema,
+} from './features/posts/domain/postLikesModel';
+import { PostsLikesRepo } from './features/posts/infrastructure/postsLikes.repo';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -89,7 +94,12 @@ const postsHandlers = [
   CreatePostCommentHandler,
 ];
 
-const postsProviders = [PostsRepo, PostsQueryRepo, ...postsHandlers];
+const postsProviders = [
+  PostsRepo,
+  PostsQueryRepo,
+  PostsLikesRepo,
+  ...postsHandlers,
+];
 
 const commentsHandlers = [
   UpdateCommentLikeHandler,
@@ -99,7 +109,7 @@ const commentsHandlers = [
 
 const commentsProviders = [
   CommentsService,
-  CommentsRepo,
+  PostsCommentsRepo,
   CommentsQueryRepo,
   ...commentsHandlers,
 ];
@@ -149,6 +159,10 @@ const authProviders = [AuthService, ...authHandlers];
         schema: PostSchema,
       },
       {
+        name: PostLikesModel.name,
+        schema: PostLikesSchema,
+      },
+      {
         name: BlogModel.name,
         schema: BlogSchema,
       },
@@ -157,8 +171,8 @@ const authProviders = [AuthService, ...authHandlers];
         schema: UserSchema,
       },
       {
-        name: CommentsModel.name,
-        schema: CommentsSchema,
+        name: PostsCommentsModel.name,
+        schema: PostsCommentsSchema,
       },
       {
         name: RecoveryModel.name,

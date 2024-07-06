@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -39,12 +40,15 @@ import {
   CreatePostCommentCommand,
 } from '../application';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUserId } from '../../../common/pipes/current.userId';
+import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly paginationService: PaginationService,
@@ -115,29 +119,61 @@ export class PostsController {
     return this.commandBus.execute(command);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/comments')
   public async createComment(
+    @CurrentUserId() currentUserId: string,
     @Param() { id }: CreatePostCommentParams,
     @Body() { content }: CreatePostComment,
   ) {
-    const command = new CreatePostCommentCommand({ postId: id, content });
+    const user = await this.usersQueryRepo.getById(currentUserId);
 
-    return 'createComment';
+    if (!user) throw new BadRequestException();
+
+    const post = await this.postsQueryRepo.getById(id);
+
+    if (!post) throw new BadRequestException();
+
+    const command = new CreatePostCommentCommand({
+      content,
+      postId: id,
+      userId: currentUserId,
+      userLogin: user.login,
+    });
+
+    const result = await this.commandBus.execute(command);
+
+    if (!result) throw new BadRequestException();
+
+    return {
+      id: result._id.toString(),
+      content: result.content,
+      commentatorInfo: {
+        userId: result.userId,
+        userLogin: result.userLogin,
+      },
+      createdAt: result._id.getTimestamp().toISOString(),
+      likesInfo: {
+        likesCount: result.likesCount,
+        dislikesCount: result.dislikesCount,
+        myStatus: result.currentLikeStatus,
+      },
+    };
   }
 
   @Put(':id/like-status')
   @UseGuards(JwtAuthGuard)
   public async updateLikeStatus(
+    @CurrentUserId() currentUserId: string,
     @Param() { id }: UpdatePostLikeStatusParams,
     @Body() { likeStatus }: UpdatePostLikeStatus,
   ) {
     const command = new UpdatePostLikeStatusCommand({
       postId: id,
       likeStatus,
+      userId: currentUserId,
     });
 
-    const result = await this.commandBus.execute(command);
-
-    return 'updateLikeStatus';
+    return await this.commandBus.execute(command);
   }
 }
