@@ -3,6 +3,7 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
@@ -11,6 +12,8 @@ const APP_PREFIX = '/api';
 
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
+
+  app.use(cookieParser());
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 

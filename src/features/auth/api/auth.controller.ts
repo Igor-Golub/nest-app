@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { LoginDto } from './models/input/loginDto';
@@ -25,6 +26,7 @@ import { ConfirmRegistrationCommand } from '../application/confirmRegistration.u
 import { ConfirmPasswordRecoveryCommand } from '../application/confirmPasswordRecovery.useCase';
 import { PasswordRecoveryCommand } from '../application/passwordRecovery.useCase';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { Response } from 'express';
 
 enum AuthRoutes {
   Me = '/me',
@@ -54,12 +56,21 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post(AuthRoutes.Login)
   public async login(
+    @Res({ passthrough: true }) response: Response,
     @CurrentUserId() currentUserId: string,
     @Body() loginDto: LoginDto,
   ) {
     const command = new LoginCommand({ userId: currentUserId });
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    // TODO create cookies service
+    response.cookie('authToken', result.accessToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return result;
   }
 
   @UseGuards(ThrottlerGuard)
