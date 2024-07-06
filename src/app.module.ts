@@ -17,7 +17,6 @@ import { BlogsController } from './features/blogs/api/blogs.controller';
 import { BlogsRepo } from './features/blogs/infrastructure/blogs.repo';
 import { BlogsQueryRepo } from './features/blogs/infrastructure/blogs.query.repo';
 import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
-import { UsersService } from './features/users/application/users.service';
 import { UsersRepo } from './features/users/infrastructure/users.repo';
 import { UsersQueryRepo } from './features/users/infrastructure/users.query.repo';
 import { UserModel, UserSchema } from './features/users/domain/userEntity';
@@ -64,6 +63,10 @@ import { ConfirmPasswordRecoveryHandler } from './features/auth/application/conf
 import { CreatePostHandler } from './features/posts/application/create.useCase';
 import { UpdatePostHandler } from './features/posts/application/update.useCase';
 import { DeletePostHandler } from './features/posts/application/delete.useCase';
+import { UpdateCommentLikeHandler } from './features/comments/application/update.useCase';
+import { UpdateCommentLikeStatusHandler } from './features/comments/application/updateStatus.useCase';
+import { DeleteCommentHandler } from './features/comments/application/delete.useCase';
+import { CreateUserHandler } from './features/users/application/create.useCase';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -78,9 +81,22 @@ const postsHandlers = [CreatePostHandler, UpdatePostHandler, DeletePostHandler];
 
 const postsProviders = [PostsRepo, PostsQueryRepo, ...postsHandlers];
 
-const commentsProviders = [CommentsService, CommentsRepo, CommentsQueryRepo];
+const commentsHandlers = [
+  UpdateCommentLikeHandler,
+  UpdateCommentLikeStatusHandler,
+  DeleteCommentHandler,
+];
 
-const usersProviders = [UsersService, UsersRepo, UsersQueryRepo];
+const commentsProviders = [
+  CommentsService,
+  CommentsRepo,
+  CommentsQueryRepo,
+  ...commentsHandlers,
+];
+
+const usersHandlers = [CreateUserHandler];
+
+const usersProviders = [UsersRepo, UsersQueryRepo, ...usersHandlers];
 
 const authHandlers = [
   LoginHandler,

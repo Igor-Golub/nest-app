@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsService } from '../../posts/application/posts.service';
+import { PostsRepo } from '../../posts/infrastructure/posts.repo';
 
 export class CreatePostForBlogCommand {
   constructor(
     readonly payload: {
       blogId: string;
+      blogName: string;
       createData: {
         title: string;
         content: string;
@@ -18,11 +19,12 @@ export class CreatePostForBlogCommand {
 export class CreatePostForBlogHandler
   implements ICommandHandler<CreatePostForBlogCommand>
 {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsRepo: PostsRepo) {}
 
   public async execute({ payload }: CreatePostForBlogCommand) {
-    const { id } = await this.postsService.create({
+    const { id } = await this.postsRepo.create({
       blogId: payload.blogId,
+      blogName: payload.blogName,
       ...payload.createData,
     });
 

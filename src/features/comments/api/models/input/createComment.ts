@@ -1,4 +1,4 @@
-export class CreateCommentDto {
+export class CreateComment {
   title: string;
 
   shortDescription: string;

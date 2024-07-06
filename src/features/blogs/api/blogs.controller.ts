@@ -104,6 +104,7 @@ export class BlogsController {
 
     const command = new CreatePostForBlogCommand({
       blogId,
+      blogName: blog.name,
       createData: createCommentDto,
     });
 
