@@ -29,11 +29,11 @@ import { ClientSortingService } from '../../../infrastructure/services/clientSor
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/create.blog.useCase';
+import { CreateBlogCommand } from '../application/createBlog.useCase';
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
-import { DeleteBlogCommand } from '../application/delete.blog.useCase';
-import { UpdateBlogCommand } from '../application/update.blog.useCase';
-import { CreatePostForBlogCommand } from '../application/create.post.for.blog.useCase';
+import { DeleteBlogCommand } from '../application/deleteBlog.useCase';
+import { UpdateBlogCommand } from '../application/updateBlog.useCase';
+import { CreatePostForBlogCommand } from '../application/createPostForBlog.useCase';
 
 @Controller('blogs')
 export class BlogsController {
@@ -52,9 +52,7 @@ export class BlogsController {
       query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
-
     this.filterService.setValue('name', searchNameTerm, FiltersType.InnerText);
-
     this.sortingService.setValue(sortBy, sortDirection);
 
     return this.blogsQueryRepo.getWithPagination();
