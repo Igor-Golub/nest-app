@@ -5,12 +5,12 @@ import { LikeStatus } from '../../../common/enums';
   collection: 'comments',
   timestamps: true,
 })
-export class PostsCommentsModel {
+export class PostCommentLikeModel {
   @Prop({
     type: String,
     required: true,
   })
-  commentId: string;
+  parentId: string;
 
   @Prop({
     required: true,
@@ -23,8 +23,14 @@ export class PostsCommentsModel {
     type: String,
     required: true,
   })
+  userLogin: string;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
   userId: string;
 }
 
-export const PostsCommentsSchema =
-  SchemaFactory.createForClass(PostsCommentsModel);
+export const PostCommentLikeSchema =
+  SchemaFactory.createForClass(PostCommentLikeModel);

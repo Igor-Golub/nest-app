@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,30 +26,38 @@ import {
 } from './models/input/updateCommentLikeStatus';
 import { CommandBus } from '@nestjs/cqrs';
 import { CommentsQuery } from './models/input/commentQuery';
+import { CommentsQueryRepo } from '../infrastructure/comments.query.repo';
+import { CurrentUserId } from '../../../common/pipes/current.userId';
+import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly commentsQueryRepo: CommentsQueryRepo,
+  ) {}
 
   @Get(':id')
   public async getById(@Param() { id }: CommentsQuery) {
-    return [];
-  }
+    const comment = await this.commentsQueryRepo.getById(id);
 
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Put(':id/like-status')
-  public async updateStatus(
-    @Param('id') { id }: UpdateCommentLikeStatusParams,
-    @Body() updateCommentDto: UpdateCommentLikeStatus,
-  ) {
-    const command = new UpdateCommentLikeStatusCommand({});
+    if (!comment) throw new NotFoundException();
 
-    const result = await this.commandBus.execute(command);
-
-    if (!result) throw new NotFoundException();
-
-    return 'updateStatus';
+    return {
+      id: comment._id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.userId,
+        userLogin: comment.userLogin,
+      },
+      createdAt: comment._id._id.getTimestamp(),
+      likesInfo: {
+        likesCount: comment.likesCount,
+        dislikesCount: comment.dislikesCount,
+        myStatus: comment.currentLikeStatus,
+      },
+    };
   }
 
   // TODO: If try delete the comment that is not your own
@@ -56,29 +65,54 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   public async update(
-    @Param('id') { id }: UpdateCommentParams,
+    @Param() { id }: UpdateCommentParams,
     @Body() updateCommentDto: UpdateComment,
   ) {
-    const command = new UpdateCommentLikeCommand({});
+    const command = new UpdateCommentLikeCommand({
+      id,
+      content: updateCommentDto.content,
+    });
 
     const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
-
-    return 'update';
   }
 
   // TODO: If try delete the comment that is not your own
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  public async deleteComment(@Param('id') { id }: DeleteCommentParams) {
-    const command = new DeleteCommentCommand({});
+  public async delete(@Param() { id }: DeleteCommentParams) {
+    const command = new DeleteCommentCommand({ id });
 
     const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
+  }
 
-    return 'deleteComment';
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id/like-status')
+  public async updateStatus(
+    @CurrentUserId() currentUserId: string,
+    @Param() { id: commentId }: UpdateCommentLikeStatusParams,
+    @Body() updateCommentDto: UpdateCommentLikeStatus,
+  ) {
+    const { likeStatus } = updateCommentDto;
+
+    const user = await this.usersQueryRepo.getById(currentUserId);
+
+    if (!user) throw new BadRequestException();
+
+    const command = new UpdateCommentLikeStatusCommand({
+      commentId,
+      nextStatus: likeStatus,
+      userLogin: user.login,
+      userId: currentUserId,
+    });
+
+    const result = await this.commandBus.execute(command);
+
+    if (!result) throw new NotFoundException();
   }
 }

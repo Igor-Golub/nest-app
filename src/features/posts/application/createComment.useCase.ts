@@ -19,6 +19,6 @@ export class CreatePostCommentHandler
   constructor(private readonly postsCommentsRepo: PostsCommentsRepo) {}
 
   public async execute({ payload }: CreatePostCommentCommand) {
-    return this.postsCommentsRepo.createComment(payload);
+    return this.postsCommentsRepo.create(payload);
   }
 }

@@ -17,11 +17,7 @@ export class CommentsQueryRepo {
   ) {}
 
   public async getById(id: string) {
-    const comment = this.postsCommentsModel.findById(id).lean();
-
-    if (!comment) throw new NotFoundException();
-
-    return this.mapToViewModel(comment);
+    return this.postsCommentsModel.findById(id).lean();
   }
 
   public async getWithPagination() {

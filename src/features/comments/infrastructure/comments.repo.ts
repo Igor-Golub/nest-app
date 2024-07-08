@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsCommentsModel } from '../domain/postsCommentsModel';
 import { Model } from 'mongoose';
+import { LikeStatus } from '../../../common/enums';
 
 interface CreatePostCommentDto {
   postId: string;
@@ -17,7 +18,21 @@ export class PostsCommentsRepo {
     private readonly postCommentsModel: Model<PostsCommentsModel>,
   ) {}
 
-  public async createComment(createPostCommentDto: CreatePostCommentDto) {
+  public async create(createPostCommentDto: CreatePostCommentDto) {
     return this.postCommentsModel.create(createPostCommentDto);
+  }
+
+  public async update(id: string, content: string) {
+    return this.postCommentsModel.findByIdAndUpdate(id, { content });
+  }
+
+  public async delete(id: string) {
+    return this.postCommentsModel.findByIdAndDelete(id);
+  }
+
+  public async updateLikeStatus(id: string, nextStatus: LikeStatus) {
+    return this.postCommentsModel.findByIdAndUpdate(id, {
+      currentLikeStatus: nextStatus,
+    });
   }
 }
