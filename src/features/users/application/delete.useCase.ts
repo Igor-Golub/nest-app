@@ -6,7 +6,7 @@ export class DeleteUserCommand {
 }
 
 @CommandHandler(DeleteUserCommand)
-export class UsersService implements ICommandHandler<DeleteUserCommand> {
+export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersRepo: UsersRepo) {}
 
   public async execute({ payload: { id } }: DeleteUserCommand) {

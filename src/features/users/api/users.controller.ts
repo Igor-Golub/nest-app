@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepo } from '../infrastructure/users.query.repo';
+import { UsersQueryRepo } from '../infrastructure';
 import { DeleteUserDto, UsersQueryDto, CreateUserDto } from './models/input';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
@@ -19,8 +19,7 @@ import { ClientFilterService } from '../../../infrastructure/services/filter.ser
 import { FiltersType } from '../../../common/enums';
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from '../application/create.useCase';
-import { DeleteUserCommand } from '../application/delete.useCase';
+import { CreateUserCommand, DeleteUserCommand } from '../application';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')

@@ -11,21 +11,26 @@ import { ClientFilterService } from './infrastructure/services/filter.service';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { PostModel, PostSchema } from './features/posts/domain/postModel';
 import { PostsController } from './features/posts/api/posts.controller';
-import { PostsRepo } from './features/posts/infrastructure/posts.repo';
-import { PostsQueryRepo } from './features/posts/infrastructure/posts.query.repo';
+import {
+  PostsRepo,
+  PostsQueryRepo,
+  PostsLikesRepo,
+} from './features/posts/infrastructure';
 import { BlogsController } from './features/blogs/api/blogs.controller';
-import { BlogsRepo } from './features/blogs/infrastructure/blogs.repo';
-import { BlogsQueryRepo } from './features/blogs/infrastructure/blogs.query.repo';
+import { BlogsRepo, BlogsQueryRepo } from './features/blogs/infrastructure';
 import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
-import { UsersRepo } from './features/users/infrastructure/users.repo';
-import { UsersQueryRepo } from './features/users/infrastructure/users.query.repo';
+import { UsersRepo, UsersQueryRepo } from './features/users/infrastructure';
 import { UserModel, UserSchema } from './features/users/domain/userEntity';
 import { TestingController } from './features/testing/api/testing.controller';
 import { UsersController } from './features/users/api/users.controller';
 import { AuthController } from './features/auth/api/auth.controller';
 import { CommentsController } from './features/comments/api/comments.controller';
-import { PostsCommentsRepo } from './features/comments/infrastructure/comments.repo';
-import { CommentsQueryRepo } from './features/comments/infrastructure/comments.query.repo';
+import {
+  PostsCommentsRepo,
+  CommentsQueryRepo,
+  PostsCommentsLikesRepo,
+  PostsCommentsLikesQueryRepo,
+} from './features/comments/infrastructure';
 import { AuthService } from './features/auth/application/auth.service';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
@@ -49,16 +54,20 @@ import {
   LoginIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
-import { CreateBlogHandler } from './features/blogs/application/createBlog.useCase';
-import { DeleteBlogHandler } from './features/blogs/application/deleteBlog.useCase';
-import { UpdateBlogHandler } from './features/blogs/application/updateBlog.useCase';
-import { CreatePostForBlogHandler } from './features/blogs/application/createPostForBlog.useCase';
-import { RegisterHandler } from './features/auth/application/register.useCase';
-import { LoginHandler } from './features/auth/application/login.useCase';
-import { ResendConfirmationHandler } from './features/auth/application/resendConfirmation.useCase';
-import { ConfirmRegistrationHandler } from './features/auth/application/confirmRegistration.useCase';
-import { PasswordRecoveryHandler } from './features/auth/application/passwordRecovery.useCase';
-import { ConfirmPasswordRecoveryHandler } from './features/auth/application/confirmPasswordRecovery.useCase';
+import {
+  CreateBlogHandler,
+  DeleteBlogHandler,
+  UpdateBlogHandler,
+  CreatePostForBlogHandler,
+} from './features/blogs/application';
+import {
+  RegisterHandler,
+  LoginHandler,
+  ResendConfirmationHandler,
+  ConfirmRegistrationHandler,
+  PasswordRecoveryHandler,
+  ConfirmPasswordRecoveryHandler,
+} from './features/auth/application';
 import {
   CreatePostCommentHandler,
   CreatePostHandler,
@@ -66,21 +75,23 @@ import {
   UpdatePostHandler,
   UpdatePostLikeStatusHandler,
 } from './features/posts/application';
-import { UpdateCommentLikeHandler } from './features/comments/application/update.useCase';
-import { UpdateCommentLikeStatusHandler } from './features/comments/application/updateStatus.useCase';
-import { DeleteCommentHandler } from './features/comments/application/delete.useCase';
-import { CreateUserHandler } from './features/users/application/create.useCase';
+import {
+  DeleteCommentHandler,
+  UpdateCommentLikeHandler,
+  UpdateCommentLikeStatusHandler,
+} from './features/comments/application';
+import {
+  CreateUserHandler,
+  DeleteUserHandler,
+} from './features/users/application';
 import {
   PostLikesModel,
   PostLikesSchema,
 } from './features/posts/domain/postLikesModel';
-import { PostsLikesRepo } from './features/posts/infrastructure/postsLikes.repo';
-import { PostsCommentsLikesRepo } from './features/comments/infrastructure/postCommentsLikes.repo';
 import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from './features/comments/domain/postsCommentsLikesModel';
-import { PostsCommentsLikesQueryRepo } from './features/comments/infrastructure/postCommentsLikes.query.repo';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -120,7 +131,7 @@ const commentsProviders = [
   ...commentsHandlers,
 ];
 
-const usersHandlers = [CreateUserHandler];
+const usersHandlers = [CreateUserHandler, DeleteUserHandler];
 
 const usersProviders = [UsersRepo, UsersQueryRepo, ...usersHandlers];
 

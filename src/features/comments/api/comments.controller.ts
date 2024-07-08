@@ -12,23 +12,23 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { UpdateCommentLikeStatusCommand } from '../application/updateStatus.useCase';
-import { UpdateCommentLikeCommand } from '../application/update.useCase';
-import { DeleteCommentCommand } from '../application/delete.useCase';
-import { DeleteCommentParams } from './models/input/deleteComment';
+import {
+  UpdateCommentLikeStatusCommand,
+  UpdateCommentLikeCommand,
+  DeleteCommentCommand,
+} from '../application';
 import {
   UpdateComment,
+  CommentsQuery,
   UpdateCommentParams,
-} from './models/input/updateComment';
-import {
+  DeleteCommentParams,
   UpdateCommentLikeStatus,
   UpdateCommentLikeStatusParams,
-} from './models/input/updateCommentLikeStatus';
+} from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQuery } from './models/input/commentQuery';
 import { CommentsQueryRepo } from '../infrastructure/comments.query.repo';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
-import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
+import { UsersQueryRepo } from '../../users/infrastructure';
 
 @Controller('comments')
 export class CommentsController {

@@ -8,25 +8,29 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { LoginDto } from './models/input/loginDto';
-import { PasswordRecoveryDto } from './models/input/passwordRecoveryDto';
-import { ConfirmPasswordRecoveryDto } from './models/input/confirmPasswordRecoveryDto';
-import { ConfirmRegistrationDto } from './models/input/confirmRegistrationDto';
-import { RegistrationDto } from './models/input/registrationDto';
-import { ResendConfirmationDto } from './models/input/resendConfirmationDto';
-import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
+import { CommandBus } from '@nestjs/cqrs';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { Response } from 'express';
+import {
+  LoginDto,
+  PasswordRecoveryDto,
+  ConfirmPasswordRecoveryDto,
+  ConfirmRegistrationDto,
+  RegistrationDto,
+  ResendConfirmationDto,
+} from './models/input';
+import { UsersQueryRepo } from '../../users/infrastructure/';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
-import { RegisterCommand } from '../application/register.useCase';
-import { CommandBus } from '@nestjs/cqrs';
-import { LoginCommand } from '../application/login.useCase';
-import { ResendConfirmationCommand } from '../application/resendConfirmation.useCase';
-import { ConfirmRegistrationCommand } from '../application/confirmRegistration.useCase';
-import { ConfirmPasswordRecoveryCommand } from '../application/confirmPasswordRecovery.useCase';
-import { PasswordRecoveryCommand } from '../application/passwordRecovery.useCase';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { Response } from 'express';
+import {
+  RegisterCommand,
+  LoginCommand,
+  ResendConfirmationCommand,
+  ConfirmRegistrationCommand,
+  ConfirmPasswordRecoveryCommand,
+  PasswordRecoveryCommand,
+} from '../application';
 
 enum AuthRoutes {
   Me = '/me',
