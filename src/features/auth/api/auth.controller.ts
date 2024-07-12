@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
@@ -143,13 +144,7 @@ export class AuthController {
 
     const user = await this.userQueryRepo.getByEmail(email);
 
-    if (!user)
-      throw new BadRequestException([
-        {
-          field: 'email',
-          message: 'Email not found',
-        },
-      ]);
+    if (!user) throw new UnauthorizedException();
 
     const command = new ResendConfirmationCommand(resendConfirmation);
 
