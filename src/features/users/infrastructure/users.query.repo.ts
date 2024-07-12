@@ -86,4 +86,10 @@ export class UsersQueryRepo {
       email,
     });
   }
+
+  public async getByEmailOrLogin(loginOrEmail: string) {
+    return this.userModel.findOne({
+      $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
+    });
+  }
 }

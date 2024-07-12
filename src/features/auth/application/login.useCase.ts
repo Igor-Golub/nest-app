@@ -1,17 +1,37 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+import { CryptoService } from '../../../infrastructure/services/crypto.service';
+import { NotFoundException } from '@nestjs/common';
 
 export class LoginCommand {
-  constructor(readonly payload: { userId: string }) {}
+  constructor(
+    readonly payload: {
+      userId: string;
+      userHash: string;
+      password: string;
+    },
+  ) {}
 }
 
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<LoginCommand> {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly cryptoService: CryptoService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   public async execute({ payload }: LoginCommand) {
+    const compareResult = this.cryptoService.compareCredential(
+      payload.password,
+      payload.userHash,
+    );
+
+    if (!compareResult) throw new NotFoundException();
+
     return {
-      accessToken: await this.jwtService.signAsync({ sub: payload.userId }),
+      accessToken: await this.jwtService.signAsync({
+        sub: payload.userId,
+      }),
     };
   }
 }

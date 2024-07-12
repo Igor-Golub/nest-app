@@ -61,10 +61,24 @@ export class AuthController {
   @Post(AuthRoutes.Login)
   public async login(
     @Res({ passthrough: true }) response: Response,
-    @CurrentUserId() currentUserId: string,
-    @Body() loginDto: LoginDto,
+    @Body() { loginOrEmail, password }: LoginDto,
   ) {
-    const command = new LoginCommand({ userId: currentUserId });
+    const user = await this.userQueryRepo.getByEmailOrLogin(loginOrEmail);
+
+    if (!user) {
+      throw new BadRequestException([
+        {
+          field: 'loginOrEmail',
+          message: 'Password or login incorrect',
+        },
+      ]);
+    }
+
+    const command = new LoginCommand({
+      password,
+      userHash: user.hash,
+      userId: user._id.toString(),
+    });
 
     const result = await this.commandBus.execute(command);
 

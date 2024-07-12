@@ -1,4 +1,4 @@
-import { UsersRepo } from '../infrastructure/users.repo';
+import { UsersRepo } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
