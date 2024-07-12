@@ -4,14 +4,14 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class EmailTemplatesCreatorService {
   constructor(private readonly configService: ConfigService) {}
+
   public getRegistrationTemplate(login: string, code: string) {
     return `
-        <h1>Thank ${login} for your registration</h1>
-        <p>
-          To finish registration please follow the link below:
-          <a href='https://somesite.com/confirm-email?code=${code}'>complete registration</a>
+       <h1>Thank, ${login} for your registration</h1>
+        <p>To finish registration please follow the link below:
+           <a href='https://somesite.com/confirm-email?code=${code}'>complete registration</a>
         </p>
-        `;
+     `;
   }
 
   public getRecoveryTemplate(login: string, code: string) {

@@ -66,14 +66,7 @@ export class AuthController {
   ) {
     const user = await this.userQueryRepo.getByEmailOrLogin(loginOrEmail);
 
-    if (!user) {
-      throw new BadRequestException([
-        {
-          field: 'loginOrEmail',
-          message: 'Password or login incorrect',
-        },
-      ]);
-    }
+    if (!user) throw new UnauthorizedException();
 
     const command = new LoginCommand({
       password,
@@ -144,7 +137,13 @@ export class AuthController {
 
     const user = await this.userQueryRepo.getByEmail(email);
 
-    if (!user) throw new UnauthorizedException();
+    if (!user)
+      throw new BadRequestException([
+        {
+          field: 'email',
+          message: 'Email not found',
+        },
+      ]);
 
     const command = new ResendConfirmationCommand(resendConfirmation);
 
