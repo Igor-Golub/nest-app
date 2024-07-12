@@ -25,7 +25,12 @@ export class ConfirmPasswordRecoveryHandler
     );
 
     if (!recovery || isAfter(new Date(), recovery.expirationDate)) {
-      throw new BadRequestException();
+      throw new BadRequestException([
+        {
+          field: 'code',
+          message: 'Bad request',
+        },
+      ]);
     }
 
     const { hash } = await this.cryptoService.createSaltAndHash(

@@ -25,10 +25,12 @@ export class ResendConfirmationHandler
     }
 
     if (user.confirmation.isConfirmed) {
-      throw new BadRequestException({
-        message: 'User already confirmed',
-        field: 'code',
-      });
+      throw new BadRequestException([
+        {
+          message: 'User already confirmed',
+          field: 'code',
+        },
+      ]);
     }
 
     const confirmationCode = `${uuidv4()}_${user._id}`;

@@ -17,24 +17,30 @@ export class ConfirmRegistrationHandler
     const user = await this.usersRepo.findByConfirmationCode(payload.code);
 
     if (!user) {
-      throw new BadRequestException({
-        message: 'User not found',
-        field: 'code',
-      });
+      throw new BadRequestException([
+        {
+          message: 'User not found',
+          field: 'code',
+        },
+      ]);
     }
 
     if (user.confirmation.isConfirmed) {
-      throw new BadRequestException({
-        message: 'User already confirmed',
-        field: 'code',
-      });
+      throw new BadRequestException([
+        {
+          message: 'User already confirmed',
+          field: 'code',
+        },
+      ]);
     }
 
     if (isAfter(new Date(), user.confirmation.expirationDate)) {
-      throw new BadRequestException({
-        message: 'Confirmation code expired',
-        field: 'code',
-      });
+      throw new BadRequestException([
+        {
+          message: 'Confirmation code expired',
+          field: 'code',
+        },
+      ]);
     }
 
     await this.usersRepo.confirm(user._id);

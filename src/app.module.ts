@@ -92,7 +92,6 @@ import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from './features/comments/domain/postsCommentsLikesModel';
-import { HttpExceptionFilter } from './common/exceptionFilters/http-exception.filter';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -240,7 +239,6 @@ const authProviders = [AuthService, ...authHandlers];
     EmailTemplatesCreatorService,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
-    HttpExceptionFilter,
   ],
 })
 export class AppModule {}
