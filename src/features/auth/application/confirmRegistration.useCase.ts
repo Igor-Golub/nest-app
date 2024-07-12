@@ -43,6 +43,6 @@ export class ConfirmRegistrationHandler
       ]);
     }
 
-    await this.usersRepo.confirm(user._id);
+    return await this.usersRepo.confirm(user._id);
   }
 }

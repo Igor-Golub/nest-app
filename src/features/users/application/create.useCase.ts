@@ -24,7 +24,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
       hash,
       confirmation: {
         code: 'confirmed',
-        isConfirmed: false,
+        isConfirmed: true,
         expirationDate: new Date(),
       },
     });

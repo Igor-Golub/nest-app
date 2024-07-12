@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Post,
   Res,
   UseGuards,
@@ -23,7 +22,6 @@ import {
 } from './models/input';
 import { UsersQueryRepo } from '../../users/infrastructure/';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import {
   ConfirmPasswordRecoveryCommand,
@@ -59,7 +57,6 @@ export class AuthController {
   }
 
   @UseGuards(ThrottlerGuard)
-  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post(AuthRoutes.Login)
   public async login(
@@ -132,7 +129,13 @@ export class AuthController {
 
     const user = await this.userQueryRepo.getByEmail(email);
 
-    if (!user) throw new BadRequestException();
+    if (!user)
+      throw new BadRequestException([
+        {
+          field: 'email',
+          message: 'Email not found',
+        },
+      ]);
 
     const command = new ResendConfirmationCommand(resendConfirmation);
 
