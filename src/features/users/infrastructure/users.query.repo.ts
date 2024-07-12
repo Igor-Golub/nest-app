@@ -80,4 +80,10 @@ export class UsersQueryRepo {
   public async getById(id: string) {
     return this.userModel.findById(id);
   }
+
+  public async getByEmail(email: string) {
+    return this.userModel.findOne({
+      email,
+    });
+  }
 }

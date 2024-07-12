@@ -34,6 +34,10 @@ export class ClientFilterService<ViewEntity>
 
   private value: FilterQuery<ViewEntity> = {};
 
+  private reset() {
+    this.value = {};
+  }
+
   public setValue(filed: string, value: string | null, type: FiltersType) {
     this.value = this.mangoMapper[type](filed, value);
   }
@@ -43,6 +47,10 @@ export class ClientFilterService<ViewEntity>
   }
 
   public getFilters(): FilterQuery<ViewEntity> {
-    return this.value;
+    const value = this.value;
+
+    this.reset();
+
+    return value;
   }
 }

@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Post,
   Res,
   UseGuards,
@@ -12,10 +14,10 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Response } from 'express';
 import {
-  LoginDto,
-  PasswordRecoveryDto,
   ConfirmPasswordRecoveryDto,
   ConfirmRegistrationDto,
+  LoginDto,
+  PasswordRecoveryDto,
   RegistrationDto,
   ResendConfirmationDto,
 } from './models/input';
@@ -24,12 +26,12 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import {
-  RegisterCommand,
-  LoginCommand,
-  ResendConfirmationCommand,
-  ConfirmRegistrationCommand,
   ConfirmPasswordRecoveryCommand,
+  ConfirmRegistrationCommand,
+  LoginCommand,
   PasswordRecoveryCommand,
+  RegisterCommand,
+  ResendConfirmationCommand,
 } from '../application';
 
 enum AuthRoutes {
@@ -58,6 +60,7 @@ export class AuthController {
 
   @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post(AuthRoutes.Login)
   public async login(
     @Res({ passthrough: true }) response: Response,
@@ -96,35 +99,43 @@ export class AuthController {
       confirmPasswordRecoveryDto,
     );
 
-    return this.commandBus.execute(command);
+    return await this.commandBus.execute(command);
   }
 
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Confirmation)
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async confirmRegistration(
     @Body() confirmRegistrationDto: ConfirmRegistrationDto,
   ) {
     const command = new ConfirmRegistrationCommand(confirmRegistrationDto);
 
-    return this.commandBus.execute(command);
+    return await this.commandBus.execute(command);
   }
 
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Registration)
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async registration(@Body() registrationDto: RegistrationDto) {
     const command = new RegisterCommand(registrationDto);
 
-    return this.commandBus.execute(command);
+    return await this.commandBus.execute(command);
   }
 
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.RegistrationEmailResending)
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async resendConfirmation(
     @Body() resendConfirmation: ResendConfirmationDto,
   ) {
+    const { email } = resendConfirmation;
+
+    const user = await this.userQueryRepo.getByEmail(email);
+
+    if (!user) throw new BadRequestException();
+
     const command = new ResendConfirmationCommand(resendConfirmation);
 
-    return this.commandBus.execute(command);
+    return await this.commandBus.execute(command);
   }
 }

@@ -21,8 +21,6 @@ export class PostsQueryRepo {
 
     if (!post) throw new NotFoundException();
 
-    console.log(post);
-
     return this.mapToViewModels([post], isLoggedUser)[0];
   }
 
@@ -75,7 +73,7 @@ export class PostsQueryRepo {
         extendedLikesInfo: {
           likesCount,
           dislikesCount,
-          myStatus: currentLikeStatus,
+          myStatus: 'None',
           // myStatus: isLoggedUser ? currentLikeStatus : LikeStatus.None,
           newestLikes: [],
         },

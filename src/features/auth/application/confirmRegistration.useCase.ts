@@ -1,7 +1,7 @@
 import { isAfter } from 'date-fns';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException } from '@nestjs/common';
-import { UsersRepo } from '../../users/infrastructure/users.repo';
+import { BadRequestException } from '@nestjs/common';
+import { UsersRepo } from '../../users/infrastructure';
 
 export class ConfirmRegistrationCommand {
   constructor(readonly payload: { code: string }) {}
@@ -17,15 +17,24 @@ export class ConfirmRegistrationHandler
     const user = await this.usersRepo.findByConfirmationCode(payload.code);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException({
+        message: 'User not found',
+        field: 'code',
+      });
     }
 
     if (user.confirmation.isConfirmed) {
-      throw new NotFoundException('User already confirmed');
+      throw new BadRequestException({
+        message: 'User already confirmed',
+        field: 'code',
+      });
     }
 
     if (isAfter(new Date(), user.confirmation.expirationDate)) {
-      throw new NotFoundException('Confirmation code expired');
+      throw new BadRequestException({
+        message: 'Confirmation code expired',
+        field: 'code',
+      });
     }
 
     await this.usersRepo.confirm(user._id);

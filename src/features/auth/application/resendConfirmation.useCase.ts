@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { NotifyManager } from '../../../infrastructure/managers/notify.manager';
-import { UsersRepo } from '../../users/infrastructure/users.repo';
+import { UsersRepo } from '../../users/infrastructure';
 
 export class ResendConfirmationCommand {
   constructor(readonly payload: ServicesModels.ResendConfirmation) {}
@@ -21,11 +21,14 @@ export class ResendConfirmationHandler
     const user = await this.usersRepo.findByEmail(payload.email);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException('User not found');
     }
 
     if (user.confirmation.isConfirmed) {
-      throw new NotFoundException('User already confirmed');
+      throw new BadRequestException({
+        message: 'User already confirmed',
+        field: 'code',
+      });
     }
 
     const confirmationCode = `${uuidv4()}_${user._id}`;

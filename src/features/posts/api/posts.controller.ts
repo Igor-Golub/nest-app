@@ -13,8 +13,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostsQueryRepo } from '../infrastructure/posts.query.repo';
-import { CommentsQueryRepo } from '../../comments/infrastructure/comments.query.repo';
+import { PostsQueryRepo } from '../infrastructure';
+import { CommentsQueryRepo } from '../../comments/infrastructure';
 import {
   CreatePostDto,
   DeletePostParams,
@@ -31,7 +31,7 @@ import { ClientSortingService } from '../../../infrastructure/services/clientSor
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { FiltersType } from '../../../common/enums';
 import { CommandBus } from '@nestjs/cqrs';
-import { BlogsQueryRepo } from '../../blogs/infrastructure/blogs.query.repo';
+import { BlogsQueryRepo } from '../../blogs/infrastructure';
 import {
   UpdatePostCommand,
   DeletePostCommand,
@@ -41,7 +41,7 @@ import {
 } from '../application';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
-import { UsersQueryRepo } from '../../users/infrastructure/users.query.repo';
+import { UsersQueryRepo } from '../../users/infrastructure';
 
 @Controller('posts')
 export class PostsController {
