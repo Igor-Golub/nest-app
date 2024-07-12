@@ -37,7 +37,7 @@ export class ResendConfirmationHandler
 
     await this.usersRepo.updateConfirmationCode(user._id, confirmationCode);
 
-    await this.notifyManager.sendNewConfirmationCodeToEmail({
+    await this.notifyManager.sendRegistrationEmail({
       login: user!.login,
       email: payload.email,
       data: confirmationCode,

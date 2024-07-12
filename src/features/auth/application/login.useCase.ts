@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
-import { NotFoundException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 
 export class LoginCommand {
   constructor(
@@ -26,7 +26,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       payload.userHash,
     );
 
-    if (!compareResult) throw new NotFoundException();
+    if (!compareResult) throw new UnauthorizedException();
 
     return {
       accessToken: await this.jwtService.signAsync({

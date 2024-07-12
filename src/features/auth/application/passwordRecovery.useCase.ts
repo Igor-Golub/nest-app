@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { UsersRepo } from '../../users/infrastructure/users.repo';
+import { UsersRepo } from '../../users/infrastructure';
 import { RecoveryRepo } from '../infrastructure/recovery.repo';
 import { NotifyManager } from '../../../infrastructure/managers/notify.manager';
 

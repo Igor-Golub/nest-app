@@ -17,8 +17,4 @@ export class NotifyManager {
   public async sendRecoveryEmail(parameters: SendParams) {
     return this.emailService.sendRecovery(parameters);
   }
-
-  public async sendNewConfirmationCodeToEmail(parameters: SendParams) {
-    return this.emailService.sendNewConfirmationCode(parameters);
-  }
 }

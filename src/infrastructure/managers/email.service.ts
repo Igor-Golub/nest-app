@@ -38,17 +38,4 @@ export class EmailService {
       ),
     });
   }
-
-  public async sendNewConfirmationCode(parameters: SendEmailParams) {
-    return this.smtpService.send({
-      from: '<MEGA service>',
-      address: parameters.email,
-      subject: 'New confirmation code',
-      template:
-        this.emailTemplatesCreatorService.getNewConfirmationCoedTemplate(
-          parameters.login,
-          parameters.data,
-        ),
-    });
-  }
 }

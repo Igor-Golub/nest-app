@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepo } from '../../users/infrastructure/users.repo';
+import { UsersRepo } from '../../users/infrastructure';
 import { isAfter } from 'date-fns';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { RecoveryRepo } from '../infrastructure/recovery.repo';
