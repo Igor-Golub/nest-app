@@ -165,11 +165,21 @@ const authProviders = [AuthService, ...authHandlers];
       load: [configuration],
     }),
     PassportModule,
-    MongooseModule.forRoot(process.env.MONGO_URL!.toString()),
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME!.toString() },
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.get('db.mongoUri')!,
+      }),
+    }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        global: true,
+        secret: jwtConstants.secret,
+        signOptions: { expiresIn: config.get('auth.jwtExpireTime') },
+      }),
     }),
     MongooseModule.forFeature([
       {

@@ -18,6 +18,9 @@ const configuration = () => ({
   front: {
     host: process.env.HOST_URL,
   },
+  db: {
+    mongoUri: process.env.MONGO_URL,
+  },
 });
 
 export default configuration;
