@@ -30,7 +30,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
       data: confirmationCode,
     });
 
-    await this.usersRepo.create({
+    return await this.usersRepo.create({
       login,
       email,
       hash,

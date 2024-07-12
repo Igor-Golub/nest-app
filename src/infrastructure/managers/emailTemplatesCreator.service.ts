@@ -27,7 +27,7 @@ export class EmailTemplatesCreatorService {
     return `
         <h1>Hi, ${login}</h1>
           <p>Your new confirmation:
-          <a href='https://somesite.com/confirm-email?code=${code}'>code</a>
+          <a href='${this.configService.get('front.host')}/confirm-registration?code=${code}'>code</a>
         </p>
         `;
   }
