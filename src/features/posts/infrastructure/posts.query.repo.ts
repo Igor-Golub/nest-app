@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostModel } from '../domain/postModel';
@@ -15,13 +15,11 @@ export class PostsQueryRepo {
     private readonly filterService: ClientFilterService<ViewModels.Post>,
   ) {}
 
-  public async getById(id: string, isLoggedUser: boolean = false) {
-    const post = await this.postModel.findById(id);
-
-    return this.mapToViewModels([post], isLoggedUser)[0];
+  public async getById(id: string) {
+    return this.postModel.findById(id);
   }
 
-  public async getWithPagination(isLoggedUser: boolean = false) {
+  public async getWithPagination() {
     const { pageNumber, pageSize } = this.paginationService.getPagination();
     const sort = this.sortingService.createSortCondition() as any;
     const filters = this.filterService.getFilters();
@@ -38,43 +36,9 @@ export class PostsQueryRepo {
     return {
       page: pageNumber,
       pageSize,
+      items: data,
       totalCount: amountOfItems,
-      items: this.mapToViewModels(data, isLoggedUser),
       pagesCount: Math.ceil(amountOfItems / pageSize),
     };
-  }
-
-  private mapToViewModels(
-    data,
-    isLoggedUser: boolean,
-  ): ViewModels.PostWithFullLikes[] {
-    return data.map(
-      ({
-        _id,
-        content,
-        blogName,
-        blogId,
-        title,
-        shortDescription,
-        likesCount,
-        dislikesCount,
-        currentLikeStatus,
-      }) => ({
-        id: _id.toString(),
-        createdAt: _id.getTimestamp().toISOString(),
-        content,
-        blogName,
-        blogId,
-        title,
-        shortDescription,
-        extendedLikesInfo: {
-          likesCount,
-          dislikesCount,
-          myStatus: 'None',
-          // myStatus: isLoggedUser ? currentLikeStatus : LikeStatus.None,
-          newestLikes: [],
-        },
-      }),
-    );
   }
 }

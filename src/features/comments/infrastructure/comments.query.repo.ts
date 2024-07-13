@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsCommentsModel } from '../domain/postsCommentsModel';
 import { Model } from 'mongoose';
@@ -37,33 +37,9 @@ export class CommentsQueryRepo {
     return {
       page: pageNumber,
       pageSize,
+      items: data,
       totalCount: amountOfItems,
-      items: data.map(this.mapToViewModel),
       pagesCount: Math.ceil(amountOfItems / pageSize),
-    };
-  }
-
-  private mapToViewModel(comment): ViewModels.Comment {
-    const {
-      _id,
-      content,
-      userId,
-      userLogin,
-      likesCount,
-      dislikesCount,
-      currentLikeStatus,
-    } = comment;
-
-    return {
-      id: _id?.toString(),
-      createdAt: _id?.getTimestamp()?.toISOString(),
-      content,
-      commentatorInfo: { userId, userLogin },
-      likesInfo: {
-        likesCount,
-        dislikesCount,
-        myStatus: currentLikeStatus,
-      },
     };
   }
 }

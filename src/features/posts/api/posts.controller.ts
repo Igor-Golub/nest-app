@@ -42,6 +42,7 @@ import {
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
+import { mapCommentsToViewModel, mapPostsToViewModel } from './meppers';
 
 @Controller('posts')
 export class PostsController {
@@ -63,12 +64,21 @@ export class PostsController {
     this.paginationService.setValues({ pageSize, pageNumber });
     this.sortingService.setValue(sortBy, sortDirection);
 
-    return this.postsQueryRepo.getWithPagination();
+    const data = await this.postsQueryRepo.getWithPagination();
+
+    return {
+      ...data,
+      items: data.items.map((post) => mapPostsToViewModel(post)),
+    };
   }
 
   @Get(':id')
   public async getById(@Param('id') id: string) {
-    return this.postsQueryRepo.getById(id);
+    const post = await this.postsQueryRepo.getById(id);
+
+    if (!post) throw new NotFoundException();
+
+    return mapPostsToViewModel(post);
   }
 
   @Get(':id/comments')
@@ -82,7 +92,12 @@ export class PostsController {
     this.sortingService.setValue(sortBy, sortDirection);
     this.filterService.setValue('postId', id, FiltersType.ById);
 
-    return this.commentsQueryRepo.getWithPagination();
+    const data = await this.commentsQueryRepo.getWithPagination();
+
+    return {
+      ...data,
+      items: data.items.map((comment) => mapCommentsToViewModel(comment)),
+    };
   }
 
   @Post()
@@ -145,20 +160,7 @@ export class PostsController {
 
     if (!result) throw new BadRequestException();
 
-    return {
-      id: result._id.toString(),
-      content: result.content,
-      commentatorInfo: {
-        userId: result.userId,
-        userLogin: result.userLogin,
-      },
-      createdAt: result._id.getTimestamp().toISOString(),
-      likesInfo: {
-        likesCount: result.likesCount,
-        dislikesCount: result.dislikesCount,
-        myStatus: result.currentLikeStatus,
-      },
-    };
+    return mapCommentsToViewModel(result);
   }
 
   @Put(':id/like-status')
