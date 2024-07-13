@@ -24,13 +24,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
 
     const confirmationCode = uuidv4();
 
-    this.notifyManager.sendRegistrationEmail({
-      email,
-      login,
-      data: confirmationCode,
-    });
-
-    return await this.usersRepo.create({
+    await this.usersRepo.create({
       login,
       email,
       hash,
@@ -42,5 +36,13 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
         }),
       },
     });
+
+    this.notifyManager.sendRegistrationEmail({
+      email,
+      login,
+      data: confirmationCode,
+    });
+
+    return true;
   }
 }

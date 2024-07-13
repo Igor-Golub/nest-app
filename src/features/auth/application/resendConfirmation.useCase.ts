@@ -42,5 +42,7 @@ export class ResendConfirmationHandler
       email: payload.email,
       data: confirmationCode,
     });
+
+    return true;
   }
 }
