@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostModel } from '../domain/postModel';
 import { UpdatePostDto } from '../api/models/input';
-import { LikeStatus } from '../../../common/enums';
+import { LikeActions, LikeFields } from '../../../common/enums/Common';
 
 @Injectable()
 export class PostsRepo {
@@ -24,13 +24,25 @@ export class PostsRepo {
     return this.postModel.findByIdAndDelete(id);
   }
 
-  public async updateLikes(id: string, status: LikeStatus) {
-    return this.postModel.findByIdAndUpdate(id, {
-      currentLikeStatus: status,
-    });
-  }
-
   public async getById(id: string) {
     return this.postModel.findById(id).lean();
+  }
+
+  public async updateCountOfLikes(
+    id: string,
+    conditions: {
+      field: LikeFields;
+      action: LikeActions;
+    }[],
+  ) {
+    const incConditions = conditions.reduce((acc, { field, action }) => {
+      acc[field] = action === LikeActions.INC ? 1 : -1;
+
+      return acc;
+    }, {});
+
+    return this.postModel.findByIdAndUpdate(id, {
+      $inc: incConditions,
+    });
   }
 }

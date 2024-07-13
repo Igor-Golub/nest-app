@@ -1,4 +1,4 @@
-import { PostsRepo } from '../infrastructure/posts.repo';
+import { PostsRepo } from '../infrastructure';
 import { LikeStatus } from '../../../common/enums';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 

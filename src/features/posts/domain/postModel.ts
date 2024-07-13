@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { LikeStatus } from '../../../common/enums';
 
 @Schema({
   collection: 'posts',
@@ -38,22 +37,18 @@ export class PostModel {
   blogName: string;
 
   @Prop({
+    min: 0,
     type: Number,
     default: 0,
   })
   likesCount: number;
 
   @Prop({
+    min: 0,
     type: Number,
     default: 0,
   })
   dislikesCount: number;
-
-  @Prop({
-    enum: LikeStatus,
-    default: LikeStatus.None,
-  })
-  currentLikeStatus: LikeStatus;
 }
 
 export const PostSchema = SchemaFactory.createForClass(PostModel);

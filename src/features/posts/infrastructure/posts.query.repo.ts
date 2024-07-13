@@ -5,7 +5,6 @@ import { PostModel } from '../domain/postModel';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
-import { LikeStatus } from '../../../common/enums';
 
 @Injectable()
 export class PostsQueryRepo {
@@ -18,8 +17,6 @@ export class PostsQueryRepo {
 
   public async getById(id: string, isLoggedUser: boolean = false) {
     const post = await this.postModel.findById(id);
-
-    if (!post) throw new NotFoundException();
 
     return this.mapToViewModels([post], isLoggedUser)[0];
   }

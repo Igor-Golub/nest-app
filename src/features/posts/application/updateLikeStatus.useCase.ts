@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikeStatus } from '../../../common/enums';
-import { PostsLikesRepo } from '../infrastructure/postsLikes.repo';
-import { PostsRepo } from '../infrastructure/posts.repo';
+import { PostsLikesRepo, PostsRepo } from '../infrastructure';
+import { LikeActions, LikeFields } from '../../../common/enums/Common';
 
 interface UpdatePostLikeStatusCommandPayload {
   userId: string;
   postId: string;
-  likeStatus: LikeStatus;
+  nextLikeStatus: LikeStatus;
 }
 
 export class UpdatePostLikeStatusCommand {
@@ -23,7 +23,7 @@ export class UpdatePostLikeStatusHandler
   ) {}
 
   public async execute({
-    payload: { postId, likeStatus, userId },
+    payload: { postId, nextLikeStatus, userId },
   }: UpdatePostLikeStatusCommand) {
     const like = await this.postsLikesRepo.findLikeByUserIdAndPostId(
       userId,
@@ -31,13 +31,90 @@ export class UpdatePostLikeStatusHandler
     );
 
     if (!like) {
-      await this.postsLikesRepo.create(userId, postId, likeStatus);
+      await this.postsLikesRepo.create(userId, postId, nextLikeStatus);
+
+      const conditions = this.defineUpdateConditions(
+        LikeStatus.None,
+        nextLikeStatus,
+      );
+
+      await this.postsRepo.updateCountOfLikes(postId, conditions);
     } else {
-      await this.postsLikesRepo.updateStatus(like._id.toString(), likeStatus);
+      await this.postsLikesRepo.updateStatus(
+        like._id.toString(),
+        nextLikeStatus,
+      );
+
+      const conditions = this.defineUpdateConditions(
+        like.status,
+        nextLikeStatus,
+      );
+
+      await this.postsRepo.updateCountOfLikes(postId, conditions);
     }
 
-    await this.postsRepo.updateLikes(postId, likeStatus);
-
     return true;
+  }
+
+  private defineUpdateConditions(
+    prev: LikeStatus,
+    next: LikeStatus,
+  ): { field: LikeFields; action: LikeActions }[] {
+    const result: { field: LikeFields; action: LikeActions }[] = [];
+
+    switch (true) {
+      case prev === LikeStatus.Like && next === LikeStatus.None: {
+        result.push({
+          field: LikeFields.LikesCount,
+          action: LikeActions.DEC,
+        });
+
+        break;
+      }
+
+      case prev === LikeStatus.Like && next === LikeStatus.Dislike: {
+        result.push(
+          { field: LikeFields.LikesCount, action: LikeActions.DEC },
+          { field: LikeFields.DislikesCount, action: LikeActions.INC },
+        );
+
+        break;
+      }
+
+      case prev === LikeStatus.None && next === LikeStatus.Like: {
+        result.push({ field: LikeFields.LikesCount, action: LikeActions.INC });
+
+        break;
+      }
+
+      case prev === LikeStatus.Dislike && next === LikeStatus.None: {
+        result.push({
+          field: LikeFields.DislikesCount,
+          action: LikeActions.DEC,
+        });
+
+        break;
+      }
+
+      case prev === LikeStatus.None && next === LikeStatus.Dislike: {
+        result.push({
+          field: LikeFields.DislikesCount,
+          action: LikeActions.INC,
+        });
+
+        break;
+      }
+
+      case prev === LikeStatus.Dislike && next === LikeStatus.Like: {
+        result.push(
+          { field: LikeFields.LikesCount, action: LikeActions.INC },
+          { field: LikeFields.DislikesCount, action: LikeActions.DEC },
+        );
+
+        break;
+      }
+    }
+
+    return result;
   }
 }

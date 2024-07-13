@@ -170,7 +170,7 @@ export class PostsController {
   ) {
     const command = new UpdatePostLikeStatusCommand({
       postId: id,
-      likeStatus,
+      nextLikeStatus: likeStatus,
       userId: currentUserId,
     });
 

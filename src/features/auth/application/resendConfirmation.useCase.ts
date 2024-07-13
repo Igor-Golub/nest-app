@@ -28,7 +28,7 @@ export class ResendConfirmationHandler
       throw new BadRequestException([
         {
           message: 'User already confirmed',
-          field: 'code',
+          field: 'email',
         },
       ]);
     }

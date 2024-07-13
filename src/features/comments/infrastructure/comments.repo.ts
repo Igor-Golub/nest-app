@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsCommentsModel } from '../domain/postsCommentsModel';
 import { Model } from 'mongoose';
-import { LikeStatus } from '../../../common/enums';
+import { LikeActions, LikeFields } from '../../../common/enums/Common';
 
 interface CreatePostCommentDto {
   postId: string;
@@ -30,9 +30,21 @@ export class PostsCommentsRepo {
     return this.postCommentsModel.findByIdAndDelete(id);
   }
 
-  public async updateLikeStatus(id: string, nextStatus: LikeStatus) {
+  public async updateCountOfLikes(
+    id: string,
+    conditions: {
+      field: LikeFields;
+      action: LikeActions;
+    }[],
+  ) {
+    const incConditions = conditions.reduce((acc, { field, action }) => {
+      acc[field] = action === LikeActions.INC ? 1 : -1;
+
+      return acc;
+    }, {});
+
     return this.postCommentsModel.findByIdAndUpdate(id, {
-      currentLikeStatus: nextStatus,
+      $inc: incConditions,
     });
   }
 }
