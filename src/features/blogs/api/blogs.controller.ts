@@ -12,8 +12,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsQueryRepo } from '../infrastructure/blogs.query.repo';
-import { PostsQueryRepo } from '../../posts/infrastructure/posts.query.repo';
+import { BlogsQueryRepo } from '../infrastructure';
+import { PostsQueryRepo } from '../../posts/infrastructure';
 import {
   BlogsQueryDtoParams,
   UpdateBlogParams,
@@ -29,11 +29,14 @@ import { ClientSortingService } from '../../../infrastructure/services/clientSor
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/createBlog.useCase';
+import {
+  CreateBlogCommand,
+  DeleteBlogCommand,
+  UpdateBlogCommand,
+  CreatePostForBlogCommand,
+} from '../application';
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
-import { DeleteBlogCommand } from '../application/deleteBlog.useCase';
-import { UpdateBlogCommand } from '../application/updateBlog.useCase';
-import { CreatePostForBlogCommand } from '../application/createPostForBlog.useCase';
+import { mapBlogsToViewModel } from './mappers';
 
 @Controller('blogs')
 export class BlogsController {
@@ -55,7 +58,18 @@ export class BlogsController {
     this.filterService.setValue('name', searchNameTerm, FiltersType.InnerText);
     this.sortingService.setValue(sortBy, sortDirection);
 
-    return this.blogsQueryRepo.getWithPagination();
+    const data = await this.blogsQueryRepo.getWithPagination();
+
+    return { ...data, items: data.items.map(mapBlogsToViewModel) };
+  }
+
+  @Get(':id')
+  public async getById(@Param() { id }: BlogsQueryDtoParams) {
+    const blog = await this.blogsQueryRepo.getById(id);
+
+    if (!blog) throw new NotFoundException();
+
+    return mapBlogsToViewModel(blog);
   }
 
   @Post()
@@ -66,11 +80,6 @@ export class BlogsController {
     const { id } = await this.commandBus.execute(command);
 
     return await this.blogsQueryRepo.getById(id);
-  }
-
-  @Get(':id')
-  public async getById(@Param() { id }: BlogsQueryDtoParams) {
-    return this.blogsQueryRepo.getById(id);
   }
 
   @Get(':id/posts')

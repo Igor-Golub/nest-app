@@ -1,6 +1,10 @@
 import { LikeStatus } from '../../../../common/enums';
+import { PostViewModel } from '../models/output';
 
-export function mapPostsToViewModel(dbModel, isLoggedUser: boolean = false) {
+export function mapPostsToViewModel(
+  dbModel,
+  isLoggedUser: boolean = false,
+): PostViewModel {
   return {
     id: dbModel._id.toString(),
     createdAt: dbModel._id.getTimestamp().toISOString(),

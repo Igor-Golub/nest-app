@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogModel } from '../domain/blogEntity';
@@ -30,32 +30,15 @@ export class BlogsQueryRepo {
     const amountOfItems = await this.blogModel.countDocuments(filters);
 
     return {
-      page: pageNumber,
       pageSize,
+      items: data,
+      page: pageNumber,
       totalCount: amountOfItems,
-      items: this.mapToViewModels(data),
       pagesCount: Math.ceil(amountOfItems / pageSize),
     };
   }
 
   public async getById(id: string) {
-    const blog = await this.blogModel.findById(id);
-
-    if (!blog) throw new NotFoundException();
-
-    return this.mapToViewModels([blog])[0];
-  }
-
-  private mapToViewModels(
-    data: DBModels.MongoResponseEntity<DBModels.Blog>[],
-  ): ViewModels.Blog[] {
-    return data.map(({ _id, name, isMembership, websiteUrl, description }) => ({
-      id: _id.toString(),
-      createdAt: _id.getTimestamp().toISOString(),
-      name,
-      isMembership,
-      websiteUrl,
-      description,
-    }));
+    return this.blogModel.findById(id);
   }
 }

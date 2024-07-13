@@ -1,4 +1,9 @@
-export function mapCommentsToViewModel(dbModel, isLoggedUser: boolean = false) {
+import { CommentViewModel } from '../models/output';
+
+export function mapCommentsToViewModel(
+  dbModel,
+  isLoggedUser: boolean = false,
+): CommentViewModel {
   return {
     id: dbModel._id.toString(),
     content: dbModel.content,
