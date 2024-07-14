@@ -11,8 +11,10 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PostsQueryRepo } from '../infrastructure';
 import { CommentsQueryRepo } from '../../comments/infrastructure';
 import {
@@ -39,17 +41,20 @@ import {
   UpdatePostLikeStatusCommand,
   CreatePostCommentCommand,
 } from '../application';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
-import { mapCommentsToViewModel, mapPostsToViewModel } from './meppers';
+import { mapCommentsToViewModel, PostsViewMapperManager } from './meppers';
 import { mapBlogsToViewModel } from '../../blogs/api/mappers';
+import { PostsLikesQueryRepo } from '../infrastructure';
+import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
@@ -59,27 +64,44 @@ export class PostsController {
   ) {}
 
   @Get()
-  public async getAll(@Query() query: PostsQueryParams) {
+  public async getAll(
+    @UserIdFromAccessToken() userId: string | null,
+    @Query() query: PostsQueryParams,
+  ) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
     this.sortingService.setValue(sortBy, sortDirection);
 
-    const data = await this.postsQueryRepo.getWithPagination();
+    const posts = await this.postsQueryRepo.getWithPagination();
 
     return {
-      ...data,
-      items: data.items.map((post) => mapPostsToViewModel(post)),
+      ...posts,
+      items: posts.items.map(PostsViewMapperManager.mapPostsToViewModel),
     };
   }
 
   @Get(':id')
-  public async getById(@Param('id') id: string) {
+  public async getById(
+    @UserIdFromAccessToken() userId: string | null,
+    @Param('id') id: string,
+  ) {
     const post = await this.postsQueryRepo.getById(id);
 
     if (!post) throw new NotFoundException();
 
-    return mapPostsToViewModel(post);
+    const postViewModel = PostsViewMapperManager.mapPostsToViewModel(post);
+
+    if (userId) {
+      const like = await this.postsLikesQueryRepo.findLikeByUserIdAndPostId(
+        userId,
+        id,
+      );
+
+      return PostsViewMapperManager.addLikeStatus(postViewModel, like?.status);
+    } else {
+      return postViewModel;
+    }
   }
 
   @Get(':id/comments')

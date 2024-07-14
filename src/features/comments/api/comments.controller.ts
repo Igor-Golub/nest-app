@@ -13,22 +13,23 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
-  UpdateCommentLikeStatusCommand,
-  UpdateCommentLikeCommand,
   DeleteCommentCommand,
+  UpdateCommentLikeCommand,
+  UpdateCommentLikeStatusCommand,
 } from '../application';
 import {
-  UpdateComment,
   CommentsQuery,
-  UpdateCommentParams,
   DeleteCommentParams,
+  UpdateComment,
   UpdateCommentLikeStatus,
   UpdateCommentLikeStatusParams,
+  UpdateCommentParams,
 } from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
 import { CommentsQueryRepo } from '../infrastructure/comments.query.repo';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
+import { LikeStatus } from '../../../common/enums';
 
 @Controller('comments')
 export class CommentsController {
@@ -55,7 +56,7 @@ export class CommentsController {
       likesInfo: {
         likesCount: comment.likesCount,
         dislikesCount: comment.dislikesCount,
-        myStatus: comment.currentLikeStatus,
+        myStatus: LikeStatus.None,
       },
     };
   }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -15,6 +15,7 @@ import {
   PostsRepo,
   PostsQueryRepo,
   PostsLikesRepo,
+  PostsLikesQueryRepo,
 } from './features/posts/infrastructure';
 import { BlogsController } from './features/blogs/api/blogs.controller';
 import { BlogsRepo, BlogsQueryRepo } from './features/blogs/infrastructure';
@@ -95,6 +96,7 @@ import {
   PostCommentLikeSchema,
 } from './features/comments/domain/postsCommentsLikesModel';
 import { RefreshTokenHandler } from './features/auth/application/refreshToken.useCase';
+import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -117,6 +119,7 @@ const postsProviders = [
   PostsRepo,
   PostsQueryRepo,
   PostsLikesRepo,
+  PostsLikesQueryRepo,
   ...postsHandlers,
 ];
 
@@ -245,4 +248,8 @@ const authProviders = [AuthService, ...authHandlers];
     EmailIsExistConstraint,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AccessTokenExistMiddleware).forRoutes('posts', 'comments');
+  }
+}

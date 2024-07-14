@@ -43,12 +43,6 @@ export class PostsCommentsModel {
     default: 0,
   })
   dislikesCount: number;
-
-  @Prop({
-    enum: LikeStatus,
-    default: LikeStatus.None,
-  })
-  currentLikeStatus: LikeStatus;
 }
 
 export const PostsCommentsSchema =
