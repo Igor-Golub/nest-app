@@ -5,14 +5,16 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Post,
+  Req,
   Res,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import {
   ConfirmPasswordRecoveryDto,
   ConfirmRegistrationDto,
@@ -22,7 +24,6 @@ import {
   ResendConfirmationDto,
 } from './models/input';
 import { UsersQueryRepo } from '../../users/infrastructure/';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import {
   ConfirmPasswordRecoveryCommand,
@@ -32,12 +33,16 @@ import {
   RegisterCommand,
   ResendConfirmationCommand,
 } from '../application';
+import { mapProfileToView } from './mappers';
+import { JwtAuthGuard, JwtRefreshAuthGuard } from '../guards';
+import { RefreshTokenCommand } from '../application/refreshToken.useCase';
 
 enum AuthRoutes {
   Me = '/me',
   Login = '/login',
   NewPassword = '/new-password',
   Registration = '/registration',
+  Refresh = '/refresh-token',
   PasswordRecovery = '/password-recovery',
   Confirmation = '/registration-confirmation',
   RegistrationEmailResending = '/registration-email-resending',
@@ -54,7 +59,11 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
   public async getProfile(@CurrentUserId() currentUserId: string) {
-    return this.userQueryRepo.getProfile(currentUserId);
+    const data = await this.userQueryRepo.getProfile(currentUserId);
+
+    if (!data) throw new NotFoundException();
+
+    return mapProfileToView(data);
   }
 
   @UseGuards(ThrottlerGuard)
@@ -81,6 +90,8 @@ export class AuthController {
       httpOnly: true,
       secure: true,
     });
+
+    response.cookie('refreshToken', 'mock');
 
     return result;
   }
@@ -146,6 +157,27 @@ export class AuthController {
       ]);
 
     const command = new ResendConfirmationCommand(resendConfirmation);
+
+    return await this.commandBus.execute(command);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Post(AuthRoutes.Refresh)
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshAuthGuard)
+  public async refreshToken(
+    @Req() request: Request,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const refreshToken = request.cookies['refreshToken'];
+    const user = await this.userQueryRepo.getById(currentUserId);
+
+    if (!refreshToken || !user) throw new UnauthorizedException();
+
+    const command = new RefreshTokenCommand({
+      userId: currentUserId,
+      refreshToken,
+    });
 
     return await this.commandBus.execute(command);
   }

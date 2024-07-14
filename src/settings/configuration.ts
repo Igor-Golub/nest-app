@@ -6,6 +6,8 @@ const configuration = () => ({
     basicPassword: process.env.HTTP_BASIC_PASS,
     jwtExpireTime: process.env.JWT_EXPIRE_TIME,
     jwtSecret: process.env.JWT_SECRET,
+    jwtRefreshExpireTime: process.env.JWT_EXPIRE_TIME,
+    jwtRefreshSecret: process.env.JWT_SECRET,
   },
   smtp: {
     email: process.env.SMTP_EMAIL,

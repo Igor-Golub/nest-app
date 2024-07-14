@@ -15,18 +15,8 @@ export class UsersQueryRepo {
     private readonly filterService: ClientFilterService<ViewModels.Blog>,
   ) {}
 
-  public async getProfile(userId: string): Promise<ViewModels.UserAccountInfo> {
-    const user = await this.userModel.findById(userId).lean();
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    return {
-      userId: user._id.toString(),
-      login: user.login,
-      email: user.email,
-    };
+  public async getProfile(userId: string) {
+    return this.userModel.findById(userId).lean();
   }
 
   public async getWithPagination() {

@@ -32,8 +32,11 @@ import {
   PostsCommentsLikesQueryRepo,
 } from './features/comments/infrastructure';
 import { AuthService } from './features/auth/application/auth.service';
-import { LocalStrategy } from './features/auth/strategies/local.strategy';
-import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
+import {
+  LocalStrategy,
+  JwtStrategy,
+  BasicStrategy,
+} from './features/auth/strategies';
 import {
   PostsCommentsModel,
   PostsCommentsSchema,
@@ -48,7 +51,6 @@ import {
   RecoverySchema,
 } from './features/auth/domain/recoveryEntity';
 import { jwtConstants } from './constants';
-import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
@@ -92,6 +94,7 @@ import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from './features/comments/domain/postsCommentsLikesModel';
+import { RefreshTokenHandler } from './features/auth/application/refreshToken.useCase';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -138,6 +141,7 @@ const usersProviders = [UsersRepo, UsersQueryRepo, ...usersHandlers];
 const authHandlers = [
   LoginHandler,
   RegisterHandler,
+  RefreshTokenHandler,
   PasswordRecoveryHandler,
   ResendConfirmationHandler,
   ConfirmRegistrationHandler,

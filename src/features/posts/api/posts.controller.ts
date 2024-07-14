@@ -43,6 +43,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
 import { mapCommentsToViewModel, mapPostsToViewModel } from './meppers';
+import { mapBlogsToViewModel } from '../../blogs/api/mappers';
 
 @Controller('posts')
 export class PostsController {
@@ -106,7 +107,12 @@ export class PostsController {
 
     if (!blog) throw new NotFoundException();
 
-    const command = new CreatePostCommand({ blog, data: createPostDto });
+    const viewBlog = mapBlogsToViewModel(blog);
+
+    const command = new CreatePostCommand({
+      blog: viewBlog,
+      data: createPostDto,
+    });
 
     return this.commandBus.execute(command);
   }
