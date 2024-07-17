@@ -33,9 +33,10 @@ import {
   RegisterCommand,
   ResendConfirmationCommand,
 } from '../application';
-import { mapProfileToView } from './mappers';
+import { AuthViewMapperManager } from './mappers';
 import { JwtAuthGuard, JwtRefreshAuthGuard } from '../guards';
 import { RefreshTokenCommand } from '../application/refreshToken.useCase';
+import { CookiesService } from '../../../infrastructure/services/cookies.service';
 
 enum AuthRoutes {
   Me = '/me',
@@ -48,12 +49,12 @@ enum AuthRoutes {
   RegistrationEmailResending = '/registration-email-resending',
 }
 
-// TODO:(main) Добавить функциональность определения выбрасываемого эксепшена
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly userQueryRepo: UsersQueryRepo,
+    private readonly cookiesService: CookiesService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -63,7 +64,7 @@ export class AuthController {
 
     if (!data) throw new NotFoundException();
 
-    return mapProfileToView(data);
+    return AuthViewMapperManager.mapProfileToView(data);
   }
 
   @UseGuards(ThrottlerGuard)
@@ -83,17 +84,12 @@ export class AuthController {
       userId: user._id.toString(),
     });
 
-    const result = await this.commandBus.execute(command);
+    const { refresh, access } = await this.commandBus.execute(command);
 
-    // TODO create cookies service
-    response.cookie('authToken', result.accessToken, {
-      httpOnly: true,
-      secure: true,
-    });
+    this.cookiesService.write(response, 'authToken', access);
+    this.cookiesService.write(response, 'refreshToken', refresh);
 
-    response.cookie('refreshToken', 'mock');
-
-    return result;
+    return { accessToken: access };
   }
 
   @UseGuards(ThrottlerGuard)
@@ -169,7 +165,7 @@ export class AuthController {
     @Req() request: Request,
     @CurrentUserId() currentUserId: string,
   ) {
-    const refreshToken = request.cookies['refreshToken'];
+    const refreshToken = this.cookiesService.read(request, 'refreshToken');
     const user = await this.userQueryRepo.getById(currentUserId);
 
     if (!refreshToken || !user) throw new UnauthorizedException();

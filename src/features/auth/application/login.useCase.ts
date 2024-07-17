@@ -28,13 +28,13 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     if (!compareResult) throw new UnauthorizedException();
 
-    const refreshToken = await this.jwtService.signAsync({
+    const refresh = await this.jwtService.signAsync({
       sub: payload.userId,
     });
-    const accessToken = await this.jwtService.signAsync({
+    const access = await this.jwtService.signAsync({
       sub: payload.userId,
     });
 
-    return { refreshToken, accessToken };
+    return { refresh, access };
   }
 }

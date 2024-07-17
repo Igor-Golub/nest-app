@@ -11,10 +11,8 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { PostsQueryRepo } from '../infrastructure';
 import { CommentsQueryRepo } from '../../comments/infrastructure';
 import {
@@ -41,11 +39,11 @@ import {
   UpdatePostLikeStatusCommand,
   CreatePostCommentCommand,
 } from '../application';
-import { JwtAuthGuard } from '../../auth/guards';
+import { BasicAuthGuard, JwtAuthGuard } from '../../auth/guards';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
-import { mapCommentsToViewModel, PostsViewMapperManager } from './meppers';
-import { mapBlogsToViewModel } from '../../blogs/api/mappers';
+import { mapCommentsToViewModel, PostsViewMapperManager } from './mappers';
+import { BlogsViewMapperManager } from '../../blogs/api/mappers';
 import { PostsLikesQueryRepo } from '../infrastructure';
 import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 
@@ -124,12 +122,13 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   public async create(@Body() createPostDto: CreatePostDto) {
     const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
 
     if (!blog) throw new NotFoundException();
 
-    const viewBlog = mapBlogsToViewModel(blog);
+    const viewBlog = BlogsViewMapperManager.mapBlogsToViewModel(blog);
 
     const command = new CreatePostCommand({
       blog: viewBlog,
@@ -140,6 +139,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   public async update(
     @Param() { id }: UpdatePostParams,
@@ -155,6 +155,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   public delete(@Param() { id }: DeletePostParams) {
     const command = new DeletePostCommand({ id });
@@ -198,6 +199,10 @@ export class PostsController {
     @Param() { id }: UpdatePostLikeStatusParams,
     @Body() { likeStatus }: UpdatePostLikeStatus,
   ) {
+    const post = await this.postsQueryRepo.getById(id);
+
+    if (!post) throw new NotFoundException();
+
     const command = new UpdatePostLikeStatusCommand({
       postId: id,
       nextLikeStatus: likeStatus,

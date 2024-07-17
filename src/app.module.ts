@@ -97,6 +97,7 @@ import {
 } from './features/comments/domain/postsCommentsLikesModel';
 import { RefreshTokenHandler } from './features/auth/application/refreshToken.useCase';
 import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
+import { CookiesService } from './infrastructure/services/cookies.service';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -232,6 +233,7 @@ const authProviders = [AuthService, ...authHandlers];
     ...usersProviders,
     ...commentsProviders,
     ...authProviders,
+    CookiesService,
     PaginationService,
     ClientSortingService,
     ClientFilterService,

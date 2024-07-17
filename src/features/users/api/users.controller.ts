@@ -17,7 +17,7 @@ import { PaginationService } from '../../../infrastructure/services/pagination.s
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../common/enums';
-import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
+import { BasicAuthGuard } from '../../auth/guards';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand, DeleteUserCommand } from '../application';
 

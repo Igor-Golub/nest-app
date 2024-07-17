@@ -35,8 +35,10 @@ import {
   UpdateBlogCommand,
   CreatePostForBlogCommand,
 } from '../application';
-import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
-import { mapBlogsToViewModel } from './mappers';
+import { BasicAuthGuard } from '../../auth/guards';
+import { BlogsViewMapperManager } from './mappers';
+import { PostsViewMapperManager } from '../../posts/api/mappers';
+import { BlogViewModel } from './models/output';
 
 @Controller('blogs')
 export class BlogsController {
@@ -46,7 +48,7 @@ export class BlogsController {
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<ViewModels.Blog>,
+    private readonly filterService: ClientFilterService<BlogViewModel>,
   ) {}
 
   @Get()
@@ -60,7 +62,10 @@ export class BlogsController {
 
     const data = await this.blogsQueryRepo.getWithPagination();
 
-    return { ...data, items: data.items.map(mapBlogsToViewModel) };
+    return {
+      ...data,
+      items: data.items.map(BlogsViewMapperManager.mapBlogsToViewModel),
+    };
   }
 
   @Get(':id')
@@ -69,7 +74,7 @@ export class BlogsController {
 
     if (!blog) throw new NotFoundException();
 
-    return mapBlogsToViewModel(blog);
+    return BlogsViewMapperManager.mapBlogsToViewModel(blog);
   }
 
   @Post()
@@ -79,7 +84,9 @@ export class BlogsController {
 
     const { id } = await this.commandBus.execute(command);
 
-    return await this.blogsQueryRepo.getById(id);
+    const blog = await this.blogsQueryRepo.getById(id);
+
+    return BlogsViewMapperManager.mapBlogsToViewModel(blog);
   }
 
   @Get(':id/posts')
@@ -97,10 +104,16 @@ export class BlogsController {
     this.sortingService.setValue(sortBy, sortDirection);
     this.filterService.setValue('blogId', blogId, FiltersType.ById);
 
-    return this.postsQueryRepo.getWithPagination();
+    const posts = await this.postsQueryRepo.getWithPagination();
+
+    return {
+      ...posts,
+      items: posts.items.map(PostsViewMapperManager.mapPostsToViewModel),
+    };
   }
 
   @Post(':id/posts')
+  @UseGuards(BasicAuthGuard)
   public async createPostForBlog(
     @Param() { id: blogId }: CreatePostForBlogParams,
     @Body() createCommentDto: CreatePostForBlogDto,
@@ -117,10 +130,13 @@ export class BlogsController {
 
     const createdBlogId = await this.commandBus.execute(command);
 
-    return this.postsQueryRepo.getById(createdBlogId);
+    const post = await this.postsQueryRepo.getById(createdBlogId);
+
+    return PostsViewMapperManager.mapPostsToViewModel(post);
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   public async update(
     @Param() { id }: UpdateBlogParams,
@@ -136,6 +152,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete(
     @Param()
