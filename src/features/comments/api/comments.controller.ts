@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -11,7 +12,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards';
 import {
   DeleteCommentCommand,
   UpdateCommentLikeCommand,
@@ -26,10 +27,10 @@ import {
   UpdateCommentParams,
 } from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQueryRepo } from '../infrastructure/comments.query.repo';
+import { CommentsQueryRepo } from '../infrastructure';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
-import { LikeStatus } from '../../../common/enums';
+import { CommentsViewMapperManager } from './models/mappers/comments';
 
 @Controller('comments')
 export class CommentsController {
@@ -45,30 +46,28 @@ export class CommentsController {
 
     if (!comment) throw new NotFoundException();
 
-    return {
-      id: comment._id.toString(),
-      content: comment.content,
-      commentatorInfo: {
-        userId: comment.userId,
-        userLogin: comment.userLogin,
-      },
-      createdAt: comment._id._id.getTimestamp(),
-      likesInfo: {
-        likesCount: comment.likesCount,
-        dislikesCount: comment.dislikesCount,
-        myStatus: LikeStatus.None,
-      },
-    };
+    return CommentsViewMapperManager.commentToViewModel(comment);
   }
 
-  // TODO: If try delete the comment that is not your own
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   public async update(
     @Param() { id }: UpdateCommentParams,
+    @CurrentUserId() currentUserId: string,
     @Body() updateCommentDto: UpdateComment,
   ) {
+    const isCommentExist = await this.commentsQueryRepo.isCommentExist(id);
+
+    if (!isCommentExist) throw new NotFoundException();
+
+    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
+      id,
+      currentUserId,
+    );
+
+    if (!isOwnerComment) throw new ForbiddenException();
+
     const command = new UpdateCommentLikeCommand({
       id,
       content: updateCommentDto.content,
@@ -79,16 +78,27 @@ export class CommentsController {
     if (!result) throw new NotFoundException();
   }
 
-  // TODO: If try delete the comment that is not your own
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  public async delete(@Param() { id }: DeleteCommentParams) {
+  public async delete(
+    @Param() { id }: DeleteCommentParams,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const isCommentExist = await this.commentsQueryRepo.isCommentExist(id);
+
+    if (!isCommentExist) throw new NotFoundException();
+
+    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
+      id,
+      currentUserId,
+    );
+
+    if (!isOwnerComment) throw new ForbiddenException();
+
     const command = new DeleteCommentCommand({ id });
 
-    const result = await this.commandBus.execute(command);
-
-    if (!result) throw new NotFoundException();
+    await this.commandBus.execute(command);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -20,6 +20,14 @@ export class CommentsQueryRepo {
     return this.postsCommentsModel.findById(id).lean();
   }
 
+  public async isCommentExist(id: string) {
+    return this.postsCommentsModel.countDocuments({ _id: id });
+  }
+
+  public async isOwnerComment(id: string, ownerId: string) {
+    return this.postsCommentsModel.countDocuments({ _id: id, userId: ownerId });
+  }
+
   public async getWithPagination() {
     const { pageNumber, pageSize } = this.paginationService.getPagination();
     const sort = this.sortingService.createSortCondition() as any;
