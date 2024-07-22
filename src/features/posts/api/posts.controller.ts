@@ -107,7 +107,7 @@ export class PostsController {
       [post],
       likes,
       userId,
-    );
+    )[0];
   }
 
   @Get(':id/comments')

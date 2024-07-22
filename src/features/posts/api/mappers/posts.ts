@@ -35,9 +35,17 @@ export class PostsViewMapperManager {
     reqUserId: string | undefined,
   ): ViewModels.PostWithFullLikes[] {
     return posts.map(
-      ({ _id, content, blogName, blogId, title, shortDescription }) => ({
+      ({
+        _id,
+        content,
+        blogName,
+        blogId,
+        createdAt,
+        title,
+        shortDescription,
+      }) => ({
         id: _id.toString(),
-        createdAt: _id.getTimestamp().toISOString(),
+        createdAt,
         content,
         blogName,
         blogId,

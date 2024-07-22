@@ -97,7 +97,7 @@ export class BlogsController {
   }
 
   @Get(':id/posts')
-  public async getPostOfBlog(
+  public async getPostsOfBlog(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') blogId: string,
     @Query() query: Api.CommonQuery,
