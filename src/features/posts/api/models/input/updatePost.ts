@@ -1,5 +1,6 @@
 import { IsString } from 'class-validator';
 import {
+  BlogIsExist,
   IsStringWithExpectedLength,
   Trim,
 } from '../../../../../common/decorators';
@@ -11,15 +12,16 @@ export class UpdatePostParams {
 
 export class UpdatePostDto {
   @Trim()
-  @IsStringWithExpectedLength(0, 30)
+  @IsStringWithExpectedLength(1, 30)
   title: string;
 
-  @IsStringWithExpectedLength(0, 100)
+  @IsStringWithExpectedLength(1, 100)
   content: string;
 
   @IsString()
+  @BlogIsExist()
   blogId: string;
 
-  @IsStringWithExpectedLength(0, 1000)
+  @IsStringWithExpectedLength(1, 100)
   shortDescription: string;
 }

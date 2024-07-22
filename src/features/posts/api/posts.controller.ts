@@ -115,6 +115,10 @@ export class PostsController {
     @Param('id') id: string,
     @Query() query: Api.CommonQuery,
   ) {
+    const post = await this.postsQueryRepo.getById(id);
+
+    if (!post) throw new NotFoundException();
+
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     this.paginationService.setValues({ pageSize, pageNumber });
@@ -133,14 +137,6 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   public async create(@Body() createPostDto: CreatePostDto) {
     const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
-
-    if (!blog)
-      throw new BadRequestException([
-        {
-          field: 'blogId',
-          message: 'Bad request',
-        },
-      ]);
 
     const viewBlog = BlogsViewMapperManager.mapBlogsToViewModel(blog);
 

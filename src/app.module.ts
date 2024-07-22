@@ -55,6 +55,7 @@ import { jwtConstants } from './constants';
 import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
+  BlogIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
 import {
@@ -250,6 +251,7 @@ const authProviders = [AuthService, ...authHandlers];
     EmailTemplatesCreatorService,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
+    BlogIsExistConstraint,
   ],
 })
 export class AppModule {
