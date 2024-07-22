@@ -15,6 +15,7 @@ export class UpdatePostDto {
   @IsStringWithExpectedLength(1, 30)
   title: string;
 
+  @Trim()
   @IsStringWithExpectedLength(1, 100)
   content: string;
 

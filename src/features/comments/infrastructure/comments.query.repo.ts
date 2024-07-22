@@ -21,7 +21,9 @@ export class CommentsQueryRepo {
   }
 
   public async isCommentExist(id: string) {
-    return this.postsCommentsModel.countDocuments({ _id: id });
+    const amount = await this.postsCommentsModel.countDocuments({ _id: id });
+
+    return amount > 0;
   }
 
   public async isOwnerComment(id: string, ownerId: string) {

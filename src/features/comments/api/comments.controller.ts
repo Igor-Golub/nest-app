@@ -126,10 +126,9 @@ export class CommentsController {
   ) {
     const { likeStatus } = updateCommentDto;
 
-    const isCommentExist =
-      await this.commentsQueryRepo.isCommentExist(commentId);
+    const comment = await this.commentsQueryRepo.getById(commentId);
 
-    if (!isCommentExist) new NotFoundException();
+    if (!comment) throw new NotFoundException();
 
     const user = await this.usersQueryRepo.getById(currentUserId);
 

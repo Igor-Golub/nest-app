@@ -49,6 +49,8 @@ import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { PostsService } from '../application/posts.service';
 
+enum
+
 @Controller('posts')
 export class PostsController {
   constructor(
@@ -129,7 +131,9 @@ export class PostsController {
 
     return {
       ...data,
-      items: data.items.map(CommentsViewMapperManager.commentToViewModel),
+      items: data.items.map(
+        CommentsViewMapperManager.commentWithoutLikesToViewModel,
+      ),
     };
   }
 
@@ -190,7 +194,7 @@ export class PostsController {
 
     const post = await this.postsQueryRepo.getById(id);
 
-    if (!post) throw new BadRequestException();
+    if (!post) throw new NotFoundException();
 
     const command = new CreatePostCommentCommand({
       content,
@@ -203,7 +207,7 @@ export class PostsController {
 
     if (!result) throw new BadRequestException();
 
-    return CommentsViewMapperManager.commentToViewModel(result);
+    return CommentsViewMapperManager.commentWithoutLikesToViewModel(result);
   }
 
   @Put(':id/like-status')

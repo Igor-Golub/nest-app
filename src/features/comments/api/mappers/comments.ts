@@ -1,7 +1,7 @@
 import { LikeStatus } from '../../../../common/enums';
 
 export class CommentsViewMapperManager {
-  static commentToViewModel(dbModel) {
+  static commentWithoutLikesToViewModel(dbModel) {
     return {
       id: dbModel._id.toString(),
       content: dbModel.content,
@@ -11,8 +11,8 @@ export class CommentsViewMapperManager {
       },
       createdAt: dbModel._id._id.getTimestamp(),
       likesInfo: {
-        likesCount: dbModel.likesCount,
-        dislikesCount: dbModel.dislikesCount,
+        likesCount: 0,
+        dislikesCount: 0,
         myStatus: LikeStatus.None,
       },
     };
