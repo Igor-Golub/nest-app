@@ -9,12 +9,14 @@ export class CreatePostDto {
   @IsStringWithExpectedLength(0, 30)
   title: string;
 
+  @Trim()
   @IsStringWithExpectedLength(0, 100)
   content: string;
 
   @IsString()
   blogId: string;
 
-  @IsStringWithExpectedLength(0, 1000)
+  @Trim()
+  @IsStringWithExpectedLength(0, 100)
   shortDescription: string;
 }

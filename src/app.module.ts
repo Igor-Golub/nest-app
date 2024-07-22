@@ -98,6 +98,7 @@ import {
 import { RefreshTokenHandler } from './features/auth/application/refreshToken.useCase';
 import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
 import { CookiesService } from './infrastructure/services/cookies.service';
+import { PostsService } from './features/posts/application/posts.service';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -117,6 +118,7 @@ const postsHandlers = [
 ];
 
 const postsProviders = [
+  PostsService,
   PostsRepo,
   PostsQueryRepo,
   PostsLikesRepo,

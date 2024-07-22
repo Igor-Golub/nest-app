@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { LikeStatus } from '../../../common/enums';
 
 @Schema({
-  collection: 'comments',
+  collection: 'commentsLikes',
   timestamps: true,
 })
 export class PostCommentLikeModel {

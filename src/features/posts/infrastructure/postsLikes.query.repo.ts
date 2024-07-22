@@ -13,4 +13,11 @@ export class PostsLikesQueryRepo {
   public async findLikeByUserIdAndPostId(userId: string, postId: string) {
     return this.postLikesModel.findOne({ postId, userId }).lean();
   }
+
+  public async findLikesByIds(ids: string[]) {
+    return this.postLikesModel
+      .find({ postId: { $in: ids } })
+      .sort({ createdAt: 'desc' })
+      .lean();
+  }
 }

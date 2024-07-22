@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostCommentLikeModel } from '../domain/postsCommentsLikesModel';
 import { Model } from 'mongoose';
-import { LikeStatus } from '../../../common/enums';
 
 @Injectable()
 export class PostsCommentsLikesQueryRepo {
@@ -15,5 +14,9 @@ export class PostsCommentsLikesQueryRepo {
     return this.postCommentLikeModel.findOne({
       parentId: commentId,
     });
+  }
+
+  public async findCommentsLikesByCommentId(commentId: string) {
+    return this.postCommentLikeModel.find({ parentId: commentId });
   }
 }

@@ -35,20 +35,6 @@ export class PostModel {
     type: String,
   })
   blogName: string;
-
-  @Prop({
-    min: 0,
-    type: Number,
-    default: 0,
-  })
-  likesCount: number;
-
-  @Prop({
-    min: 0,
-    type: Number,
-    default: 0,
-  })
-  dislikesCount: number;
 }
 
 export const PostSchema = SchemaFactory.createForClass(PostModel);

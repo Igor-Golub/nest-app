@@ -15,9 +15,15 @@ export class PostsLikesRepo {
     return this.postLikesModel.findOne({ userId, postId }).lean();
   }
 
-  public async create(userId: string, postId: string, status: LikeStatus) {
+  public async create(
+    userId: string,
+    userLogin: string,
+    postId: string,
+    status: LikeStatus,
+  ) {
     return this.postLikesModel.create({
       postId,
+      userLogin,
       status,
       userId,
     });

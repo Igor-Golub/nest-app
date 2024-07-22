@@ -30,18 +30,6 @@ export class PostsCommentsModel {
     required: true,
   })
   userLogin: string;
-
-  @Prop({
-    type: Number,
-    default: 0,
-  })
-  likesCount: number;
-
-  @Prop({
-    type: Number,
-    default: 0,
-  })
-  dislikesCount: number;
 }
 
 export const PostsCommentsSchema =

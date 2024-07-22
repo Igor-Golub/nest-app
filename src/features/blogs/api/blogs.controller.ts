@@ -13,7 +13,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogsQueryRepo } from '../infrastructure';
-import { PostsQueryRepo } from '../../posts/infrastructure';
+import {
+  PostsLikesQueryRepo,
+  PostsQueryRepo,
+} from '../../posts/infrastructure';
 import {
   BlogsQueryDtoParams,
   UpdateBlogParams,
@@ -39,6 +42,8 @@ import { BasicAuthGuard } from '../../auth/guards';
 import { BlogsViewMapperManager } from './mappers';
 import { PostsViewMapperManager } from '../../posts/api/mappers';
 import { BlogViewModel } from './models/output';
+import { PostsService } from '../../posts/application/posts.service';
+import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 
 @Controller('blogs')
 export class BlogsController {
@@ -47,6 +52,8 @@ export class BlogsController {
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly paginationService: PaginationService,
+    private readonly postsService: PostsService,
+    private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<BlogViewModel>,
   ) {}
@@ -90,7 +97,8 @@ export class BlogsController {
   }
 
   @Get(':id/posts')
-  public async getPostsOfBlog(
+  public async getPostOfBlog(
+    @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') blogId: string,
     @Query() query: Api.CommonQuery,
   ) {
@@ -106,9 +114,17 @@ export class BlogsController {
 
     const posts = await this.postsQueryRepo.getWithPagination();
 
+    const postsLikes = this.postsService.getPostsIds(posts.items);
+
+    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikes);
+
     return {
       ...posts,
-      items: posts.items.map(PostsViewMapperManager.mapPostsToViewModel),
+      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
+        posts.items,
+        likes,
+        userId,
+      ),
     };
   }
 
@@ -128,11 +144,11 @@ export class BlogsController {
       createData: createCommentDto,
     });
 
-    const createdBlogId = await this.commandBus.execute(command);
+    const createdPostId = await this.commandBus.execute(command);
 
-    const post = await this.postsQueryRepo.getById(createdBlogId);
+    const newPost = await this.postsQueryRepo.getById(createdPostId);
 
-    return PostsViewMapperManager.mapPostsToViewModel(post);
+    return PostsViewMapperManager.addDefaultLikesData(newPost);
   }
 
   @Put(':id')

@@ -42,15 +42,18 @@ import {
 import { BasicAuthGuard, JwtAuthGuard } from '../../auth/guards';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
-import { mapCommentsToViewModel, PostsViewMapperManager } from './mappers';
+import { PostsViewMapperManager } from './mappers';
 import { BlogsViewMapperManager } from '../../blogs/api/mappers';
 import { PostsLikesQueryRepo } from '../infrastructure';
 import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
+import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
+import { PostsService } from '../application/posts.service';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly postsService: PostsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
@@ -63,7 +66,7 @@ export class PostsController {
 
   @Get()
   public async getAll(
-    @UserIdFromAccessToken() userId: string | null,
+    @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
@@ -73,33 +76,38 @@ export class PostsController {
 
     const posts = await this.postsQueryRepo.getWithPagination();
 
+    const postsLikes = this.postsService.getPostsIds(posts.items);
+
+    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikes);
+
     return {
       ...posts,
-      items: posts.items.map(PostsViewMapperManager.mapPostsToViewModel),
+      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
+        posts.items,
+        likes,
+        userId,
+      ),
     };
   }
 
   @Get(':id')
   public async getById(
-    @UserIdFromAccessToken() userId: string | null,
+    @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
   ) {
     const post = await this.postsQueryRepo.getById(id);
 
     if (!post) throw new NotFoundException();
 
-    const postViewModel = PostsViewMapperManager.mapPostsToViewModel(post);
+    const likes = await this.postsLikesQueryRepo.findLikesByIds([
+      post._id.toString(),
+    ]);
 
-    if (userId) {
-      const like = await this.postsLikesQueryRepo.findLikeByUserIdAndPostId(
-        userId,
-        id,
-      );
-
-      return PostsViewMapperManager.addLikeStatus(postViewModel, like?.status);
-    } else {
-      return postViewModel;
-    }
+    return PostsViewMapperManager.mapPostsToViewModelWithLikes(
+      [post],
+      likes,
+      userId,
+    );
   }
 
   @Get(':id/comments')
@@ -117,7 +125,7 @@ export class PostsController {
 
     return {
       ...data,
-      items: data.items.map((comment) => mapCommentsToViewModel(comment)),
+      items: data.items.map(CommentsViewMapperManager.commentToViewModel),
     };
   }
 
@@ -126,7 +134,13 @@ export class PostsController {
   public async create(@Body() createPostDto: CreatePostDto) {
     const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
 
-    if (!blog) throw new NotFoundException();
+    if (!blog)
+      throw new BadRequestException([
+        {
+          field: 'blogId',
+          message: 'Bad request',
+        },
+      ]);
 
     const viewBlog = BlogsViewMapperManager.mapBlogsToViewModel(blog);
 
@@ -135,7 +149,11 @@ export class PostsController {
       data: createPostDto,
     });
 
-    return this.commandBus.execute(command);
+    const createdPostId = await this.commandBus.execute(command);
+
+    const newPost = await this.postsQueryRepo.getById(createdPostId);
+
+    return PostsViewMapperManager.addDefaultLikesData(newPost);
   }
 
   @Put(':id')
@@ -189,11 +207,12 @@ export class PostsController {
 
     if (!result) throw new BadRequestException();
 
-    return mapCommentsToViewModel(result);
+    return CommentsViewMapperManager.commentToViewModel(result);
   }
 
   @Put(':id/like-status')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async updateLikeStatus(
     @CurrentUserId() currentUserId: string,
     @Param() { id }: UpdatePostLikeStatusParams,
@@ -203,10 +222,13 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
+    const user = await this.usersQueryRepo.getById(currentUserId);
+
     const command = new UpdatePostLikeStatusCommand({
       postId: id,
       nextLikeStatus: likeStatus,
       userId: currentUserId,
+      userLogin: user!.login,
     });
 
     return await this.commandBus.execute(command);

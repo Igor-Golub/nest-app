@@ -67,7 +67,6 @@ export class AuthController {
     return AuthViewMapperManager.mapProfileToView(data);
   }
 
-  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Post(AuthRoutes.Login)
   public async login(
@@ -86,8 +85,8 @@ export class AuthController {
 
     const { refresh, access } = await this.commandBus.execute(command);
 
-    this.cookiesService.write(response, 'authToken', access);
     this.cookiesService.write(response, 'refreshToken', refresh);
+    this.cookiesService.write(response, 'accessToken', access);
 
     return { accessToken: access };
   }

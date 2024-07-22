@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepo } from '../../posts/infrastructure/posts.repo';
+import { PostsRepo } from '../../posts/infrastructure';
 
 export class CreatePostForBlogCommand {
   constructor(

@@ -16,7 +16,7 @@ export class PostsQueryRepo {
   ) {}
 
   public async getById(id: string) {
-    return this.postModel.findById(id);
+    return this.postModel.findById(id).lean();
   }
 
   public async getWithPagination() {

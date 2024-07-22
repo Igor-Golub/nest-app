@@ -24,6 +24,12 @@ export class PostLikesModel {
     required: true,
   })
   userId: string;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  userLogin: string;
 }
 
 export const PostLikesSchema = SchemaFactory.createForClass(PostLikesModel);

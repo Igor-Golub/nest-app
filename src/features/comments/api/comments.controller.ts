@@ -27,26 +27,41 @@ import {
   UpdateCommentParams,
 } from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQueryRepo } from '../infrastructure';
+import {
+  CommentsQueryRepo,
+  PostsCommentsLikesQueryRepo,
+} from '../infrastructure';
 import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { UsersQueryRepo } from '../../users/infrastructure';
-import { CommentsViewMapperManager } from './models/mappers/comments';
+import { CommentsViewMapperManager } from './mappers/comments';
+import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
   ) {}
 
   @Get(':id')
-  public async getById(@Param() { id }: CommentsQuery) {
+  public async getById(
+    @Param() { id }: CommentsQuery,
+    @UserIdFromAccessToken() userId: string | undefined,
+  ) {
     const comment = await this.commentsQueryRepo.getById(id);
 
     if (!comment) throw new NotFoundException();
 
-    return CommentsViewMapperManager.commentToViewModel(comment);
+    const likes =
+      await this.postsCommentsLikesQueryRepo.findCommentsLikesByCommentId(id);
+
+    return CommentsViewMapperManager.commentWithLikeToViewModel(
+      comment,
+      likes,
+      userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -110,6 +125,11 @@ export class CommentsController {
     @Body() updateCommentDto: UpdateCommentLikeStatus,
   ) {
     const { likeStatus } = updateCommentDto;
+
+    const isCommentExist =
+      await this.commentsQueryRepo.isCommentExist(commentId);
+
+    if (!isCommentExist) new NotFoundException();
 
     const user = await this.usersQueryRepo.getById(currentUserId);
 

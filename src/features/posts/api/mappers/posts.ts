@@ -1,32 +1,74 @@
 import { LikeStatus } from '../../../../common/enums';
-import { PostViewModel } from '../models/output';
 
 export class PostsViewMapperManager {
-  static mapPostsToViewModel(dbModel): PostViewModel {
+  static addDefaultLikesData(post) {
+    const {
+      _id,
+      title,
+      blogId,
+      content,
+      blogName,
+      createdAt,
+      shortDescription,
+    } = post;
+
     return {
-      id: dbModel._id.toString(),
-      createdAt: dbModel._id.getTimestamp().toISOString(),
-      content: dbModel.content,
-      blogName: dbModel.blogName,
-      blogId: dbModel.blogId,
-      title: dbModel.title,
-      shortDescription: dbModel.shortDescription,
+      id: _id.toString(),
+      title,
+      blogId,
+      content,
+      blogName,
+      createdAt,
+      shortDescription,
       extendedLikesInfo: {
-        likesCount: dbModel.likesCount,
-        dislikesCount: dbModel.dislikesCount,
         myStatus: LikeStatus.None,
+        likesCount: 0,
+        dislikesCount: 0,
         newestLikes: [],
       },
     };
   }
 
-  static addLikeStatus(post: PostViewModel, status: LikeStatus | undefined) {
-    return {
-      ...post,
-      extendedLikesInfo: {
-        ...post.extendedLikesInfo,
-        myStatus: status ?? post.extendedLikesInfo.myStatus,
-      },
-    };
+  static mapPostsToViewModelWithLikes(
+    posts,
+    postLikes,
+    reqUserId: string | undefined,
+  ): ViewModels.PostWithFullLikes[] {
+    return posts.map(
+      ({ _id, content, blogName, blogId, title, shortDescription }) => ({
+        id: _id.toString(),
+        createdAt: _id.getTimestamp().toISOString(),
+        content,
+        blogName,
+        blogId,
+        title,
+        shortDescription,
+        extendedLikesInfo: postLikes.reduce(
+          (acc, { status, userId, createdAt, postId, userLogin }) => {
+            if (_id.toString() !== postId) return acc;
+
+            if (status === LikeStatus.Like) acc.likesCount += 1;
+            if (status === LikeStatus.Dislike) acc.dislikesCount += 1;
+            if (reqUserId && reqUserId === userId) acc.myStatus = status;
+
+            if (status === LikeStatus.Like && acc.newestLikes.length < 3) {
+              acc.newestLikes.push({
+                addedAt: new Date(createdAt!.toString()).toISOString(),
+                userId,
+                login: userLogin,
+              });
+            }
+
+            return acc;
+          },
+          {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: [],
+            myStatus: LikeStatus.None,
+          },
+        ),
+      }),
+    );
   }
 }
