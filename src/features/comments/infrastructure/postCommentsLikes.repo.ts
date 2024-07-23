@@ -11,18 +11,13 @@ export class PostsCommentsLikesRepo {
     private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
   ) {}
 
-  public async create(
-    commentId: string,
-    userId: string,
-    userLogin: string,
-    nextStatus: LikeStatus,
-  ) {
-    return this.postCommentLikeModel.create({
-      userId,
-      userLogin,
-      nextStatus,
-      parentId: commentId,
-    });
+  public async create(dto: {
+    commentId: string;
+    userId: string;
+    userLogin: string;
+    status: LikeStatus;
+  }) {
+    return this.postCommentLikeModel.create(dto);
   }
 
   public async updateStatus(likeId: string, nextStatus: LikeStatus) {

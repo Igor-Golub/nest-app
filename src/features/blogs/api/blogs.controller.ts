@@ -114,9 +114,9 @@ export class BlogsController {
 
     const posts = await this.postsQueryRepo.getWithPagination();
 
-    const postsLikes = this.postsService.getPostsIds(posts.items);
+    const postsLikesIds = this.postsService.getPostsIds(posts.items);
 
-    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikes);
+    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikesIds);
 
     return {
       ...posts,

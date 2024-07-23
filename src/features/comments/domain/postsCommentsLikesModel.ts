@@ -10,7 +10,7 @@ export class PostCommentLikeModel {
     type: String,
     required: true,
   })
-  parentId: string;
+  commentId: string;
 
   @Prop({
     required: true,

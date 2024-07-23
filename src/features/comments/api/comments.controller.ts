@@ -47,19 +47,21 @@ export class CommentsController {
 
   @Get(':id')
   public async getById(
-    @Param() { id }: CommentsQuery,
+    @Param() { id: commentId }: CommentsQuery,
     @UserIdFromAccessToken() userId: string | undefined,
   ) {
-    const comment = await this.commentsQueryRepo.getById(id);
+    const comment = await this.commentsQueryRepo.getById(commentId);
 
     if (!comment) throw new NotFoundException();
 
-    const likes =
-      await this.postsCommentsLikesQueryRepo.findCommentsLikesByCommentId(id);
+    const commentsLikes =
+      await this.postsCommentsLikesQueryRepo.findCommentsLikesByCommentId(
+        commentId,
+      );
 
     return CommentsViewMapperManager.commentWithLikeToViewModel(
       comment,
-      likes,
+      commentsLikes,
       userId,
     );
   }

@@ -14,7 +14,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsQueryRepo } from '../infrastructure';
-import { CommentsQueryRepo } from '../../comments/infrastructure';
+import {
+  CommentsQueryRepo,
+  PostsCommentsLikesQueryRepo,
+} from '../../comments/infrastructure';
 import {
   CreatePostDto,
   DeletePostParams,
@@ -49,8 +52,6 @@ import { UserIdFromAccessToken } from '../../../common/pipes/userId.from.token';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { PostsService } from '../application/posts.service';
 
-enum
-
 @Controller('posts')
 export class PostsController {
   constructor(
@@ -61,6 +62,7 @@ export class PostsController {
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
+    private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Post>,
@@ -114,6 +116,7 @@ export class PostsController {
 
   @Get(':id/comments')
   public async getComments(
+    @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
     @Query() query: Api.CommonQuery,
   ) {
@@ -129,10 +132,18 @@ export class PostsController {
 
     const data = await this.commentsQueryRepo.getWithPagination();
 
+    const commentsLikes = await this.postsCommentsLikesQueryRepo.findLikesByIds(
+      data.items.map(({ _id }) => _id.toString()),
+    );
+
     return {
       ...data,
-      items: data.items.map(
-        CommentsViewMapperManager.commentWithoutLikesToViewModel,
+      items: data.items.map((comment) =>
+        CommentsViewMapperManager.commentWithLikeToViewModel(
+          comment,
+          commentsLikes,
+          userId,
+        ),
       ),
     };
   }
@@ -215,18 +226,18 @@ export class PostsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async updateLikeStatus(
     @CurrentUserId() currentUserId: string,
-    @Param() { id }: UpdatePostLikeStatusParams,
-    @Body() { likeStatus }: UpdatePostLikeStatus,
+    @Param() { id: postId }: UpdatePostLikeStatusParams,
+    @Body() { likeStatus: nextLikeStatus }: UpdatePostLikeStatus,
   ) {
-    const post = await this.postsQueryRepo.getById(id);
+    const post = await this.postsQueryRepo.getById(postId);
 
     if (!post) throw new NotFoundException();
 
     const user = await this.usersQueryRepo.getById(currentUserId);
 
     const command = new UpdatePostLikeStatusCommand({
-      postId: id,
-      nextLikeStatus: likeStatus,
+      postId,
+      nextLikeStatus,
       userId: currentUserId,
       userLogin: user!.login,
     });

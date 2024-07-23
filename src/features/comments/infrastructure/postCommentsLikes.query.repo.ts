@@ -10,13 +10,19 @@ export class PostsCommentsLikesQueryRepo {
     private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
   ) {}
 
-  public async getLikeByCommentId(commentId: string) {
-    return this.postCommentLikeModel.findOne({
-      parentId: commentId,
-    });
+  public async isLikeForCommentExist(commentId: string) {
+    return this.postCommentLikeModel.countDocuments({ commentId }).lean();
   }
 
   public async findCommentsLikesByCommentId(commentId: string) {
-    return this.postCommentLikeModel.find({ parentId: commentId });
+    return this.postCommentLikeModel.find({ commentId }).lean();
+  }
+
+  public async findLikeByUserIdAndCommentId(userId: string, commentId: string) {
+    return this.postCommentLikeModel.findOne({ userId, commentId }).lean();
+  }
+
+  public async findLikesByIds(ids: string[]) {
+    return this.postCommentLikeModel.find({ commentId: { $in: ids } }).lean();
   }
 }
