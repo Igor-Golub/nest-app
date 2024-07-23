@@ -116,13 +116,14 @@ export class BlogsController {
 
     const postsLikesIds = this.postsService.getPostsIds(posts.items);
 
-    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikesIds);
+    const postLikes =
+      await this.postsLikesQueryRepo.findLikesByIds(postsLikesIds);
 
     return {
       ...posts,
       items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
         posts.items,
-        likes,
+        postLikes,
         userId,
       ),
     };

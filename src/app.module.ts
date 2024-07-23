@@ -256,6 +256,8 @@ const authProviders = [AuthService, ...authHandlers];
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AccessTokenExistMiddleware).forRoutes('posts', 'comments');
+    consumer
+      .apply(AccessTokenExistMiddleware)
+      .forRoutes('blogs', 'posts', 'comments');
   }
 }
