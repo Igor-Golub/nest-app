@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -71,12 +72,6 @@ import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExi
 import { PostsService } from './features/posts/application/posts.service';
 import { UsersModule } from './features/users/users.module';
 import { AuthModule } from './features/auth/auth.module';
-import { UserModel, UserSchema } from './features/users/domain/userEntity';
-import {
-  RecoveryModel,
-  RecoverySchema,
-} from './features/auth/domain/recoveryEntity';
-import { JwtService } from '@nestjs/jwt';
 import { TestingModule } from './features/testing/testing.module';
 
 const blogsHandlers = [
