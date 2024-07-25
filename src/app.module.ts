@@ -19,7 +19,6 @@ import {
 import { BlogsController } from './features/blogs/api/blogs.controller';
 import { BlogsRepo, BlogsQueryRepo } from './features/blogs/infrastructure';
 import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
-import { TestingController } from './features/testing/api/testing.controller';
 import { CommentsController } from './features/comments/api/comments.controller';
 import {
   PostsCommentsRepo,
@@ -78,6 +77,7 @@ import {
   RecoverySchema,
 } from './features/auth/domain/recoveryEntity';
 import { JwtService } from '@nestjs/jwt';
+import { TestingModule } from './features/testing/testing.module';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -165,24 +165,12 @@ const commentsProviders = [
         name: PostCommentLikeModel.name,
         schema: PostCommentLikeSchema,
       },
-      {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-      {
-        name: RecoveryModel.name,
-        schema: RecoverySchema,
-      },
     ]),
     UsersModule,
     AuthModule,
+    TestingModule,
   ],
-  controllers: [
-    PostsController,
-    BlogsController,
-    TestingController,
-    CommentsController,
-  ],
+  controllers: [PostsController, BlogsController, CommentsController],
   providers: [
     ...postsProviders,
     ...blogsProviders,
