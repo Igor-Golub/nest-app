@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PaginationService } from './infrastructure/services/pagination.service';
@@ -20,11 +19,7 @@ import {
 import { BlogsController } from './features/blogs/api/blogs.controller';
 import { BlogsRepo, BlogsQueryRepo } from './features/blogs/infrastructure';
 import { BlogModel, BlogSchema } from './features/blogs/domain/blogEntity';
-import { UsersRepo, UsersQueryRepo } from './features/users/infrastructure';
-import { UserModel, UserSchema } from './features/users/domain/userEntity';
 import { TestingController } from './features/testing/api/testing.controller';
-import { UsersController } from './features/users/api/users.controller';
-import { AuthController } from './features/auth/api/auth.controller';
 import { CommentsController } from './features/comments/api/comments.controller';
 import {
   PostsCommentsRepo,
@@ -32,7 +27,6 @@ import {
   PostsCommentsLikesRepo,
   PostsCommentsLikesQueryRepo,
 } from './features/comments/infrastructure';
-import { AuthService } from './features/auth/application/auth.service';
 import {
   LocalStrategy,
   JwtStrategy,
@@ -42,16 +36,6 @@ import {
   PostsCommentsModel,
   PostsCommentsSchema,
 } from './features/comments/domain/postsCommentsModel';
-import { RecoveryRepo } from './features/auth/infrastructure/recovery.repo';
-import { EmailService } from './infrastructure/managers/email.service';
-import { SmtpService } from './infrastructure/managers/smtp.service';
-import { EmailTemplatesCreatorService } from './infrastructure/managers/emailTemplatesCreator.service';
-import { NotifyManager } from './infrastructure/managers/notify.manager';
-import {
-  RecoveryModel,
-  RecoverySchema,
-} from './features/auth/domain/recoveryEntity';
-import { jwtConstants } from './constants';
 import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
@@ -65,14 +49,6 @@ import {
   CreatePostForBlogHandler,
 } from './features/blogs/application';
 import {
-  RegisterHandler,
-  LoginHandler,
-  ResendConfirmationHandler,
-  ConfirmRegistrationHandler,
-  PasswordRecoveryHandler,
-  ConfirmPasswordRecoveryHandler,
-} from './features/auth/application';
-import {
   CreatePostCommentHandler,
   CreatePostHandler,
   DeletePostHandler,
@@ -85,10 +61,6 @@ import {
   UpdateCommentLikeStatusHandler,
 } from './features/comments/application';
 import {
-  CreateUserHandler,
-  DeleteUserHandler,
-} from './features/users/application';
-import {
   PostLikesModel,
   PostLikesSchema,
 } from './features/posts/domain/postLikesModel';
@@ -96,10 +68,16 @@ import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from './features/comments/domain/postsCommentsLikesModel';
-import { RefreshTokenHandler } from './features/auth/application/refreshToken.useCase';
 import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
-import { CookiesService } from './infrastructure/services/cookies.service';
 import { PostsService } from './features/posts/application/posts.service';
+import { UsersModule } from './features/users/users.module';
+import { AuthModule } from './features/auth/auth.module';
+import { UserModel, UserSchema } from './features/users/domain/userEntity';
+import {
+  RecoveryModel,
+  RecoverySchema,
+} from './features/auth/domain/recoveryEntity';
+import { JwtService } from '@nestjs/jwt';
 
 const blogsHandlers = [
   CreateBlogHandler,
@@ -141,22 +119,6 @@ const commentsProviders = [
   ...commentsHandlers,
 ];
 
-const usersHandlers = [CreateUserHandler, DeleteUserHandler];
-
-const usersProviders = [UsersRepo, UsersQueryRepo, ...usersHandlers];
-
-const authHandlers = [
-  LoginHandler,
-  RegisterHandler,
-  RefreshTokenHandler,
-  PasswordRecoveryHandler,
-  ResendConfirmationHandler,
-  ConfirmRegistrationHandler,
-  ConfirmPasswordRecoveryHandler,
-];
-
-const authProviders = [AuthService, ...authHandlers];
-
 @Module({
   imports: [
     CqrsModule,
@@ -182,15 +144,6 @@ const authProviders = [AuthService, ...authHandlers];
         uri: config.get('db.mongoUri')!,
       }),
     }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        global: true,
-        secret: jwtConstants.secret,
-        signOptions: { expiresIn: config.get('auth.jwtExpireTime') },
-      }),
-    }),
     MongooseModule.forFeature([
       {
         name: PostModel.name,
@@ -205,38 +158,36 @@ const authProviders = [AuthService, ...authHandlers];
         schema: BlogSchema,
       },
       {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-      {
         name: PostsCommentsModel.name,
         schema: PostsCommentsSchema,
-      },
-      {
-        name: RecoveryModel.name,
-        schema: RecoverySchema,
       },
       {
         name: PostCommentLikeModel.name,
         schema: PostCommentLikeSchema,
       },
+      {
+        name: UserModel.name,
+        schema: UserSchema,
+      },
+      {
+        name: RecoveryModel.name,
+        schema: RecoverySchema,
+      },
     ]),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [
     PostsController,
     BlogsController,
-    UsersController,
-    AuthController,
     TestingController,
     CommentsController,
   ],
   providers: [
     ...postsProviders,
     ...blogsProviders,
-    ...usersProviders,
     ...commentsProviders,
-    ...authProviders,
-    CookiesService,
+    JwtService,
     PaginationService,
     ClientSortingService,
     ClientFilterService,
@@ -244,11 +195,6 @@ const authProviders = [AuthService, ...authHandlers];
     LocalStrategy,
     JwtStrategy,
     BasicStrategy,
-    RecoveryRepo,
-    EmailService,
-    NotifyManager,
-    SmtpService,
-    EmailTemplatesCreatorService,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
     BlogIsExistConstraint,
