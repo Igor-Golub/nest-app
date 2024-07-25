@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/users.controller';
 import { UsersQueryRepo, UsersRepo } from './infrastructure';
 import { UserModel, UserSchema } from './domain/userEntity';
@@ -8,28 +9,27 @@ import { PaginationService } from '../../infrastructure/services/pagination.serv
 import { ClientSortingService } from '../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
-import { CqrsModule } from '@nestjs/cqrs';
+
+const imports = [
+  CqrsModule,
+  MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
+];
+
+const handlers = [CreateUserHandler, DeleteUserHandler];
+
+const providers = [
+  UsersRepo,
+  CryptoService,
+  UsersQueryRepo,
+  PaginationService,
+  ClientFilterService,
+  ClientSortingService,
+  ...handlers,
+];
 
 @Module({
-  imports: [
-    CqrsModule,
-    MongooseModule.forFeature([
-      {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-    ]),
-  ],
-  providers: [
-    UsersRepo,
-    CryptoService,
-    UsersQueryRepo,
-    PaginationService,
-    CreateUserHandler,
-    DeleteUserHandler,
-    ClientFilterService,
-    ClientSortingService,
-  ],
+  imports,
+  providers,
   controllers: [UsersController],
   exports: [UsersQueryRepo, UsersRepo],
 })

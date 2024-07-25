@@ -17,35 +17,19 @@ import {
 } from '../comments/domain/postsCommentsLikesModel';
 import { UserModel, UserSchema } from '../users/domain/userEntity';
 
+const imports = [
+  MongooseModule.forFeature([
+    { name: PostModel.name, schema: PostSchema },
+    { name: PostLikesModel.name, schema: PostLikesSchema },
+    { name: BlogModel.name, schema: BlogSchema },
+    { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
+    { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
+    { name: UserModel.name, schema: UserSchema },
+  ]),
+];
+
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: PostModel.name,
-        schema: PostSchema,
-      },
-      {
-        name: PostLikesModel.name,
-        schema: PostLikesSchema,
-      },
-      {
-        name: BlogModel.name,
-        schema: BlogSchema,
-      },
-      {
-        name: PostsCommentsModel.name,
-        schema: PostsCommentsSchema,
-      },
-      {
-        name: PostCommentLikeModel.name,
-        schema: PostCommentLikeSchema,
-      },
-      {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-    ]),
-  ],
+  imports,
   controllers: [TestingController],
 })
 export class TestingModule {}
