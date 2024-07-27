@@ -8,6 +8,6 @@ export const CurrentUserId = createParamDecorator(
       throw new Error('JwtGuard mast be used');
     }
 
-    return req.user.id.toString();
+    return req.user.id;
   },
 );

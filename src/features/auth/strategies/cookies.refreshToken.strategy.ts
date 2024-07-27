@@ -12,15 +12,17 @@ interface SessionPayload {
 @Injectable()
 export class CookieRefreshTokenStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  'jwt-cookie',
 ) {
   constructor(private readonly sessionRepo: SessionRepo) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request) => request?.cookies?.['refreshToken'],
+        (request) => {
+          return request?.cookies?.['refreshToken'];
+        },
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
     });
   }
 

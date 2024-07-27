@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { SessionRepo } from '../infrastructure/session.repo';
+import { AuthService } from './auth.service';
 
 interface LoginCommandUserData {
   id: string;
@@ -27,8 +27,8 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<LoginCommand> {
   constructor(
-    private jwtService: JwtService,
     private sessionRepo: SessionRepo,
+    private authService: AuthService,
     private cryptoService: CryptoService,
   ) {}
 
@@ -45,31 +45,23 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     const deviceId = uuidv4();
 
-    const pairTokens = await this.generatePairTokens(userData.id, deviceId);
+    const pairTokens = await this.authService.generateTokens(
+      userData.id,
+      deviceId,
+    );
 
-    const decodeResult = this.jwtService.decode(pairTokens.refresh);
+    const { version, expirationDate } =
+      this.authService.getSessionVersionAndExpirationDate(pairTokens.refresh);
 
     await this.sessionRepo.createSession({
+      version,
       deviceId,
+      expirationDate,
       userId: userData.id,
       deviceIp: deviceData.ip,
       deviceName: deviceData.name,
-      version: new Date(decodeResult.iat * 1000).toISOString(),
-      expirationDate: new Date(Number(decodeResult.exp) * 1000),
     });
 
     return pairTokens;
-  }
-
-  private async generatePairTokens(userId: string, deviceId: string) {
-    const refresh = await this.jwtService.signAsync({
-      userId,
-      deviceId,
-      // tokenKey: '' ????
-    });
-
-    const access = await this.jwtService.signAsync({ userId });
-
-    return { access, refresh };
   }
 }

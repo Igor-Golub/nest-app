@@ -47,10 +47,9 @@ import { UsersQueryRepo } from '../../../users/infrastructure';
 import { PaginationService } from '../../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
-import { UserIdFromAccessToken } from '../../../../common/pipes/userId.from.token';
 import { FiltersType } from '../../../../common/enums';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
-import { CurrentUserId } from '../../../../common/pipes/current.userId';
+import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
 
 @Controller('posts')
 export class PostsController {

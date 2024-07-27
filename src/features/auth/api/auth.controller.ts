@@ -24,7 +24,6 @@ import {
   ResendConfirmationDto,
 } from './models/input';
 import { UsersQueryRepo } from '../../users/infrastructure/';
-import { CurrentUserId } from '../../../common/pipes/current.userId';
 import {
   ConfirmPasswordRecoveryCommand,
   ConfirmRegistrationCommand,
@@ -37,7 +36,7 @@ import { AuthViewMapperManager } from './mappers';
 import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../guards';
 import { RefreshTokenCommand } from '../application/refreshToken.useCase';
 import { CookiesService } from '../../../infrastructure/services/cookies.service';
-import { CurrentDevice } from '../../../common/pipes/current.device';
+import { CurrentDevice, CurrentUserId } from '../../../common/pipes';
 
 enum AuthRoutes {
   Me = '/me',
@@ -60,11 +59,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
-  public async getProfile(
-    @CurrentUserId() currentUserId: string,
-    @Req() request: Request,
-  ) {
-    console.log(request);
+  public async getProfile(@CurrentUserId() currentUserId: string) {
     const data = await this.userQueryRepo.getProfile(currentUserId);
 
     if (!data) throw new NotFoundException();

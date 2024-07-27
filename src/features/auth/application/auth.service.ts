@@ -9,22 +9,30 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async getTokens(
-    userId: string,
-  ): Promise<{ access: string; refresh: string }> {
-    const jwtPayload = { sub: userId };
+  public async generateTokens(userId: string, deviceId: string) {
+    const jwtPayload = { userId, deviceId };
 
     const [access, refresh] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: this.config.get<string>('auth.jwtSecret'),
         expiresIn: this.config.get<string>('auth.jwtExpireTime'),
       }),
+
       this.jwtService.signAsync(jwtPayload, {
-        secret: this.config.get<string>('jwtRefreshSecret'),
-        expiresIn: this.config.get<string>('jwtRefreshExpireTime'),
+        secret: this.config.get<string>('auth.jwtRefreshSecret'),
+        expiresIn: this.config.get<string>('auth.jwtRefreshExpireTime'),
       }),
     ]);
 
     return { access, refresh };
+  }
+
+  public getSessionVersionAndExpirationDate(refreshToken: string) {
+    const decodeResult = this.jwtService.decode(refreshToken);
+
+    return {
+      version: new Date(decodeResult.iat * 1000).toISOString(),
+      expirationDate: new Date(Number(decodeResult.exp) * 1000),
+    };
   }
 }

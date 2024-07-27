@@ -8,5 +8,10 @@ export declare global {
     interface ErrorResponse {
       errorsMessages: HttpError[];
     }
+
+    interface Session {
+      id: string;
+      deviceId: string;
+    }
   }
 }

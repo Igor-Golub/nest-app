@@ -32,8 +32,8 @@ import {
 } from '../infrastructure';
 import { CommentsViewMapperManager } from './mappers/comments';
 import { UsersQueryRepo } from '../../../users/infrastructure';
-import { UserIdFromAccessToken } from '../../../../common/pipes/userId.from.token';
-import { CurrentUserId } from '../../../../common/pipes/current.userId';
+import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
+
 import { JwtAuthGuard } from '../../../auth/guards';
 
 @Controller('comments')

@@ -43,7 +43,7 @@ import { ClientSortingService } from '../../../../infrastructure/services/client
 import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
 import { FiltersType } from '../../../../common/enums';
 import { BasicAuthGuard } from '../../../auth/guards';
-import { UserIdFromAccessToken } from '../../../../common/pipes/userId.from.token';
+import { UserIdFromAccessToken } from '../../../../common/pipes';
 
 @Controller('blogs')
 export class BlogsController {

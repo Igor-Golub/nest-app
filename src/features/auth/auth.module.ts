@@ -28,6 +28,24 @@ import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
 import { SessionModel, SessionSchema } from './domain/sessionEntity';
 import { SessionController } from './api/session.controller';
 import { SessionRepo } from './infrastructure/session.repo';
+import {
+  DeleteAllSessionsCommandHandler,
+  DeleteSessionCommandHandler,
+} from './application/sessions';
+
+const authHandlers = [
+  RegisterHandler,
+  RefreshTokenHandler,
+  PasswordRecoveryHandler,
+  ResendConfirmationHandler,
+  ConfirmRegistrationHandler,
+  ConfirmPasswordRecoveryHandler,
+];
+
+const sessionHandlers = [
+  DeleteSessionCommandHandler,
+  DeleteAllSessionsCommandHandler,
+];
 
 @Module({
   imports: [
@@ -59,12 +77,8 @@ import { SessionRepo } from './infrastructure/session.repo';
     CryptoService,
     CookiesService,
     EmailTemplatesCreatorService,
-    RegisterHandler,
-    RefreshTokenHandler,
-    PasswordRecoveryHandler,
-    ResendConfirmationHandler,
-    ConfirmRegistrationHandler,
-    ConfirmPasswordRecoveryHandler,
+    ...authHandlers,
+    ...sessionHandlers,
   ],
   controllers: [AuthController, SessionController],
   exports: [AuthService, SessionRepo],

@@ -19,6 +19,6 @@ export class RefreshTokenHandler
   public async execute({ payload }: RefreshTokenCommand) {
     const { userId, refreshToken } = payload;
 
-    return await this.authService.getTokens(userId);
+    return true;
   }
 }
