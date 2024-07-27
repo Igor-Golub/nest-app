@@ -33,4 +33,12 @@ export class SessionRepo {
       $and: [{ userId }, { _id: { $in: sessionsIds } }],
     });
   }
+
+  public async findSessionByVersion(version: string) {
+    return this.sessionModel.findOne({ version }).lean();
+  }
+
+  public async updateSession(id: string, data: Partial<SessionModel>) {
+    return this.sessionModel.findByIdAndUpdate(id, data);
+  }
 }

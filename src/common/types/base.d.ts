@@ -12,6 +12,7 @@ export declare global {
     interface Session {
       id: string;
       deviceId: string;
+      refreshToken: string;
     }
   }
 }

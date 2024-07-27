@@ -7,14 +7,13 @@ import {
   HttpStatus,
   NotFoundException,
   Post,
-  Req,
   Res,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import {
   ConfirmPasswordRecoveryDto,
   ConfirmRegistrationDto,
@@ -36,7 +35,13 @@ import { AuthViewMapperManager } from './mappers';
 import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../guards';
 import { RefreshTokenCommand } from '../application/refreshToken.useCase';
 import { CookiesService } from '../../../infrastructure/services/cookies.service';
-import { CurrentDevice, CurrentUserId } from '../../../common/pipes';
+import {
+  CurrentDevice,
+  CurrentSession,
+  CurrentUserId,
+} from '../../../common/pipes';
+import { AuthService } from '../application/auth.service';
+import { SessionRepo } from '../infrastructure/session.repo';
 
 enum AuthRoutes {
   Me = '/me',
@@ -52,9 +57,11 @@ enum AuthRoutes {
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly userQueryRepo: UsersQueryRepo,
-    private readonly cookiesService: CookiesService,
+    private commandBus: CommandBus,
+    private authService: AuthService,
+    private userQueryRepo: UsersQueryRepo,
+    private cookiesService: CookiesService,
+    private sessionRepo: SessionRepo,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -161,19 +168,31 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtCookieRefreshAuthGuard)
   public async refreshToken(
-    @Req() request: Request,
-    @CurrentUserId() currentUserId: string,
+    @Res({ passthrough: true }) response: Response,
+    @CurrentSession() { id: userId, deviceId, refreshToken }: Base.Session,
   ) {
-    const refreshToken = this.cookiesService.read(request, 'refreshToken');
-    const user = await this.userQueryRepo.getById(currentUserId);
+    const user = await this.userQueryRepo.getById(userId);
 
-    if (!refreshToken || !user) throw new UnauthorizedException();
+    if (!user) throw new UnauthorizedException();
+
+    const { version } =
+      this.authService.getSessionVersionAndExpirationDate(refreshToken);
+
+    const session = await this.sessionRepo.findSessionByVersion(version);
+
+    if (!session) throw new UnauthorizedException();
 
     const command = new RefreshTokenCommand({
-      userId: currentUserId,
-      refreshToken,
+      userId,
+      deviceId,
+      sessionId: session._id.toString(),
     });
 
-    return await this.commandBus.execute(command);
+    const { refresh, access } = await this.commandBus.execute(command);
+
+    this.cookiesService.write(response, 'refreshToken', refresh);
+    this.cookiesService.write(response, 'accessToken', access);
+
+    return { accessToken: access };
   }
 }

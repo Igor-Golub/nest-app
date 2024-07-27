@@ -9,6 +9,6 @@ export const CurrentSession = createParamDecorator(
       throw new Error('JwtRefreshGuard mast be used');
     }
 
-    return req.user;
+    return { ...req.user, refreshToken: req?.cookies?.['refreshToken'] };
   },
 );
