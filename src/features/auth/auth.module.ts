@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { AuthController } from './api/auth.controller';
 import { AuthService } from './application/auth.service';
 import {
@@ -23,50 +24,41 @@ import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emai
 import { RecoveryRepo } from './infrastructure/recovery.repo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
-import { CqrsModule } from '@nestjs/cqrs';
-
-const imports = [
-  CqrsModule,
-  UsersModule,
-  MongooseModule.forFeature([
-    { name: RecoveryModel.name, schema: RecoverySchema },
-  ]),
-  JwtModule.registerAsync({
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: (config: ConfigService) => ({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: config.get('auth.jwtExpireTime') },
-    }),
-  }),
-];
-
-const handlers = [
-  RegisterHandler,
-  RefreshTokenHandler,
-  PasswordRecoveryHandler,
-  ResendConfirmationHandler,
-  ConfirmRegistrationHandler,
-  ConfirmPasswordRecoveryHandler,
-];
-
-const providers = [
-  AuthService,
-  SmtpService,
-  RecoveryRepo,
-  LoginHandler,
-  EmailService,
-  NotifyManager,
-  CryptoService,
-  CookiesService,
-  EmailTemplatesCreatorService,
-  ...handlers,
-];
 
 @Module({
-  imports,
-  providers,
+  imports: [
+    CqrsModule,
+    UsersModule,
+    MongooseModule.forFeature([
+      { name: RecoveryModel.name, schema: RecoverySchema },
+    ]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        global: true,
+        secret: jwtConstants.secret,
+        signOptions: { expiresIn: config.get('auth.jwtExpireTime') },
+      }),
+    }),
+  ],
+  providers: [
+    AuthService,
+    SmtpService,
+    RecoveryRepo,
+    LoginHandler,
+    EmailService,
+    NotifyManager,
+    CryptoService,
+    CookiesService,
+    EmailTemplatesCreatorService,
+    RegisterHandler,
+    RefreshTokenHandler,
+    PasswordRecoveryHandler,
+    ResendConfirmationHandler,
+    ConfirmRegistrationHandler,
+    ConfirmPasswordRecoveryHandler,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -1,11 +1,9 @@
 import { FilterQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
-import { FiltersType } from '../../common/enums/Filters';
+import { FiltersType } from '../../common/enums';
 
 @Injectable()
-export class ClientFilterService<ViewEntity>
-  implements Base.FilterService<ViewEntity>
-{
+export class ClientFilterService<ViewEntity> {
   private mangoMapper: Record<
     FiltersType,
     (...args: any) => Partial<FilterQuery<any>>

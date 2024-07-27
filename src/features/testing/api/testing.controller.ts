@@ -1,12 +1,12 @@
 import { Model } from 'mongoose';
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogModel } from '../../blogs/domain/blogEntity';
+import { BlogModel } from '../../blogs/blogs/domain/blogEntity';
 import { UserModel } from '../../users/domain/userEntity';
-import { PostModel } from '../../posts/domain/postModel';
-import { PostsCommentsModel } from '../../comments/domain/postsCommentsModel';
-import { PostCommentLikeModel } from '../../comments/domain/postsCommentsLikesModel';
-import { PostLikesModel } from '../../posts/domain/postLikesModel';
+import { PostModel } from '../../blogs/posts/domain/postModel';
+import { PostLikesModel } from '../../blogs/posts/domain/postLikesModel';
+import { PostCommentLikeModel } from '../../blogs/comments/domain/postsCommentsLikesModel';
+import { PostsCommentsModel } from '../../blogs/comments/domain/postsCommentsModel';
 
 @Controller('testing')
 export class TestingController {

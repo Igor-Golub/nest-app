@@ -10,26 +10,21 @@ import { ClientSortingService } from '../../infrastructure/services/clientSortin
 import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
 
-const imports = [
-  CqrsModule,
-  MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
-];
-
-const handlers = [CreateUserHandler, DeleteUserHandler];
-
-const providers = [
-  UsersRepo,
-  CryptoService,
-  UsersQueryRepo,
-  PaginationService,
-  ClientFilterService,
-  ClientSortingService,
-  ...handlers,
-];
-
 @Module({
-  imports,
-  providers,
+  imports: [
+    CqrsModule,
+    MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
+  ],
+  providers: [
+    UsersRepo,
+    CryptoService,
+    UsersQueryRepo,
+    PaginationService,
+    ClientFilterService,
+    ClientSortingService,
+    CreateUserHandler,
+    DeleteUserHandler,
+  ],
   controllers: [UsersController],
   exports: [UsersQueryRepo, UsersRepo],
 })
