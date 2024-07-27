@@ -34,9 +34,10 @@ import {
   ResendConfirmationCommand,
 } from '../application';
 import { AuthViewMapperManager } from './mappers';
-import { JwtAuthGuard, JwtRefreshAuthGuard } from '../guards';
+import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../guards';
 import { RefreshTokenCommand } from '../application/refreshToken.useCase';
 import { CookiesService } from '../../../infrastructure/services/cookies.service';
+import { CurrentDevice } from '../../../common/pipes/current.device';
 
 enum AuthRoutes {
   Me = '/me',
@@ -59,7 +60,11 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
-  public async getProfile(@CurrentUserId() currentUserId: string) {
+  public async getProfile(
+    @CurrentUserId() currentUserId: string,
+    @Req() request: Request,
+  ) {
+    console.log(request);
     const data = await this.userQueryRepo.getProfile(currentUserId);
 
     if (!data) throw new NotFoundException();
@@ -72,15 +77,15 @@ export class AuthController {
   public async login(
     @Res({ passthrough: true }) response: Response,
     @Body() { loginOrEmail, password }: LoginDto,
+    @CurrentDevice() { deviceIp, deviceName },
   ) {
     const user = await this.userQueryRepo.getByEmailOrLogin(loginOrEmail);
 
     if (!user) throw new UnauthorizedException();
 
     const command = new LoginCommand({
-      password,
-      userHash: user.hash,
-      userId: user._id.toString(),
+      deviceData: { ip: deviceIp, name: deviceName },
+      userData: { password, hash: user.hash, id: user._id.toString() },
     });
 
     const { refresh, access } = await this.commandBus.execute(command);
@@ -159,7 +164,7 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Refresh)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtRefreshAuthGuard)
+  @UseGuards(JwtCookieRefreshAuthGuard)
   public async refreshToken(
     @Req() request: Request,
     @CurrentUserId() currentUserId: string,

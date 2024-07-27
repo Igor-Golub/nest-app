@@ -2,18 +2,18 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import {
-  LocalStrategy,
-  JwtStrategy,
   BasicStrategy,
+  JwtStrategy,
+  LocalStrategy,
+  CookieRefreshTokenStrategy,
 } from './features/auth/strategies';
 import {
+  BlogIsExistConstraint,
   EmailIsExistConstraint,
   LoginIsExistConstraint,
-  BlogIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
 import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
@@ -38,7 +38,6 @@ import { BlogsModule } from './features/blogs/blogs.module';
       isGlobal: true,
       load: [configuration],
     }),
-    PassportModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -57,9 +56,10 @@ import { BlogsModule } from './features/blogs/blogs.module';
     LocalStrategy,
     JwtStrategy,
     BasicStrategy,
-    LoginIsExistConstraint,
-    EmailIsExistConstraint,
     BlogIsExistConstraint,
+    EmailIsExistConstraint,
+    LoginIsExistConstraint,
+    CookieRefreshTokenStrategy,
   ],
 })
 export class AppModule {

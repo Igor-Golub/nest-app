@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './api/auth.controller';
 import { AuthService } from './application/auth.service';
 import {
@@ -10,7 +12,6 @@ import {
   RegisterHandler,
   ResendConfirmationHandler,
 } from './application';
-import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../../constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RefreshTokenHandler } from './application/refreshToken.useCase';
@@ -24,13 +25,18 @@ import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emai
 import { RecoveryRepo } from './infrastructure/recovery.repo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
+import { SessionModel, SessionSchema } from './domain/sessionEntity';
+import { SessionController } from './api/session.controller';
+import { SessionRepo } from './infrastructure/session.repo';
 
 @Module({
   imports: [
     CqrsModule,
+    PassportModule,
     UsersModule,
     MongooseModule.forFeature([
       { name: RecoveryModel.name, schema: RecoverySchema },
+      { name: SessionModel.name, schema: SessionSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -43,6 +49,7 @@ import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
     }),
   ],
   providers: [
+    SessionRepo,
     AuthService,
     SmtpService,
     RecoveryRepo,
@@ -59,7 +66,7 @@ import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
     ConfirmRegistrationHandler,
     ConfirmPasswordRecoveryHandler,
   ],
-  controllers: [AuthController],
-  exports: [AuthService],
+  controllers: [AuthController, SessionController],
+  exports: [AuthService, SessionRepo],
 })
 export class AuthModule {}

@@ -1,8 +1,9 @@
 export declare global {
   namespace Express {
     export interface Request {
-      context?: {
-        userId: string | null;
+      user?: {
+        id: string | null;
+        deviceId: string | null;
       };
     }
   }
