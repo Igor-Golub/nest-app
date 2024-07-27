@@ -3,6 +3,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { SessionRepo } from '../infrastructure/session.repo';
 
+interface SessionPayload {
+  userId: string;
+  tokenKey: string;
+  deviceId: string;
+}
+
 @Injectable()
 export class CookieRefreshTokenStrategy extends PassportStrategy(
   Strategy,
@@ -18,9 +24,9 @@ export class CookieRefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: SessionPayload) {
     console.log('CookieRefreshTokenStrategy -> validate', payload);
-    const sessionId = await this.sessionRepo.getByUserIdAndTokenKey(
+    const sessionId = await this.sessionRepo.isUserSessionExist(
       payload.userId,
       payload.tokenKey,
     );

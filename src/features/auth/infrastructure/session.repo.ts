@@ -14,22 +14,23 @@ export class SessionRepo {
     return this.sessionModel.create(data);
   }
 
-  public async getByUserIdAndTokenKey(userId: string, tokenKey: string) {
-    return this.sessionModel.findOne({
-      userId,
-      tokenKey,
-    });
+  public async isUserSessionExist(userId: string, tokenKey: string) {
+    return this.sessionModel.findOne({ userId, tokenKey });
   }
 
   public async findAllUserSessions(userId: string) {
-    return this.sessionModel.find(
-      { userId },
-      {
-        version: true,
-        deviceId: true,
-        deviceIp: true,
-        deviceName: true,
-      },
-    );
+    return this.sessionModel.find({ userId });
+  }
+
+  public async deleteSessionByDeviceId(
+    data: Pick<SessionModel, 'deviceId' | 'userId'>,
+  ) {
+    return this.sessionModel.findOneAndDelete(data);
+  }
+
+  public async deleteAllSessions(userId: string, sessionsIds: string[]) {
+    return this.sessionModel.deleteMany({
+      $and: [{ userId }, { _id: { $in: sessionsIds } }],
+    });
   }
 }

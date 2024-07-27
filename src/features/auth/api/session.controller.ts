@@ -16,11 +16,17 @@ import { CurrentUserId } from '../../../common/pipes/current.userId';
 import { SessionRepo } from '../infrastructure/session.repo';
 import { SessionViewModel } from './models/output';
 import { SessionViewMapperManager } from './mappers';
+import {
+  DeleteSessionCommand,
+  DeleteAllSessionsCommand,
+} from '../application/sessions';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('security')
 @UseGuards(JwtCookieRefreshAuthGuard)
 export class SessionController {
   constructor(
+    private commandBus: CommandBus,
     private sessionRepo: SessionRepo,
     private cookiesService: CookiesService,
   ) {}
@@ -35,11 +41,28 @@ export class SessionController {
   }
 
   @Delete('devices')
-  public closeAllSessions(@Req() request: Request) {
+  public async closeAllSessions(
+    @Req() request: Request,
+    @CurrentUserId() userId: string,
+  ): Promise<void> {
     const refreshToken = this.cookiesService.read(request, 'refreshToken');
+
+    const command = new DeleteAllSessionsCommand({
+      currentSessionId: '',
+      userId,
+    });
+
+    await this.commandBus.execute(command);
   }
 
   @Delete('devices/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public closeSessionById(@Param() { id }: DeleteSessionParams) {}
+  public async closeSessionById(
+    @Param() { id: deviceId }: DeleteSessionParams,
+    @CurrentUserId() userId: string,
+  ): Promise<void> {
+    const command = new DeleteSessionCommand({ userId, deviceId });
+
+    await this.commandBus.execute(command);
+  }
 }
