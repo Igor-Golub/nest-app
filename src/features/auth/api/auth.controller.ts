@@ -30,22 +30,24 @@ import {
   PasswordRecoveryCommand,
   RegisterCommand,
   ResendConfirmationCommand,
-} from '../application';
+} from '../application/auth';
 import { AuthViewMapperManager } from './mappers';
 import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../guards';
-import { RefreshTokenCommand } from '../application/refreshToken.useCase';
+import { RefreshTokenCommand } from '../application/auth/refreshToken.useCase';
 import { CookiesService } from '../../../infrastructure/services/cookies.service';
 import {
   CurrentDevice,
   CurrentSession,
   CurrentUserId,
 } from '../../../common/pipes';
-import { AuthService } from '../application/auth.service';
+import { AuthService } from '../application/auth/auth.service';
 import { SessionRepo } from '../infrastructure/session.repo';
+import { LogoutCommand } from '../application/auth';
 
 enum AuthRoutes {
   Me = '/me',
   Login = '/login',
+  Logout = '/logout',
   NewPassword = '/new-password',
   Registration = '/registration',
   Refresh = '/refresh-token',
@@ -194,5 +196,17 @@ export class AuthController {
     this.cookiesService.write(response, 'accessToken', access);
 
     return { accessToken: access };
+  }
+
+  @Post(AuthRoutes.Logout)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtCookieRefreshAuthGuard)
+  public async logout(@CurrentSession() { id, deviceId }: Base.Session) {
+    const command = new LogoutCommand({
+      deviceId,
+      userId: id,
+    });
+
+    await this.commandBus.execute(command);
   }
 }

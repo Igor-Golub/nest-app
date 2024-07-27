@@ -1,5 +1,8 @@
-export { DeleteSessionCommand, DeleteSessionCommandHandler } from './delete';
+export {
+  DeleteSessionCommand,
+  DeleteSessionCommandHandler,
+} from './delete.useCase';
 export {
   DeleteAllSessionsCommand,
   DeleteAllSessionsCommandHandler,
-} from './deleteAll';
+} from './deleteAll.useCase';

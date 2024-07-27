@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { UsersRepo } from '../../users/infrastructure';
-import { RecoveryRepo } from '../infrastructure/recovery.repo';
-import { NotifyManager } from '../../../infrastructure/managers/notify.manager';
+import { UsersRepo } from '../../../users/infrastructure';
+import { RecoveryRepo } from '../../infrastructure/recovery.repo';
+import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 
 export class PasswordRecoveryCommand {
   constructor(readonly payload: ServicesModels.PasswordRecovery) {}

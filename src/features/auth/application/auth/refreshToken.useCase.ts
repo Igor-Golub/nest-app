@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepo } from '../infrastructure/session.repo';
+import { SessionRepo } from '../../infrastructure/session.repo';
 import { AuthService } from './auth.service';
 
 interface RefreshTokenCommandPayload {

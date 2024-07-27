@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CryptoService } from '../../../infrastructure/services/crypto.service';
-import { SessionRepo } from '../infrastructure/session.repo';
+import { CryptoService } from '../../../../infrastructure/services/crypto.service';
+import { SessionRepo } from '../../infrastructure/session.repo';
 import { AuthService } from './auth.service';
 
 interface LoginCommandUserData {

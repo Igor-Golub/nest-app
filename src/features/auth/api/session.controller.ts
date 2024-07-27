@@ -21,7 +21,7 @@ import {
 } from '../application/sessions';
 import { CommandBus } from '@nestjs/cqrs';
 import { CurrentSession } from '../../../common/pipes';
-import { AuthService } from '../application/auth.service';
+import { AuthService } from '../application/auth/auth.service';
 
 @Controller('security')
 @UseGuards(JwtCookieRefreshAuthGuard)

@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { NotifyManager } from '../../../infrastructure/managers/notify.manager';
-import { UsersRepo } from '../../users/infrastructure';
+import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
+import { UsersRepo } from '../../../users/infrastructure';
 
 export class ResendConfirmationCommand {
   constructor(readonly payload: ServicesModels.ResendConfirmation) {}

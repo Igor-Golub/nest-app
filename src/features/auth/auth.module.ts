@@ -3,7 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './api/auth.controller';
-import { AuthService } from './application/auth.service';
+import { AuthService } from './application/auth/auth.service';
 import {
   ConfirmPasswordRecoveryHandler,
   ConfirmRegistrationHandler,
@@ -11,10 +11,10 @@ import {
   PasswordRecoveryHandler,
   RegisterHandler,
   ResendConfirmationHandler,
-} from './application';
-import { jwtConstants } from '../../constants';
+  LogoutCommandHandler,
+} from './application/auth';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RefreshTokenHandler } from './application/refreshToken.useCase';
+import { RefreshTokenHandler } from './application/auth/refreshToken.useCase';
 import { CookiesService } from '../../infrastructure/services/cookies.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
 import { UsersModule } from '../users/users.module';
@@ -34,8 +34,10 @@ import {
 } from './application/sessions';
 
 const authHandlers = [
+  LoginHandler,
   RegisterHandler,
   RefreshTokenHandler,
+  LogoutCommandHandler,
   PasswordRecoveryHandler,
   ResendConfirmationHandler,
   ConfirmRegistrationHandler,
@@ -59,10 +61,10 @@ const sessionHandlers = [
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         global: true,
-        secret: jwtConstants.secret,
-        signOptions: { expiresIn: config.get('auth.jwtExpireTime') },
+        secret: configService.get('auth.jwtSecret'),
+        signOptions: { expiresIn: configService.get('auth.jwtExpireTime') },
       }),
     }),
   ],
@@ -71,7 +73,6 @@ const sessionHandlers = [
     AuthService,
     SmtpService,
     RecoveryRepo,
-    LoginHandler,
     EmailService,
     NotifyManager,
     CryptoService,

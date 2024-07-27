@@ -16,3 +16,4 @@ export {
   ResendConfirmationCommand,
   ResendConfirmationHandler,
 } from './resendConfirmation.useCase';
+export { LogoutCommandHandler, LogoutCommand } from './logout.useCase';
