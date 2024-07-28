@@ -30,7 +30,9 @@ export class RefreshTokenHandler
       tokensPairs.refresh,
     );
 
-    await this.sessionRepo.updateSession(sessionId, result);
+    await this.sessionRepo.updateSession(sessionId, {
+      version: result.version,
+    });
 
     return tokensPairs;
   }

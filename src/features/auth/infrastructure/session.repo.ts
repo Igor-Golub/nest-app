@@ -34,8 +34,8 @@ export class SessionRepo {
     });
   }
 
-  public async findSessionByVersion(version: string) {
-    return this.sessionModel.findOne({ version }).lean();
+  public async findSession(data: Partial<Record<keyof SessionModel, string>>) {
+    return this.sessionModel.findOne(data).lean();
   }
 
   public async updateSession(id: string, data: Partial<SessionModel>) {

@@ -32,6 +32,7 @@ import {
   DeleteAllSessionsCommandHandler,
   DeleteSessionCommandHandler,
 } from './application/sessions';
+import { SessionService } from './application/sessions/session.service';
 
 const authHandlers = [
   LoginHandler,
@@ -70,6 +71,7 @@ const sessionHandlers = [
   ],
   providers: [
     SessionRepo,
+    SessionService,
     AuthService,
     SmtpService,
     RecoveryRepo,

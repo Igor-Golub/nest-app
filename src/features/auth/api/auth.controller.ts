@@ -40,9 +40,9 @@ import {
   CurrentSession,
   CurrentUserId,
 } from '../../../common/pipes';
-import { AuthService } from '../application/auth/auth.service';
-import { SessionRepo } from '../infrastructure/session.repo';
 import { LogoutCommand } from '../application/auth';
+import { SessionService } from '../application/sessions/session.service';
+import { UsersService } from '../../users/application/users.service';
 
 enum AuthRoutes {
   Me = '/me',
@@ -60,10 +60,10 @@ enum AuthRoutes {
 export class AuthController {
   constructor(
     private commandBus: CommandBus,
-    private authService: AuthService,
     private userQueryRepo: UsersQueryRepo,
     private cookiesService: CookiesService,
-    private sessionRepo: SessionRepo,
+    private sessionService: SessionService,
+    private usersService: UsersService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -76,6 +76,7 @@ export class AuthController {
     return AuthViewMapperManager.mapProfileToView(data);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Post(AuthRoutes.Login)
   public async login(
@@ -171,22 +172,20 @@ export class AuthController {
   @UseGuards(JwtCookieRefreshAuthGuard)
   public async refreshToken(
     @Res({ passthrough: true }) response: Response,
-    @CurrentSession() { id: userId, deviceId, refreshToken }: Base.Session,
+    @CurrentSession() { refreshToken }: Base.Session,
   ) {
-    const user = await this.userQueryRepo.getById(userId);
+    const { session } = await this.sessionService.isSessionExist(refreshToken);
 
-    if (!user) throw new UnauthorizedException();
+    await this.usersService.isUserExist(session.userId, 'unauthorized');
 
-    const { version } =
-      this.authService.getSessionVersionAndExpirationDate(refreshToken);
-
-    const session = await this.sessionRepo.findSessionByVersion(version);
-
-    if (!session) throw new UnauthorizedException();
+    await this.sessionService.isSessionOfCurrentUser(
+      session.userId,
+      session.deviceId,
+    );
 
     const command = new RefreshTokenCommand({
-      userId,
-      deviceId,
+      userId: session.userId,
+      deviceId: session.deviceId,
       sessionId: session._id.toString(),
     });
 
@@ -201,10 +200,14 @@ export class AuthController {
   @Post(AuthRoutes.Logout)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtCookieRefreshAuthGuard)
-  public async logout(@CurrentSession() { id, deviceId }: Base.Session) {
+  public async logout(
+    @CurrentSession() { id: userId, deviceId, refreshToken }: Base.Session,
+  ) {
+    await this.sessionService.isSessionExist(refreshToken);
+
     const command = new LogoutCommand({
       deviceId,
-      userId: id,
+      userId,
     });
 
     await this.commandBus.execute(command);

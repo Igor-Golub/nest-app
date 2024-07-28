@@ -9,6 +9,7 @@ import { PaginationService } from '../../infrastructure/services/pagination.serv
 import { ClientSortingService } from '../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
+import { UsersService } from './application/users.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CryptoService } from '../../infrastructure/services/crypto.service';
   providers: [
     UsersRepo,
     CryptoService,
+    UsersService,
     UsersQueryRepo,
     PaginationService,
     ClientFilterService,
@@ -26,6 +28,6 @@ import { CryptoService } from '../../infrastructure/services/crypto.service';
     DeleteUserHandler,
   ],
   controllers: [UsersController],
-  exports: [UsersQueryRepo, UsersRepo],
+  exports: [UsersQueryRepo, UsersRepo, UsersService],
 })
 export class UsersModule {}

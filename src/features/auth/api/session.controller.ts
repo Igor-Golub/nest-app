@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import {
   Controller,
   Delete,
@@ -6,22 +5,26 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { CookiesService } from '../../../infrastructure/services/cookies.service';
 import { DeleteSessionParams } from './models/input';
 import { JwtCookieRefreshAuthGuard } from '../guards';
 import { SessionRepo } from '../infrastructure/session.repo';
 import { SessionViewModel } from './models/output';
 import { SessionViewMapperManager } from './mappers';
 import {
-  DeleteSessionCommand,
   DeleteAllSessionsCommand,
+  DeleteSessionCommand,
 } from '../application/sessions';
 import { CommandBus } from '@nestjs/cqrs';
 import { CurrentSession } from '../../../common/pipes';
-import { AuthService } from '../application/auth/auth.service';
+import { SessionService } from '../application/sessions/session.service';
+import { UsersService } from '../../users/application/users.service';
+
+enum SessionRoutes {
+  Devices = 'devices',
+  DeleteSessionByDeviceId = 'devices/:id',
+}
 
 @Controller('security')
 @UseGuards(JwtCookieRefreshAuthGuard)
@@ -29,11 +32,11 @@ export class SessionController {
   constructor(
     private commandBus: CommandBus,
     private sessionRepo: SessionRepo,
-    private cookiesService: CookiesService,
-    private authService: AuthService,
+    private usersService: UsersService,
+    private sessionService: SessionService,
   ) {}
 
-  @Get('devices')
+  @Get(SessionRoutes.Devices)
   public async getAllSessions(
     @CurrentSession() { id: userId }: Base.Session,
   ): Promise<SessionViewModel[]> {
@@ -42,30 +45,32 @@ export class SessionController {
     return sessions.map(SessionViewMapperManager.mapSessionToView);
   }
 
-  @Delete('devices')
+  @Delete(SessionRoutes.Devices)
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async closeAllSessions(
-    @Req() request: Request,
-    @CurrentSession() { id: userId }: Base.Session,
+    @CurrentSession() { id: userId, refreshToken }: Base.Session,
   ): Promise<void> {
-    const refreshToken = this.cookiesService.read(request, 'refreshToken');
-
-    const { version } =
-      this.authService.getSessionVersionAndExpirationDate(refreshToken);
+    const { session } = await this.sessionService.isSessionExist(refreshToken);
 
     const command = new DeleteAllSessionsCommand({
-      currentSessionId: version,
+      currentSessionId: session._id.toString(),
       userId,
     });
 
     await this.commandBus.execute(command);
   }
 
-  @Delete('devices/:id')
+  @Delete(SessionRoutes.DeleteSessionByDeviceId)
   @HttpCode(HttpStatus.NO_CONTENT)
   public async closeSessionById(
     @Param() { id: deviceId }: DeleteSessionParams,
     @CurrentSession() { id: userId }: Base.Session,
   ): Promise<void> {
+    await this.usersService.isUserExist(userId);
+
+    await this.sessionService.isSessionExistForDevice(deviceId);
+    await this.sessionService.isSessionOfCurrentUser(userId, deviceId);
+
     const command = new DeleteSessionCommand({ userId, deviceId });
 
     await this.commandBus.execute(command);
