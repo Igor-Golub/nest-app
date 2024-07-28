@@ -3,7 +3,7 @@ import { SessionRepo } from '../../infrastructure/session.repo';
 
 interface DeleteAllSessionsCommandPayload {
   userId: string;
-  currentSessionId: string;
+  currentSessionVersion: string;
 }
 
 export class DeleteAllSessionsCommand {
@@ -17,21 +17,24 @@ export class DeleteAllSessionsCommandHandler
   constructor(private sessionRepo: SessionRepo) {}
 
   public async execute({ payload }: DeleteAllSessionsCommand): Promise<any> {
-    const { userId, currentSessionId } = payload;
+    const { userId, currentSessionVersion } = payload;
 
     const userSessions = await this.sessionRepo.findAllUserSessions(userId);
 
     const idsForDelete = this.defineSessionsIdsForDelete(
       userSessions,
-      currentSessionId,
+      currentSessionVersion,
     );
 
     return this.sessionRepo.deleteAllSessions(userId, idsForDelete);
   }
 
-  private defineSessionsIdsForDelete(userSessions, currentSessionId: string) {
+  private defineSessionsIdsForDelete(
+    userSessions,
+    currentSessionVersion: string,
+  ) {
     return userSessions
-      .filter(({ version }) => String(version) !== currentSessionId)
+      .filter(({ version }) => String(version) !== currentSessionVersion)
       .map(({ _id }) => _id);
   }
 }

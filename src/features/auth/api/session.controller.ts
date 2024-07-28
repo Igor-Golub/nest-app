@@ -53,7 +53,7 @@ export class SessionController {
     const { session } = await this.sessionService.isSessionExist(refreshToken);
 
     const command = new DeleteAllSessionsCommand({
-      currentSessionId: session._id.toString(),
+      currentSessionVersion: session.version,
       userId,
     });
 
