@@ -7,6 +7,7 @@ import { PostModel } from '../../blogs/posts/domain/postModel';
 import { PostLikesModel } from '../../blogs/posts/domain/postLikesModel';
 import { PostCommentLikeModel } from '../../blogs/comments/domain/postsCommentsLikesModel';
 import { PostsCommentsModel } from '../../blogs/comments/domain/postsCommentsModel';
+import { SessionModel } from '../../auth/domain/sessionEntity';
 
 @Controller('testing')
 export class TestingController {
@@ -20,6 +21,8 @@ export class TestingController {
     private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
     @InjectModel(PostsCommentsModel.name)
     private readonly commentsModel: Model<PostsCommentsModel>,
+    @InjectModel(SessionModel.name)
+    private readonly sessionModel: Model<SessionModel>,
   ) {}
 
   @Delete('/all-data')
@@ -31,5 +34,6 @@ export class TestingController {
     await this.userModel.deleteMany({});
     await this.postLikesModel.deleteMany({});
     await this.postCommentLikeModel.deleteMany({});
+    await this.sessionModel.deleteMany({});
   }
 }

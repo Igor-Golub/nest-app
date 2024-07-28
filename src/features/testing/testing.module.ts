@@ -16,6 +16,7 @@ import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from '../blogs/comments/domain/postsCommentsLikesModel';
+import { SessionModel, SessionSchema } from '../auth/domain/sessionEntity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import {
       { name: PostLikesModel.name, schema: PostLikesSchema },
       { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
       { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
+      { name: SessionModel.name, schema: SessionSchema },
     ]),
   ],
   controllers: [TestingController],

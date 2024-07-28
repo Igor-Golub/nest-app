@@ -5,8 +5,9 @@ import { SessionRepo } from '../infrastructure/session.repo';
 
 interface SessionPayload {
   userId: string;
-  tokenKey: string;
   deviceId: string;
+  iat: number;
+  exp: number;
 }
 
 @Injectable()
@@ -27,17 +28,14 @@ export class CookieRefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: SessionPayload) {
-    console.log('CookieRefreshTokenStrategy -> validate', payload);
-    const sessionId = await this.sessionRepo.isUserSessionExist(
-      payload.userId,
-      payload.tokenKey,
-    );
+    const session = await this.sessionRepo.findSession({
+      version: new Date(payload.iat * 1000).toISOString(),
+    });
 
-    if (!sessionId) throw new UnauthorizedException();
+    if (!session) throw new UnauthorizedException();
 
     return {
       id: payload.userId,
-      tokenKey: payload.tokenKey,
       deviceId: payload.deviceId,
     };
   }

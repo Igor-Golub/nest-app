@@ -14,10 +14,6 @@ export class SessionRepo {
     return this.sessionModel.create(data);
   }
 
-  public async isUserSessionExist(userId: string, tokenKey: string) {
-    return this.sessionModel.findOne({ userId, tokenKey });
-  }
-
   public async findAllUserSessions(userId: string) {
     return this.sessionModel.find({ userId });
   }
