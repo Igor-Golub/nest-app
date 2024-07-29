@@ -21,7 +21,7 @@ export class SessionRepo {
   public async deleteSessionByDeviceId(
     data: Pick<SessionModel, 'deviceId' | 'userId'>,
   ) {
-    return this.sessionModel.findOneAndDelete(data);
+    return this.sessionModel.deleteOne(data);
   }
 
   public async deleteAllSessions(userId: string, sessionsIds: string[]) {

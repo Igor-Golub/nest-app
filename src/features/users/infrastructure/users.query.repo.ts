@@ -68,7 +68,7 @@ export class UsersQueryRepo {
   }
 
   public async getById(id: string) {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).lean();
   }
 
   public async getByEmail(email: string) {

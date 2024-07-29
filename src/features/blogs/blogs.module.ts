@@ -89,26 +89,11 @@ const commentsProviders = [
     CqrsModule,
     UsersModule,
     MongooseModule.forFeature([
-      {
-        name: PostModel.name,
-        schema: PostSchema,
-      },
-      {
-        name: PostLikesModel.name,
-        schema: PostLikesSchema,
-      },
-      {
-        name: BlogModel.name,
-        schema: BlogSchema,
-      },
-      {
-        name: PostsCommentsModel.name,
-        schema: PostsCommentsSchema,
-      },
-      {
-        name: PostCommentLikeModel.name,
-        schema: PostCommentLikeSchema,
-      },
+      { name: PostModel.name, schema: PostSchema },
+      { name: PostLikesModel.name, schema: PostLikesSchema },
+      { name: BlogModel.name, schema: BlogSchema },
+      { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
+      { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
     ]),
   ],
   controllers: [PostsController, BlogsController, CommentsController],

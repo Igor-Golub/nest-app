@@ -167,9 +167,9 @@ export class AuthController {
   }
 
   @UseGuards(ThrottlerGuard)
+  @UseGuards(JwtCookieRefreshAuthGuard)
   @Post(AuthRoutes.Refresh)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtCookieRefreshAuthGuard)
   public async refreshToken(
     @Res({ passthrough: true }) response: Response,
     @CurrentSession() { refreshToken }: Base.Session,
