@@ -31,7 +31,7 @@ export class SessionMongoRepo implements SessionCommandRepo {
     });
   }
 
-  public async findSession(data: Partial<Record<keyof SessionModel, string>>) {
+  public async findSession(data: Partial<SessionModel>) {
     return this.sessionModel.findOne(data).lean();
   }
 

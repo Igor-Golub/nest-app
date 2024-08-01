@@ -20,8 +20,15 @@ const configuration = () => ({
   front: {
     host: process.env.HOST_URL,
   },
-  db: {
-    mongoUri: process.env.MONGO_URL,
+  mongoDB: {
+    uri: process.env.MONGO_URL,
+  },
+  postgresDB: {
+    host: process.env.POSTGRES_DB_HOST,
+    port: process.env.POSTGRES_DB_PORT,
+    name: process.env.POSTGRES_DB_NAME,
+    user: process.env.POSTGRES_DB_USER_NAME,
+    pass: process.env.POSTGRES_DB_PASSWORD,
   },
 });
 

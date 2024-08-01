@@ -21,6 +21,7 @@ import { UsersModule } from './features/users/users.module';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
 import { BlogsModule } from './features/blogs/blogs.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -38,11 +39,25 @@ import { BlogsModule } from './features/blogs/blogs.module';
       isGlobal: true,
       load: [configuration],
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('postgresDB.host'),
+        port: config.get('postgresDB.port'),
+        username: config.get('postgresDB.user'),
+        password: config.get('postgresDB.pass'),
+        database: config.get('postgresDB.name'),
+        autoLoadEntities: false,
+        synchronize: false,
+      }),
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        uri: config.get('db.mongoUri')!,
+        uri: config.get('mongoDB.uri')!,
       }),
     }),
     UsersModule,
