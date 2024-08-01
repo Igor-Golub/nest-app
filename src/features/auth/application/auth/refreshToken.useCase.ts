@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepo } from '../../infrastructure/session.repo';
+import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { AuthService } from './auth.service';
 
 interface RefreshTokenCommandPayload {
@@ -18,7 +18,7 @@ export class RefreshTokenHandler
 {
   constructor(
     private authService: AuthService,
-    private sessionRepo: SessionRepo,
+    private sessionRepo: SessionMongoRepo,
   ) {}
 
   public async execute({ payload }: RefreshTokenCommand) {

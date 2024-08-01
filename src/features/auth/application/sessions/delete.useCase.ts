@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepo } from '../../infrastructure/session.repo';
+import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 
 interface DeleteSessionCommandPayload {
   userId: string;
@@ -14,7 +14,7 @@ export class DeleteSessionCommand {
 export class DeleteSessionCommandHandler
   implements ICommandHandler<DeleteSessionCommand>
 {
-  constructor(private sessionRepo: SessionRepo) {}
+  constructor(private sessionRepo: SessionMongoRepo) {}
 
   public async execute({ payload }: DeleteSessionCommand): Promise<any> {
     const { userId, deviceId } = payload;

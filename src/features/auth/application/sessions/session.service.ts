@@ -4,14 +4,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SessionRepo } from '../../infrastructure/session.repo';
+import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class SessionService {
   constructor(
     private readonly authService: AuthService,
-    private readonly sessionRepo: SessionRepo,
+    private readonly sessionRepo: SessionMongoRepo,
   ) {}
 
   public async isSessionExist(refreshToken: string) {

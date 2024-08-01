@@ -16,7 +16,7 @@ import {
   LoginIsExistConstraint,
 } from './common/decorators';
 import configuration from './settings/configuration';
-import { AccessTokenExistMiddleware } from './common/middleware/isAccessTokenExist';
+import { AccessTokenExistMiddleware } from './common/middleware';
 import { UsersModule } from './features/users/users.module';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';

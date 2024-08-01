@@ -8,18 +8,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DeleteSessionParams } from './models/input';
-import { JwtCookieRefreshAuthGuard } from '../guards';
-import { SessionRepo } from '../infrastructure/session.repo';
+import { JwtCookieRefreshAuthGuard } from '../../guards';
+import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { SessionViewModel } from './models/output';
 import { SessionViewMapperManager } from './mappers';
 import {
   DeleteAllSessionsCommand,
   DeleteSessionCommand,
-} from '../application/sessions';
+} from '../../application/sessions';
 import { CommandBus } from '@nestjs/cqrs';
-import { CurrentSession } from '../../../common/pipes';
-import { SessionService } from '../application/sessions/session.service';
-import { UsersService } from '../../users/application/users.service';
+import { CurrentSession } from '../../../../common/pipes';
+import { SessionService } from '../../application/sessions/session.service';
+import { UsersService } from '../../../users/application/users.service';
 
 enum SessionRoutes {
   Devices = 'devices',
@@ -31,7 +31,7 @@ enum SessionRoutes {
 export class SessionController {
   constructor(
     private commandBus: CommandBus,
-    private sessionRepo: SessionRepo,
+    private sessionRepo: SessionMongoRepo,
     private usersService: UsersService,
     private sessionService: SessionService,
   ) {}

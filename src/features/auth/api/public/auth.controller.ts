@@ -22,7 +22,7 @@ import {
   RegistrationDto,
   ResendConfirmationDto,
 } from './models/input';
-import { UsersQueryRepo } from '../../users/infrastructure/';
+import { UsersQueryRepo } from '../../../users/infrastructure';
 import {
   ConfirmPasswordRecoveryCommand,
   ConfirmRegistrationCommand,
@@ -30,19 +30,19 @@ import {
   PasswordRecoveryCommand,
   RegisterCommand,
   ResendConfirmationCommand,
-} from '../application/auth';
+} from '../../application/auth';
 import { AuthViewMapperManager } from './mappers';
-import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../guards';
-import { RefreshTokenCommand } from '../application/auth/refreshToken.useCase';
-import { CookiesService } from '../../../infrastructure/services/cookies.service';
+import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../../guards';
+import { RefreshTokenCommand } from '../../application/auth/refreshToken.useCase';
+import { CookiesService } from '../../../../infrastructure/services/cookies.service';
 import {
   CurrentDevice,
   CurrentSession,
   CurrentUserId,
-} from '../../../common/pipes';
-import { LogoutCommand } from '../application/auth';
-import { SessionService } from '../application/sessions/session.service';
-import { UsersService } from '../../users/application/users.service';
+} from '../../../../common/pipes';
+import { LogoutCommand } from '../../application/auth';
+import { SessionService } from '../../application/sessions/session.service';
+import { UsersService } from '../../../users/application/users.service';
 
 enum AuthRoutes {
   Me = '/me',

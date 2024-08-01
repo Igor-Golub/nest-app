@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { UsersRepo } from '../../../users/infrastructure';
-import { RecoveryRepo } from '../../infrastructure/recovery.repo';
+import { RecoveryMongoRepo } from '../../infrastructure/mongo/recovery.mongo.repo';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 
 export class PasswordRecoveryCommand {
@@ -14,7 +14,7 @@ export class PasswordRecoveryHandler
   implements ICommandHandler<PasswordRecoveryCommand>
 {
   constructor(
-    private readonly recoveryRepo: RecoveryRepo,
+    private readonly recoveryRepo: RecoveryMongoRepo,
     private readonly usersRepo: UsersRepo,
     private readonly notifyManager: NotifyManager,
   ) {}

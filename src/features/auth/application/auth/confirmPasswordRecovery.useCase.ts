@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { UsersRepo } from '../../../users/infrastructure';
 import { isAfter } from 'date-fns';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
-import { RecoveryRepo } from '../../infrastructure/recovery.repo';
+import { RecoveryMongoRepo } from '../../infrastructure/mongo/recovery.mongo.repo';
 
 export class ConfirmPasswordRecoveryCommand {
   constructor(readonly payload: ServicesModels.ConfirmPasswordRecovery) {}
@@ -16,7 +16,7 @@ export class ConfirmPasswordRecoveryHandler
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
-    private readonly recoveryRepo: RecoveryRepo,
+    private readonly recoveryRepo: RecoveryMongoRepo,
   ) {}
 
   public async execute({ payload }: ConfirmPasswordRecoveryCommand) {

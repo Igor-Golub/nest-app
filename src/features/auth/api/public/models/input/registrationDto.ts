@@ -3,7 +3,7 @@ import {
   LoginIsExist,
   EmailIsExist,
   IsStringWithExpectedLength,
-} from '../../../../../common/decorators';
+} from '../../../../../../common/decorators';
 
 export class RegistrationDto {
   @LoginIsExist()

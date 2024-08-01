@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
-import { SessionRepo } from '../../infrastructure/session.repo';
+import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { AuthService } from './auth.service';
 
 interface LoginCommandUserData {
@@ -27,7 +27,7 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<LoginCommand> {
   constructor(
-    private sessionRepo: SessionRepo,
+    private sessionRepo: SessionMongoRepo,
     private authService: AuthService,
     private cryptoService: CryptoService,
   ) {}

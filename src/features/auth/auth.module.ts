@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthController } from './api/auth.controller';
+import { AuthController } from './api/public/auth.controller';
 import { AuthService } from './application/auth/auth.service';
 import {
   ConfirmPasswordRecoveryHandler,
@@ -22,12 +22,12 @@ import { NotifyManager } from '../../infrastructure/managers/notify.manager';
 import { EmailService } from '../../infrastructure/managers/email.service';
 import { SmtpService } from '../../infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emailTemplatesCreator.service';
-import { RecoveryRepo } from './infrastructure/recovery.repo';
+import { RecoveryMongoRepo } from './infrastructure/mongo/recovery.mongo.repo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
 import { SessionModel, SessionSchema } from './domain/sessionEntity';
-import { SessionController } from './api/session.controller';
-import { SessionRepo } from './infrastructure/session.repo';
+import { SessionController } from './api/public/session.controller';
+import { SessionMongoRepo } from './infrastructure/mongo/session.mongo.repo';
 import {
   DeleteAllSessionsCommandHandler,
   DeleteSessionCommandHandler,
@@ -70,11 +70,11 @@ const sessionHandlers = [
     }),
   ],
   providers: [
-    SessionRepo,
+    SessionMongoRepo,
     SessionService,
     AuthService,
     SmtpService,
-    RecoveryRepo,
+    RecoveryMongoRepo,
     EmailService,
     NotifyManager,
     CryptoService,
@@ -84,6 +84,6 @@ const sessionHandlers = [
     ...sessionHandlers,
   ],
   controllers: [AuthController, SessionController],
-  exports: [AuthService, SessionRepo],
+  exports: [AuthService, SessionMongoRepo],
 })
 export class AuthModule {}

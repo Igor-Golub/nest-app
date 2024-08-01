@@ -1,5 +1,5 @@
 import { IsString } from 'class-validator';
-import { IsStringWithExpectedLength } from '../../../../../common/decorators';
+import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
 
 export class ConfirmPasswordRecoveryDto {
   @IsStringWithExpectedLength(6, 20)
