@@ -1,7 +1,7 @@
 import { isAfter } from 'date-fns';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepo } from '../../../users/infrastructure';
+import { UsersMongoRepo } from '../../../users/infrastructure';
 
 export class ConfirmRegistrationCommand {
   constructor(readonly payload: { code: string }) {}
@@ -11,7 +11,7 @@ export class ConfirmRegistrationCommand {
 export class ConfirmRegistrationHandler
   implements ICommandHandler<ConfirmRegistrationCommand>
 {
-  constructor(private readonly usersRepo: UsersRepo) {}
+  constructor(private readonly usersRepo: UsersMongoRepo) {}
 
   public async execute({ payload }: ConfirmRegistrationCommand) {
     const user = await this.usersRepo.findByConfirmationCode(payload.code);

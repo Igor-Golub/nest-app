@@ -1,15 +1,21 @@
-import { UsersRepo } from '../infrastructure/users.repo';
+import { UsersRepo } from '../infrastructure';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+interface DeleteUserCommandPayload {
+  id: string;
+}
+
 export class DeleteUserCommand {
-  constructor(readonly payload: { id: string }) {}
+  constructor(readonly payload: DeleteUserCommandPayload) {}
 }
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
-  constructor(private readonly usersRepo: UsersRepo) {}
+  constructor(private usersRepo: UsersRepo) {}
 
-  public async execute({ payload: { id } }: DeleteUserCommand) {
+  public async execute({ payload }: DeleteUserCommand) {
+    const { id } = payload;
+
     return this.usersRepo.delete(id);
   }
 }

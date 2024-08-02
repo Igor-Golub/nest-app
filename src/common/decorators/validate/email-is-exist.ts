@@ -16,7 +16,7 @@ export class EmailIsExistConstraint implements ValidatorConstraintInterface {
   public async validate(value: any): Promise<boolean> {
     if (typeof value !== 'string') return false;
 
-    const user = await this.userQueryRepo.emailIsExist(value);
+    const user = await this.userQueryRepo.findByField('email', value);
 
     return !user;
   }

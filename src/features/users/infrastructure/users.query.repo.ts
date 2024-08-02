@@ -1,85 +1,63 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserModel } from '../domain/userEntity';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
+import { UserQueryRepo } from './interfaces';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { UserDBEntity, UserEntity } from '../domain/userEntity';
 
 @Injectable()
-export class UsersQueryRepo {
+export class UsersQueryRepo implements UserQueryRepo {
   constructor(
-    @InjectModel(UserModel.name) private readonly userModel: Model<UserModel>,
+    @InjectDataSource() private dataSource: DataSource,
     private readonly paginationService: PaginationService,
     private readonly sortingService: ClientSortingService,
     private readonly filterService: ClientFilterService<ViewModels.Blog>,
   ) {}
 
-  public async getProfile(userId: string) {
-    return this.userModel.findById(userId).lean();
+  public async findWithPagination() {
+    //TODO add query
+    return [];
   }
 
-  public async getWithPagination() {
-    const { pageNumber, pageSize } = this.paginationService.getPagination();
-    const sort = this.sortingService.createSortCondition() as any;
-    const filters = this.filterService.getFilters();
-
-    const data = await this.userModel
-      .find(filters)
-      .sort(sort)
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean();
-
-    const amountOfItems = await this.userModel.countDocuments(filters);
-
-    return {
-      page: pageNumber,
-      pageSize,
-      totalCount: amountOfItems,
-      items: data.map(this.mapToViewModel),
-      pagesCount: Math.ceil(amountOfItems / pageSize),
-    };
+  public async findById(id: string): Promise<UserDBEntity | null> {
+    return this.dataSource.query(
+      `
+        select *
+        from "user" as u
+        where u."id" = ${id}
+    `,
+    );
   }
 
-  private mapToViewModel(data): ViewModels.User {
-    return {
-      email: data.email,
-      login: data.login,
-      id: data._id.toString(),
-      createdAt: data._id.getTimestamp().toISOString(),
-    };
+  public async findByField<key extends keyof UserEntity>(
+    field: key,
+    value: UserEntity[key],
+  ): Promise<UserDBEntity | null> {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        select *
+        from "user" as u
+        where u."${field}" = '${value}'
+    `,
+    );
+
+    return queryResult.length ? queryResult[0] : null;
   }
 
-  public async loginIsExist(name: string) {
-    const result = await this.userModel.countDocuments({
-      login: name,
-    });
+  public async findByFields<key extends keyof UserEntity>(
+    fields: key[],
+    value: UserEntity[key],
+  ): Promise<UserDBEntity | null> {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        select *
+        from "user" as u
+        where ${value} in ${fields.join(', ')}
+    `,
+    );
 
-    return result > 0;
-  }
-
-  public async emailIsExist(email: string) {
-    const result = await this.userModel.countDocuments({
-      email,
-    });
-
-    return result > 0;
-  }
-
-  public async getById(id: string) {
-    return this.userModel.findById(id).lean();
-  }
-
-  public async getByEmail(email: string) {
-    return this.userModel.findOne({
-      email,
-    });
-  }
-
-  public async getByEmailOrLogin(loginOrEmail: string) {
-    return this.userModel.findOne({
-      $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
-    });
+    return queryResult.length ? queryResult[0] : null;
   }
 }

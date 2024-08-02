@@ -1,6 +1,6 @@
-import { IsStringWithExpectedLength } from '../../../../../common/decorators';
+import { IsString } from 'class-validator';
 
-export class DeleteUserDto {
-  @IsStringWithExpectedLength(24, 24)
+export class DeleteUserParams {
+  @IsString()
   id: string;
 }

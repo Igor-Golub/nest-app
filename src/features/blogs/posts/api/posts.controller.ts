@@ -43,7 +43,7 @@ import { BlogsViewMapperManager } from '../../blogs/api/mappers';
 import { PostsLikesQueryRepo } from '../infrastructure';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { PostsService } from '../application/posts.service';
-import { UsersQueryRepo } from '../../../users/infrastructure';
+import { UsersQueryMongoRepo } from '../../../users/infrastructure';
 import { PaginationService } from '../../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
@@ -58,7 +58,7 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryMongoRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,

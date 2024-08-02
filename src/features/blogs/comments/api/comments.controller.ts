@@ -31,7 +31,7 @@ import {
   PostsCommentsLikesQueryRepo,
 } from '../infrastructure';
 import { CommentsViewMapperManager } from './mappers/comments';
-import { UsersQueryRepo } from '../../../users/infrastructure';
+import { UsersQueryMongoRepo } from '../../../users/infrastructure';
 import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
 
 import { JwtAuthGuard } from '../../../auth/guards';
@@ -40,7 +40,7 @@ import { JwtAuthGuard } from '../../../auth/guards';
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryMongoRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
   ) {}

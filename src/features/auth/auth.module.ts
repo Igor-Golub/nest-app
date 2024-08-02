@@ -22,12 +22,16 @@ import { NotifyManager } from '../../infrastructure/managers/notify.manager';
 import { EmailService } from '../../infrastructure/managers/email.service';
 import { SmtpService } from '../../infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emailTemplatesCreator.service';
-import { RecoveryMongoRepo } from './infrastructure/mongo/recovery.mongo.repo';
+import {
+  RecoveryMongoRepo,
+  SessionPostgresRepo,
+  RecoveryPostgresRepo,
+  SessionMongoRepo,
+} from './infrastructure';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
 import { SessionModel, SessionSchema } from './domain/sessionEntity';
 import { SessionController } from './api/public/session.controller';
-import { SessionMongoRepo } from './infrastructure/mongo/session.mongo.repo';
 import {
   DeleteAllSessionsCommandHandler,
   DeleteSessionCommandHandler,
@@ -80,6 +84,8 @@ const sessionHandlers = [
     CryptoService,
     CookiesService,
     EmailTemplatesCreatorService,
+    SessionPostgresRepo,
+    RecoveryPostgresRepo,
     ...authHandlers,
     ...sessionHandlers,
   ],

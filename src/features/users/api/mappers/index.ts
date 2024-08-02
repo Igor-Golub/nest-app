@@ -1,0 +1,1 @@
+export { UserViewMapperManager } from './user';

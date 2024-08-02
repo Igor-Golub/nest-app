@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepo } from '../../../users/infrastructure';
+import { UsersMongoRepo } from '../../../users/infrastructure';
 import { isAfter } from 'date-fns';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 import { RecoveryMongoRepo } from '../../infrastructure/mongo/recovery.mongo.repo';
@@ -14,7 +14,7 @@ export class ConfirmPasswordRecoveryHandler
   implements ICommandHandler<ConfirmPasswordRecoveryCommand>
 {
   constructor(
-    private readonly usersRepo: UsersRepo,
+    private readonly usersRepo: UsersMongoRepo,
     private readonly cryptoService: CryptoService,
     private readonly recoveryRepo: RecoveryMongoRepo,
   ) {}

@@ -13,8 +13,9 @@ export class UsersService {
     id: string,
     exception: 'notFound' | 'unauthorized' = 'notFound',
   ) {
-    const user = await this.usersQueryRepo.getById(id);
+    const user = await this.usersQueryRepo.findById(id);
 
+    // TODO add interlayer
     const exceptions = {
       notFound: NotFoundException,
       unauthorized: UnauthorizedException,

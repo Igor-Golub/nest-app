@@ -11,8 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepo } from '../infrastructure';
-import { DeleteUserDto, UsersQueryDto, CreateUserDto } from './models/input';
+import { UsersQueryDto, CreateUserDto } from './models/input';
 import { PaginationService } from '../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../infrastructure/services/filter.service';
@@ -20,6 +19,10 @@ import { FiltersType } from '../../../common/enums';
 import { BasicAuthGuard } from '../../auth/guards';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand, DeleteUserCommand } from '../application';
+import { DeleteUserParams } from './models/input';
+import { UsersQueryRepo } from '../infrastructure';
+import { UserViewModel } from './models/output';
+import { UserViewMapperManager } from './mappers';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
@@ -53,7 +56,12 @@ export class UsersController {
       FiltersType.OrAndInnerText,
     );
 
-    return this.usersQueryRepo.getWithPagination();
+    const result = await this.usersQueryRepo.findWithPagination();
+
+    return {
+      ...result,
+      items: UserViewMapperManager.mapUsersToView([]),
+    };
   }
 
   @Post()
@@ -65,13 +73,11 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(@Param() { id }: DeleteUserDto) {
+  public async delete(@Param() { id }: DeleteUserParams) {
     const command = new DeleteUserCommand({ id });
 
     const result = await this.commandBus.execute(command);
 
     if (!result) throw new NotFoundException();
-
-    return true;
   }
 }

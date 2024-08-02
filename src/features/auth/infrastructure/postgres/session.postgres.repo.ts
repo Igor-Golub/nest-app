@@ -3,7 +3,7 @@ import type { SessionModel } from '../../domain/sessionEntity';
 import type { SessionCommandRepo } from '../interfaces';
 
 @Injectable()
-export class SessionRepo implements SessionCommandRepo {
+export class SessionPostgresRepo implements SessionCommandRepo {
   constructor() {}
 
   public async createSession(data: SessionModel) {}

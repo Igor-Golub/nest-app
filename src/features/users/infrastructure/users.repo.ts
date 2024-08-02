@@ -1,85 +1,98 @@
+import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserDocument, UserModel } from '../domain/userEntity';
-import { add } from 'date-fns';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { UserCommandRepo } from './interfaces';
+import { UserDBEntity, UserEntity } from '../domain/userEntity';
 
 @Injectable()
-export class UsersRepo {
-  constructor(
-    @InjectModel(UserModel.name)
-    private readonly userModel: Model<UserDocument>,
-  ) {}
+export class UsersRepo implements UserCommandRepo {
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  public async create(createUserDto: DBModels.User) {
-    return this.userModel.create(createUserDto);
+  public async create(createUserDto: UserEntity): Promise<string> {
+    const { login, hash, email, isConfirmed } = createUserDto;
+
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(`
+      INSERT INTO "user"
+      ("login", "email", "hash", "isConfirmed")
+      VALUES ('${login}', '${email}', '${hash}', ${isConfirmed})
+      RETURNING id
+    `);
+
+    return queryResult[0].id;
   }
 
-  public async delete(id: string) {
-    return this.userModel.findByIdAndDelete(id);
-  }
-
-  public async findByLogin(login: string) {
-    return this.userModel
-      .findOne({
-        login: login,
-      })
-      .lean();
-  }
-
-  public async findByEmail(email: string) {
-    return this.userModel
-      .findOne({
-        email: email,
-      })
-      .lean();
-  }
-
-  public async findByLoginOrEmail(emailOrLogin: string) {
-    return this.userModel
-      .findOne({
-        $or: [{ email: emailOrLogin }, { login: emailOrLogin }],
-      })
-      .lean();
-  }
-
-  public async findByConfirmationCode(code: string) {
-    return this.userModel
-      .findOne({
-        'confirmation.code': code,
-      })
-      .lean();
-  }
-
-  public async confirm(usertId) {
-    return this.userModel.findByIdAndUpdate(
-      {
-        _id: usertId,
-      },
-      {
-        $set: {
-          'confirmation.isConfirmed': true,
-        },
-      },
+  async updateField<key extends keyof UserEntity>(
+    id: string,
+    field: key,
+    value: UserEntity[key],
+  ): Promise<boolean> {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        update "user" as u
+        set "${field}" = '${value}'
+        where u."id" = ${id}
+    `,
     );
+
+    return !!queryResult[1];
   }
 
-  public async updateHash(usertId, hash: string) {
-    return this.userModel.findByIdAndUpdate(usertId, {
-      $set: {
-        hash: hash,
-      },
-    });
+  async updateFields(
+    id: string,
+    updateDto: Partial<UserEntity>,
+  ): Promise<boolean> {
+    const prepareSetData = Object.entries(updateDto).reduce<string>(
+      (acc, [field, value]) => acc + `${field} = '${value}'`,
+      '',
+    );
+
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        update "user" as u
+        set ${prepareSetData}
+        where u."id" = ${id}
+    `,
+    );
+
+    return !!queryResult[1];
   }
 
-  public async updateConfirmationCode(userId, code: string) {
-    return this.userModel.findOneAndUpdate(userId, {
-      $set: {
-        'confirmation.expirationDate': add(new Date(), {
-          hours: 1,
-        }),
-        'confirmation.code': code,
-      },
-    });
+  public async delete(id: string): Promise<boolean> {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(`
+        delete from "user" as u
+        where u."id" = '${id}';
+    `);
+
+    return !!queryResult[1];
+  }
+
+  public async findByField<key extends keyof UserEntity>(
+    field: key,
+    value: UserEntity[key],
+  ) {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        select *
+        from "user" as u
+        where u."${field}" = '${value}'
+    `,
+    );
+
+    return queryResult.length ? queryResult[0] : null;
+  }
+
+  public async findByFields<key extends keyof UserEntity>(
+    fields: key[],
+    value: UserEntity[key],
+  ): Promise<UserDBEntity | null> {
+    const queryResult = await this.dataSource.query<UserDBEntity[]>(
+      `
+        select *
+        from "user" as u
+        where ${value} in ${fields.join(', ')}
+    `,
+    );
+
+    return queryResult.length ? queryResult[0] : null;
   }
 }
