@@ -22,7 +22,7 @@ import {
   RegistrationDto,
   ResendConfirmationDto,
 } from './models/input';
-import { UsersQueryMongoRepo } from '../../../users/infrastructure';
+import { UsersQueryRepo } from '../../../users/infrastructure';
 import {
   ConfirmPasswordRecoveryCommand,
   ConfirmRegistrationCommand,
@@ -42,7 +42,7 @@ import {
 } from '../../../../common/pipes';
 import { LogoutCommand } from '../../application/auth';
 import { SessionService } from '../../application/sessions/session.service';
-import { UsersService } from '../../../users/application/users.service';
+import { UsersService } from '../../../users/application';
 
 enum AuthRoutes {
   Me = '/me',
@@ -60,7 +60,7 @@ enum AuthRoutes {
 export class AuthController {
   constructor(
     private commandBus: CommandBus,
-    private userQueryRepo: UsersQueryMongoRepo,
+    private userQueryRepo: UsersQueryRepo,
     private cookiesService: CookiesService,
     private sessionService: SessionService,
     private usersService: UsersService,
@@ -69,7 +69,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
   public async getProfile(@CurrentUserId() currentUserId: string) {
-    const data = await this.userQueryRepo.getProfile(currentUserId);
+    const data = await this.userQueryRepo.findById(currentUserId);
 
     if (!data) throw new NotFoundException();
 
@@ -84,13 +84,16 @@ export class AuthController {
     @Body() { loginOrEmail, password }: LoginDto,
     @CurrentDevice() { deviceIp, deviceName },
   ) {
-    const user = await this.userQueryRepo.getByEmailOrLogin(loginOrEmail);
+    const user = await this.userQueryRepo.findByFields(
+      ['login', 'email'],
+      loginOrEmail,
+    );
 
     if (!user) throw new UnauthorizedException();
 
     const command = new LoginCommand({
       deviceData: { ip: deviceIp, name: deviceName },
-      userData: { password, hash: user.hash, id: user._id.toString() },
+      userData: { password, hash: user.hash, id: user.id },
     });
 
     const { refresh, access } = await this.commandBus.execute(command);
@@ -151,7 +154,7 @@ export class AuthController {
   ) {
     const { email } = resendConfirmation;
 
-    const user = await this.userQueryRepo.getByEmail(email);
+    const user = await this.userQueryRepo.findByField('email', email);
 
     if (!user)
       throw new BadRequestException([

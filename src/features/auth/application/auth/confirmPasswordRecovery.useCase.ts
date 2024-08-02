@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersMongoRepo } from '../../../users/infrastructure';
+import { UsersRepo } from '../../../users/infrastructure';
 import { isAfter } from 'date-fns';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
-import { RecoveryMongoRepo } from '../../infrastructure/mongo/recovery.mongo.repo';
+import { RecoveryMongoRepo } from '../../infrastructure';
 
 export class ConfirmPasswordRecoveryCommand {
   constructor(readonly payload: ServicesModels.ConfirmPasswordRecovery) {}
@@ -14,7 +14,7 @@ export class ConfirmPasswordRecoveryHandler
   implements ICommandHandler<ConfirmPasswordRecoveryCommand>
 {
   constructor(
-    private readonly usersRepo: UsersMongoRepo,
+    private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
     private readonly recoveryRepo: RecoveryMongoRepo,
   ) {}
@@ -37,7 +37,7 @@ export class ConfirmPasswordRecoveryHandler
       payload.newPassword,
     );
 
-    await this.usersRepo.updateHash(recovery.userId, hash);
+    await this.usersRepo.updateField(recovery.userId, 'hash', hash);
     await this.recoveryRepo.updateStatus(recovery._id, 'recovered');
   }
 }

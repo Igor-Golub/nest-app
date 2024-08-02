@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
-import { UsersMongoRepo } from '../../../users/infrastructure';
+import { UsersRepo } from '../../../users/infrastructure';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
@@ -12,7 +12,7 @@ export class RegisterCommand {
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
-    private readonly usersRepo: UsersMongoRepo,
+    private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
     private readonly notifyManager: NotifyManager,
   ) {}
@@ -28,13 +28,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
       login,
       email,
       hash,
-      confirmation: {
-        isConfirmed: false,
-        code: confirmationCode,
-        expirationDate: add(new Date(), {
-          minutes: 10,
-        }),
-      },
+      isConfirmed: true,
     });
 
     this.notifyManager.sendRegistrationEmail({

@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
-import { UsersMongoRepo } from '../../../users/infrastructure';
+import { UsersRepo } from '../../../users/infrastructure';
 
 export class ResendConfirmationCommand {
   constructor(readonly payload: ServicesModels.ResendConfirmation) {}
@@ -13,12 +13,12 @@ export class ResendConfirmationHandler
   implements ICommandHandler<ResendConfirmationCommand>
 {
   constructor(
-    private readonly usersRepo: UsersMongoRepo,
+    private readonly usersRepo: UsersRepo,
     private readonly notifyManager: NotifyManager,
   ) {}
 
   public async execute({ payload }: ResendConfirmationCommand) {
-    const user = await this.usersRepo.findByEmail(payload.email);
+    const user = await this.usersRepo.findByField('email', payload.email);
 
     if (!user) {
       throw new BadRequestException('User not found');
@@ -33,9 +33,9 @@ export class ResendConfirmationHandler
       ]);
     }
 
-    const confirmationCode = `${uuidv4()}_${user._id}`;
+    const confirmationCode = `${uuidv4()}_${user.id}`;
 
-    await this.usersRepo.updateConfirmationCode(user._id, confirmationCode);
+    await this.usersRepo.updateConfirmationCode(user.id, confirmationCode);
 
     await this.notifyManager.sendRegistrationEmail({
       login: user!.login,

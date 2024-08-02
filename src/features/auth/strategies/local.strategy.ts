@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { UsersMongoRepo } from '../../users/infrastructure';
+import { UsersRepo } from '../../users/infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly usersRepo: UsersMongoRepo,
+    private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
   ) {
     super({
@@ -16,7 +16,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   public async validate(loginOrEmail: string, password: string) {
-    const user = await this.usersRepo.findByLoginOrEmail(loginOrEmail);
+    const user = await this.usersRepo.findByFields(
+      ['login', 'email'],
+      loginOrEmail,
+    );
 
     if (!user) {
       throw new UnauthorizedException();
@@ -31,6 +34,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    return { id: user._id.toString() };
+    return { id: user.id };
   }
 }

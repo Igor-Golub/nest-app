@@ -43,7 +43,7 @@ import { BlogsViewMapperManager } from '../../blogs/api/mappers';
 import { PostsLikesQueryRepo } from '../infrastructure';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { PostsService } from '../application/posts.service';
-import { UsersQueryMongoRepo } from '../../../users/infrastructure';
+import { UsersQueryRepo } from '../../../users/infrastructure';
 import { PaginationService } from '../../../../infrastructure/services/pagination.service';
 import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
@@ -58,7 +58,7 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
-    private readonly usersQueryRepo: UsersQueryMongoRepo,
+    private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
@@ -198,7 +198,7 @@ export class PostsController {
     @Param() { id }: CreatePostCommentParams,
     @Body() { content }: CreatePostComment,
   ) {
-    const user = await this.usersQueryRepo.getById(currentUserId);
+    const user = await this.usersQueryRepo.findById(currentUserId);
 
     if (!user) throw new BadRequestException();
 
@@ -232,7 +232,7 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    const user = await this.usersQueryRepo.getById(currentUserId);
+    const user = await this.usersQueryRepo.findById(currentUserId);
 
     const command = new UpdatePostLikeStatusCommand({
       postId,

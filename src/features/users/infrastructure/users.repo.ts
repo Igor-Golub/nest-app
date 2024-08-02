@@ -95,4 +95,8 @@ export class UsersRepo implements UserCommandRepo {
 
     return queryResult.length ? queryResult[0] : null;
   }
+
+  public async dropTable() {
+    await this.dataSource.query<UserDBEntity[]>(`TRUNCATE "user";`);
+  }
 }

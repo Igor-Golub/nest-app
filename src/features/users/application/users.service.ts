@@ -3,11 +3,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersQueryRepo } from '../infrastructure';
+import { UsersQueryRepo, UsersRepo } from '../infrastructure';
 
 @Injectable()
 export class UsersService {
-  constructor(private usersQueryRepo: UsersQueryRepo) {}
+  constructor(
+    private usersQueryRepo: UsersQueryRepo,
+    private usersRepo: UsersRepo,
+  ) {}
 
   public async isUserExist(
     id: string,
@@ -24,5 +27,9 @@ export class UsersService {
     if (!user) throw new exceptions[exception]();
 
     return user;
+  }
+
+  public async dropTable() {
+    return this.usersRepo.dropTable();
   }
 }

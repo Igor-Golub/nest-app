@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TestingController } from './api/testing.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModel, UserSchema } from '../users/domain/userEntity';
 import { PostModel, PostSchema } from '../blogs/posts/domain/postModel';
 import {
   PostLikesModel,
@@ -17,13 +16,14 @@ import {
   PostCommentLikeSchema,
 } from '../blogs/comments/domain/postsCommentsLikesModel';
 import { SessionModel, SessionSchema } from '../auth/domain/sessionEntity';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     MongooseModule.forFeature([
       { name: PostModel.name, schema: PostSchema },
       { name: BlogModel.name, schema: BlogSchema },
-      { name: UserModel.name, schema: UserSchema },
       { name: PostLikesModel.name, schema: PostLikesSchema },
       { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
       { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },

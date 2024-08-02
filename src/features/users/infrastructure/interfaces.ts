@@ -33,4 +33,5 @@ export interface UserCommandRepo {
     fields: key[],
     value: UserEntity[key],
   ) => Promise<UserDBEntity | null>;
+  dropTable: () => Promise<void>;
 }
