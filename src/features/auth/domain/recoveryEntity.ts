@@ -1,29 +1,18 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
-@Schema({
-  collection: 'recovery',
-  timestamps: true,
-})
-export class RecoveryModel {
-  @Prop({
-    required: true,
-  })
-  userId: string;
-
-  @Prop({
-    required: true,
-  })
-  code: string;
-
-  @Prop({
-    required: true,
-  })
-  status: string;
-
-  @Prop({
-    required: true,
-  })
-  expirationDate: Date;
+export declare enum RecoveryStatuses {
+  Created = 1,
+  Failed = 2,
+  Success = 3,
 }
 
-export const RecoverySchema = SchemaFactory.createForClass(RecoveryModel);
+export interface RecoveryEntity {
+  code: string;
+  ownerId: string;
+  expirationAt: string;
+  status: RecoveryStatuses;
+}
+
+export type RecoveryDBEntity = RecoveryEntity & {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+};

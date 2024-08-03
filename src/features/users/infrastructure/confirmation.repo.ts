@@ -15,7 +15,7 @@ export class ConfirmationRepo implements IConfirmationRepo {
     const queryResult = await this.dataSource.query<UserDBEntity[]>(`
       INSERT INTO "confirmation"
       ("code", "status", "ownerId", "type", "expirationAt")
-      VALUES ('${code}', '${status}', '${ownerId}', '${type}', ${expirationAt})
+      VALUES ('${code}', '${status}', '${ownerId}', '${type}', '${expirationAt}')
       RETURNING id
     `);
 

@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { add, isAfter } from 'date-fns';
+import { add, formatISO, isAfter } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfirmationRepo, UsersQueryRepo, UsersRepo } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
@@ -61,9 +61,14 @@ export class UsersService {
         code: confirmationCode,
         type: ConfirmationTypes.Email,
         status: ConfirmationStates.Created,
-        expirationAt: add(new Date(), {
-          minutes: 10,
-        }),
+        expirationAt: formatISO(
+          add(new Date(), {
+            minutes: 10,
+          }),
+          {
+            representation: 'complete',
+          },
+        ),
       });
 
       return { userId, confirmationCode };

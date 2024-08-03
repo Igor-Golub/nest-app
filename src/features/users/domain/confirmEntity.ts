@@ -1,4 +1,4 @@
-export enum ConfirmationStates {
+export enum ConfirmationStatuses {
   Created = 1,
   Failed = 2,
   Success = 3,
@@ -11,9 +11,9 @@ export enum ConfirmationTypes {
 export class ConfirmEntity {
   code: string;
   ownerId: string;
-  expirationAt: Date;
+  expirationAt: string;
   type: ConfirmationTypes;
-  status: ConfirmationStates;
+  status: ConfirmationStatuses;
 }
 
 export type ConfirmDBEntity = ConfirmEntity & {
