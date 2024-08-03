@@ -1,6 +1,5 @@
-import { UsersRepo } from '../infrastructure';
-import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UsersService } from './users.service';
 
 interface CreateUserCommandPayload {
   login: string;
@@ -14,21 +13,9 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
-  constructor(
-    private usersRepo: UsersRepo,
-    private cryptoService: CryptoService,
-  ) {}
+  constructor(private usersService: UsersService) {}
 
   public async execute({ payload }: CreateUserCommand) {
-    const { email, login, password } = payload;
-
-    const { hash } = await this.cryptoService.createSaltAndHash(password);
-
-    return this.usersRepo.create({
-      hash,
-      login,
-      email,
-      isConfirmed: false,
-    });
+    return this.usersService.create({ ...payload, isConfirmed: true });
   }
 }

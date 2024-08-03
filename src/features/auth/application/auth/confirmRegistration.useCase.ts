@@ -1,48 +1,23 @@
-import { isAfter } from 'date-fns';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException } from '@nestjs/common';
-import { UsersRepo } from '../../../users/infrastructure';
+import { UsersService } from '../../../users/application';
+
+interface ConfirmRegistrationCommandPayload {
+  code: string;
+}
 
 export class ConfirmRegistrationCommand {
-  constructor(readonly payload: { code: string }) {}
+  constructor(readonly payload: ConfirmRegistrationCommandPayload) {}
 }
 
 @CommandHandler(ConfirmRegistrationCommand)
 export class ConfirmRegistrationHandler
   implements ICommandHandler<ConfirmRegistrationCommand>
 {
-  constructor(private readonly usersRepo: UsersRepo) {}
+  constructor(private usersService: UsersService) {}
 
   public async execute({ payload }: ConfirmRegistrationCommand) {
-    const user = await this.usersRepo.findByConfirmationCode(payload.code); // ????
+    const { code } = payload;
 
-    if (!user) {
-      throw new BadRequestException([
-        {
-          message: 'User not found',
-          field: 'code',
-        },
-      ]);
-    }
-
-    if (user.confirmation.isConfirmed) {
-      throw new BadRequestException([
-        {
-          message: 'User already confirmed',
-          field: 'code',
-        },
-      ]);
-    }
-
-    if (isAfter(new Date(), user.confirmation.expirationDate)) {
-      throw new BadRequestException([
-        {
-          message: 'Confirmation code expired',
-          field: 'code',
-        },
-      ]);
-    }
-
-    return await this.usersRepo.confirm(user._id);
+    await this.usersService.confirmUser(code);
   }
 }

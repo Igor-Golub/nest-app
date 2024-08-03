@@ -1,8 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
-import { UsersRepo } from '../../../users/infrastructure';
+import { UsersService } from '../../../users/application';
 
 export class ResendConfirmationCommand {
   constructor(readonly payload: ServicesModels.ResendConfirmation) {}
@@ -13,34 +12,23 @@ export class ResendConfirmationHandler
   implements ICommandHandler<ResendConfirmationCommand>
 {
   constructor(
-    private readonly usersRepo: UsersRepo,
+    private readonly usersService: UsersService,
     private readonly notifyManager: NotifyManager,
   ) {}
 
   public async execute({ payload }: ResendConfirmationCommand) {
-    const user = await this.usersRepo.findByField('email', payload.email);
+    const { email } = payload;
 
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
+    const user = await this.usersService.findByEmail(email);
 
-    if (user.confirmation.isConfirmed) {
-      throw new BadRequestException([
-        {
-          message: 'User already confirmed',
-          field: 'email',
-        },
-      ]);
-    }
+    if (!user) throw new BadRequestException('User not found');
 
-    const confirmationCode = `${uuidv4()}_${user.id}`;
-
-    await this.usersRepo.updateConfirmationCode(user.id, confirmationCode);
+    const { newCode } = await this.usersService.updateConfirmationCode(user.id);
 
     await this.notifyManager.sendRegistrationEmail({
+      data: newCode,
       login: user!.login,
       email: payload.email,
-      data: confirmationCode,
     });
 
     return true;

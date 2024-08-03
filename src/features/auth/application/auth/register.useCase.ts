@@ -1,9 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { add } from 'date-fns';
-import { UsersRepo } from '../../../users/infrastructure';
-import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UsersService } from '../../../users/application';
 
 export class RegisterCommand {
   constructor(readonly payload: ServicesModels.RegisterUserInput) {}
@@ -12,24 +10,16 @@ export class RegisterCommand {
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
-    private readonly usersRepo: UsersRepo,
-    private readonly cryptoService: CryptoService,
+    private readonly usersService: UsersService,
     private readonly notifyManager: NotifyManager,
   ) {}
 
   public async execute({ payload }: RegisterCommand) {
-    const { email, login, password } = payload;
-
-    const { hash } = await this.cryptoService.createSaltAndHash(password);
+    const { email, login } = payload;
 
     const confirmationCode = uuidv4();
 
-    await this.usersRepo.create({
-      login,
-      email,
-      hash,
-      isConfirmed: true,
-    });
+    await this.usersService.create({ ...payload, isConfirmed: false });
 
     this.notifyManager.sendRegistrationEmail({
       email,

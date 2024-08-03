@@ -1,7 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/users.controller';
-import { UsersRepo, UsersQueryRepo } from './infrastructure';
+import {
+  UsersRepo,
+  UsersQueryRepo,
+  ConfirmationRepo,
+  ConfirmationQueryRepo,
+} from './infrastructure';
 import {
   CreateUserHandler,
   DeleteUserHandler,
@@ -22,8 +27,10 @@ import { CryptoService } from '../../infrastructure/services/crypto.service';
     CreateUserHandler,
     DeleteUserHandler,
     PaginationService,
+    ConfirmationRepo,
     ClientFilterService,
     ClientSortingService,
+    ConfirmationQueryRepo,
   ],
   controllers: [UsersController],
   exports: [UsersService, UsersQueryRepo],

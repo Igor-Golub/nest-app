@@ -1,4 +1,5 @@
 import { UserDBEntity, UserEntity } from '../domain/userEntity';
+import { ConfirmDBEntity, ConfirmEntity } from '../domain/confirmEntity';
 
 export interface UserQueryRepo {
   findWithPagination: () => Promise<UserDBEntity[]>;
@@ -34,4 +35,25 @@ export interface UserCommandRepo {
     value: UserEntity[key],
   ) => Promise<UserDBEntity | null>;
   dropTable: () => Promise<void>;
+}
+
+export interface IConfirmationRepo {
+  create: (createConfirmationDto: ConfirmEntity) => Promise<string>;
+  findByField: <key extends keyof ConfirmEntity>(
+    field: key,
+    value: ConfirmEntity[key],
+  ) => Promise<ConfirmDBEntity | null>;
+  updateField: <key extends keyof ConfirmEntity>(
+    id: string,
+    field: key,
+    value: ConfirmEntity[key],
+  ) => Promise<boolean>;
+}
+
+export interface IConfirmationQueryRepo {
+  findById: (id: string) => Promise<ConfirmDBEntity | null>;
+  findByField: <key extends keyof ConfirmEntity>(
+    field: key,
+    value: ConfirmEntity[key],
+  ) => Promise<ConfirmDBEntity | null>;
 }
