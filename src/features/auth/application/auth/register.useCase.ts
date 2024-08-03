@@ -1,10 +1,15 @@
-import { v4 as uuidv4 } from 'uuid';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersService } from '../../../users/application';
 
+interface RegisterCommandPayload {
+  login: string;
+  email: string;
+  password: string;
+}
+
 export class RegisterCommand {
-  constructor(readonly payload: ServicesModels.RegisterUserInput) {}
+  constructor(readonly payload: RegisterCommandPayload) {}
 }
 
 @CommandHandler(RegisterCommand)
@@ -14,19 +19,20 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
     private readonly notifyManager: NotifyManager,
   ) {}
 
-  public async execute({ payload }: RegisterCommand) {
+  public async execute({ payload }: RegisterCommand): Promise<void> {
     const { email, login } = payload;
 
-    const confirmationCode = uuidv4();
-
-    await this.usersService.create({ ...payload, isConfirmed: false });
-
-    this.notifyManager.sendRegistrationEmail({
-      email,
-      login,
-      data: confirmationCode,
+    const { confirmationCode } = await this.usersService.create({
+      ...payload,
+      isConfirmed: false,
     });
 
-    return true;
+    if (confirmationCode) {
+      this.notifyManager.sendRegistrationEmail({
+        email,
+        login,
+        data: confirmationCode,
+      });
+    }
   }
 }

@@ -48,6 +48,7 @@ export interface IConfirmationRepo {
     field: key,
     value: ConfirmEntity[key],
   ) => Promise<boolean>;
+  dropTable: () => Promise<void>;
 }
 
 export interface IConfirmationQueryRepo {

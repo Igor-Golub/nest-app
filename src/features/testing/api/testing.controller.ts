@@ -31,7 +31,8 @@ export class TestingController {
     await this.blogModel.deleteMany({});
     await this.commentsModel.deleteMany({});
     await this.postModel.deleteMany({});
-    await this.userService.dropTable();
+    await this.userService.dropConfirmationTable();
+    await this.userService.dropUserTable();
     await this.postLikesModel.deleteMany({});
     await this.postCommentLikeModel.deleteMany({});
     await this.sessionModel.deleteMany({});

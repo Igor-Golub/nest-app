@@ -52,4 +52,8 @@ export class ConfirmationRepo implements IConfirmationRepo {
 
     return !!queryResult[1];
   }
+
+  public async dropTable() {
+    await this.dataSource.query(`TRUNCATE "confirmation";`);
+  }
 }

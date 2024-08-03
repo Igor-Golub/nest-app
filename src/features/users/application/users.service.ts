@@ -4,11 +4,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { add, isAfter } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
 import { ConfirmationRepo, UsersQueryRepo, UsersRepo } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
-import { ConfirmationStates } from '../domain/confirmEntity';
-import { isAfter } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
+import { ConfirmationStates, ConfirmationTypes } from '../domain/confirmEntity';
 
 @Injectable()
 export class UsersService {
@@ -36,10 +36,6 @@ export class UsersService {
     return user;
   }
 
-  public async dropTable() {
-    return this.usersRepo.dropTable();
-  }
-
   public async create(data: {
     login: string;
     email: string;
@@ -50,13 +46,30 @@ export class UsersService {
 
     const { hash } = await this.cryptoService.createSaltAndHash(password);
 
-    /// sdasd
-    return this.usersRepo.create({
+    const userId = await this.usersRepo.create({
       hash,
       login,
       email,
       isConfirmed,
     });
+
+    if (!isConfirmed) {
+      const confirmationCode = uuidv4();
+
+      await this.confirmationRepo.create({
+        ownerId: userId,
+        code: confirmationCode,
+        type: ConfirmationTypes.Email,
+        status: ConfirmationStates.Created,
+        expirationAt: add(new Date(), {
+          minutes: 10,
+        }),
+      });
+
+      return { userId, confirmationCode };
+    }
+
+    return { userId };
   }
 
   public async findByEmail(email: string) {
@@ -131,5 +144,13 @@ export class UsersService {
     );
 
     return { newCode: confirmationCode };
+  }
+
+  public async dropUserTable() {
+    return this.usersRepo.dropTable();
+  }
+
+  public async dropConfirmationTable() {
+    return this.confirmationRepo.dropTable();
   }
 }
