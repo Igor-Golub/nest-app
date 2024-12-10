@@ -21,7 +21,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand, DeleteUserCommand } from '../application';
 import { DeleteUserParams } from './models/input';
 import { UsersQueryRepo } from '../infrastructure';
-import { UserViewModel } from './models/output';
 import { UserViewMapperManager } from './mappers';
 
 @UseGuards(BasicAuthGuard)

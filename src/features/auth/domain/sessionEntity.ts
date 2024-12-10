@@ -4,6 +4,7 @@ export interface SessionEntity {
   deviceId: string;
   deviceName: string;
   deviceIp: string;
+  expirationDate: Date;
 }
 
 export type SessionDBEntity = SessionEntity & {

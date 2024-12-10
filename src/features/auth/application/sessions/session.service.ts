@@ -4,33 +4,29 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { AuthService } from '../auth/auth.service';
+import { SessionRepo } from '../../infrastructure';
 
 @Injectable()
 export class SessionService {
   constructor(
     private readonly authService: AuthService,
-    private readonly sessionRepo: SessionMongoRepo,
+    private readonly sessionRepo: SessionRepo,
   ) {}
 
   public async isSessionExist(refreshToken: string) {
     const { version } =
       this.authService.getSessionVersionAndExpirationDate(refreshToken);
 
-    const session = await this.sessionRepo.findSession({
-      version,
-    });
+    const session = await this.sessionRepo.findByField('version', version);
 
-    if (!session) throw new UnauthorizedException();
+    if (!session.length) throw new UnauthorizedException();
 
-    return { session };
+    return { session: session[0] };
   }
 
   public async isSessionExistForDevice(deviceId: string) {
-    const session = await this.sessionRepo.findSession({
-      deviceId,
-    });
+    const session = await this.sessionRepo.findByField('deviceId', deviceId);
 
     if (!session) throw new NotFoundException();
 
@@ -38,10 +34,7 @@ export class SessionService {
   }
 
   public async isSessionOfCurrentUser(userId: string, deviceId: string) {
-    const session = await this.sessionRepo.findSession({
-      userId,
-      deviceId,
-    });
+    const session = await this.sessionRepo.findByField('deviceId', deviceId);
 
     if (!session) throw new ForbiddenException();
 

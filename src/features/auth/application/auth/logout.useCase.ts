@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
+import { SessionRepo } from '../../infrastructure';
 
 interface LogoutCommandPayload {
   userId: string;
@@ -12,9 +12,16 @@ export class LogoutCommand {
 
 @CommandHandler(LogoutCommand)
 export class LogoutCommandHandler implements ICommandHandler<LogoutCommand> {
-  constructor(private sessionRepo: SessionMongoRepo) {}
+  constructor(private sessionRepo: SessionRepo) {}
 
   public async execute({ payload }: LogoutCommand) {
-    return this.sessionRepo.deleteSessionByDeviceId(payload);
+    const [session] = await this.sessionRepo.findByField(
+      'ownerId',
+      payload.userId,
+    );
+
+    if (!session) return null;
+
+    return this.sessionRepo.delete(session.id);
   }
 }

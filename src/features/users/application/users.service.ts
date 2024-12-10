@@ -8,7 +8,10 @@ import { add, formatISO, isAfter } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfirmationRepo, UsersQueryRepo, UsersRepo } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
-import { ConfirmationStates, ConfirmationTypes } from '../domain/confirmEntity';
+import {
+  ConfirmationStatuses,
+  ConfirmationTypes,
+} from '../domain/confirmEntity';
 
 @Injectable()
 export class UsersService {
@@ -60,7 +63,7 @@ export class UsersService {
         ownerId: userId,
         code: confirmationCode,
         type: ConfirmationTypes.Email,
-        status: ConfirmationStates.Created,
+        status: ConfirmationStatuses.Created,
         expirationAt: formatISO(
           add(new Date(), {
             minutes: 10,
@@ -101,7 +104,7 @@ export class UsersService {
       ]);
     }
 
-    if (confirmation.status === ConfirmationStates.Success) {
+    if (confirmation.status === ConfirmationStatuses.Success) {
       throw new BadRequestException([
         {
           message: 'User already confirmed',
@@ -122,7 +125,7 @@ export class UsersService {
     return await this.confirmationRepo.updateField(
       confirmation.id,
       'status',
-      ConfirmationStates.Success,
+      ConfirmationStatuses.Success,
     );
   }
 
@@ -131,7 +134,7 @@ export class UsersService {
 
     if (!confirmation) throw new BadRequestException();
 
-    if (confirmation?.status === ConfirmationStates.Success) {
+    if (confirmation?.status === ConfirmationStatuses.Success) {
       throw new BadRequestException([
         {
           message: 'User already confirmed',

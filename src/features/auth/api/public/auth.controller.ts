@@ -179,17 +179,17 @@ export class AuthController {
   ) {
     const { session } = await this.sessionService.isSessionExist(refreshToken);
 
-    await this.usersService.isUserExist(session.userId, 'unauthorized');
+    await this.usersService.isUserExist(session.ownerId, 'unauthorized');
 
     await this.sessionService.isSessionOfCurrentUser(
-      session.userId,
+      session.ownerId,
       session.deviceId,
     );
 
     const command = new RefreshTokenCommand({
-      userId: session.userId,
+      userId: session.ownerId,
       deviceId: session.deviceId,
-      sessionId: session._id.toString(),
+      sessionId: session.id,
     });
 
     const { refresh, access } = await this.commandBus.execute(command);

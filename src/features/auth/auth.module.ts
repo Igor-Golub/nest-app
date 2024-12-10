@@ -22,15 +22,7 @@ import { NotifyManager } from '../../infrastructure/managers/notify.manager';
 import { EmailService } from '../../infrastructure/managers/email.service';
 import { SmtpService } from '../../infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emailTemplatesCreator.service';
-import {
-  RecoveryMongoRepo,
-  SessionPostgresRepo,
-  RecoveryPostgresRepo,
-  SessionMongoRepo,
-} from './infrastructure';
-import { MongooseModule } from '@nestjs/mongoose';
-import { RecoveryModel, RecoverySchema } from './domain/recoveryEntity';
-import { SessionModel, SessionSchema } from './domain/sessionEntity';
+import { RecoveryRepo, SessionRepo } from './infrastructure';
 import { SessionController } from './api/public/session.controller';
 import {
   DeleteAllSessionsCommandHandler,
@@ -59,10 +51,6 @@ const sessionHandlers = [
     CqrsModule,
     PassportModule,
     UsersModule,
-    MongooseModule.forFeature([
-      { name: RecoveryModel.name, schema: RecoverySchema },
-      { name: SessionModel.name, schema: SessionSchema },
-    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -74,22 +62,20 @@ const sessionHandlers = [
     }),
   ],
   providers: [
-    SessionMongoRepo,
+    SessionRepo,
     SessionService,
     AuthService,
     SmtpService,
-    RecoveryMongoRepo,
+    RecoveryRepo,
     EmailService,
     NotifyManager,
     CryptoService,
     CookiesService,
     EmailTemplatesCreatorService,
-    SessionPostgresRepo,
-    RecoveryPostgresRepo,
     ...authHandlers,
     ...sessionHandlers,
   ],
   controllers: [AuthController, SessionController],
-  exports: [AuthService, SessionMongoRepo],
+  exports: [AuthService, SessionRepo],
 })
 export class AuthModule {}

@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { DeleteSessionParams } from './models/input';
 import { JwtCookieRefreshAuthGuard } from '../../guards';
-import { SessionMongoRepo } from '../../infrastructure/mongo/session.mongo.repo';
 import { SessionViewModel } from './models/output';
 import { SessionViewMapperManager } from './mappers';
 import {
@@ -19,7 +18,8 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { CurrentSession } from '../../../../common/pipes';
 import { SessionService } from '../../application/sessions/session.service';
-import { UsersService } from '../../../users/application/users.service';
+import { UsersService } from '../../../users/application';
+import { SessionRepo } from '../../infrastructure';
 
 enum SessionRoutes {
   Devices = 'devices',
@@ -31,7 +31,7 @@ enum SessionRoutes {
 export class SessionController {
   constructor(
     private commandBus: CommandBus,
-    private sessionRepo: SessionMongoRepo,
+    private sessionRepo: SessionRepo,
     private usersService: UsersService,
     private sessionService: SessionService,
   ) {}
@@ -40,9 +40,9 @@ export class SessionController {
   public async getAllSessions(
     @CurrentSession() { id: userId }: Base.Session,
   ): Promise<SessionViewModel[]> {
-    const sessions = await this.sessionRepo.findAllUserSessions(userId);
+    const session = await this.sessionRepo.findByField('ownerId', userId);
 
-    return sessions.map(SessionViewMapperManager.mapSessionToView);
+    return [SessionViewMapperManager.mapSessionToView(session)];
   }
 
   @Delete(SessionRoutes.Devices)

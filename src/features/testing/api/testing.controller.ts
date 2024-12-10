@@ -6,7 +6,6 @@ import { PostModel } from '../../blogs/posts/domain/postModel';
 import { PostLikesModel } from '../../blogs/posts/domain/postLikesModel';
 import { PostCommentLikeModel } from '../../blogs/comments/domain/postsCommentsLikesModel';
 import { PostsCommentsModel } from '../../blogs/comments/domain/postsCommentsModel';
-import { SessionModel } from '../../auth/domain/sessionEntity';
 import { UsersService } from '../../users/application';
 
 @Controller('testing')
@@ -20,8 +19,6 @@ export class TestingController {
     private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
     @InjectModel(PostsCommentsModel.name)
     private readonly commentsModel: Model<PostsCommentsModel>,
-    @InjectModel(SessionModel.name)
-    private readonly sessionModel: Model<SessionModel>,
     private userService: UsersService,
   ) {}
 
@@ -35,6 +32,5 @@ export class TestingController {
     await this.userService.dropConfirmationTable();
     await this.postLikesModel.deleteMany({});
     await this.postCommentLikeModel.deleteMany({});
-    await this.sessionModel.deleteMany({});
   }
 }
