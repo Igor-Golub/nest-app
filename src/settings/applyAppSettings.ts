@@ -8,8 +8,6 @@ import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.f
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 
-const APP_PREFIX = '/api';
-
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
 

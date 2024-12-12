@@ -1,7 +1,15 @@
 import { IsOptional, IsString } from 'class-validator';
-import { QueryParams } from '../../../../../common/decorators/validate';
+import { BaseSortablePaginationParams } from '../../../../../common/dto/base.query-params.input-dto';
 
-export class UsersQueryDto extends QueryParams {
+enum UsersSortBy {
+  CreatedAt = 'createdAt',
+  Login = 'login',
+  Email = 'email',
+}
+
+export class GetUsersQueryParams extends BaseSortablePaginationParams<UsersSortBy> {
+  sortBy = UsersSortBy.CreatedAt;
+
   @IsString()
   @IsOptional()
   searchLoginTerm: string | null = null;

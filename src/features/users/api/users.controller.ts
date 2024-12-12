@@ -11,17 +11,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryDto, CreateUserDto } from './models/input';
-import { PaginationService } from '../../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../../infrastructure/services/filter.service';
-import { FiltersType } from '../../../common/enums';
-import { BasicAuthGuard } from '../../auth/guards';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand, DeleteUserCommand } from '../application';
+import { UserViewModel } from './models/output';
 import { DeleteUserParams } from './models/input';
+import { BasicAuthGuard } from '../../auth/guards';
 import { UsersQueryRepo } from '../infrastructure';
-import { UserViewMapperManager } from './mappers';
+import { GetUsersQueryParams, CreateUserDto } from './models/input';
+import { CreateUserCommand, DeleteUserCommand } from '../application';
+import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
@@ -29,38 +26,13 @@ export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly paginationService: PaginationService,
-    private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<ViewModels.Blog>,
   ) {}
 
   @Get()
-  public async getAll(@Query() query: UsersQueryDto) {
-    const {
-      sortBy,
-      sortDirection,
-      searchLoginTerm,
-      searchEmailTerm,
-      pageSize,
-      pageNumber,
-    } = query;
-
-    this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(sortBy, sortDirection);
-    this.filterService.setValues(
-      {
-        login: searchLoginTerm,
-        email: searchEmailTerm,
-      },
-      FiltersType.OrAndInnerText,
-    );
-
-    const result = await this.usersQueryRepo.findWithPagination();
-
-    return {
-      ...result,
-      items: UserViewMapperManager.mapUsersToView([]),
-    };
+  public async getAll(
+    @Query() query: GetUsersQueryParams,
+  ): Promise<PaginatedViewDto<UserViewModel[]>> {
+    return this.usersQueryRepo.findWithPagination(query);
   }
 
   @Post()

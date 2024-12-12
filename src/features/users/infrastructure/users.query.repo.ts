@@ -1,24 +1,60 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationService } from '../../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../../infrastructure/services/filter.service';
-import { UserQueryRepo } from './interfaces';
-import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { UserViewModel } from '../api/models/output';
+import { UserViewMapperManager } from '../api/mappers';
+import { GetUsersQueryParams } from '../api/models/input';
 import { UserDBEntity, UserEntity } from '../domain/userEntity';
+import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
-export class UsersQueryRepo implements UserQueryRepo {
-  constructor(
-    @InjectDataSource() private dataSource: DataSource,
-    private readonly paginationService: PaginationService,
-    private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<ViewModels.Blog>,
-  ) {}
+export class UsersQueryRepo {
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  public async findWithPagination() {
-    //TODO add query
-    return [];
+  public async findWithPagination(
+    query: GetUsersQueryParams,
+  ): Promise<PaginatedViewDto<UserViewModel[]>> {
+    const {
+      sortBy,
+      sortDirection,
+      pageNumber,
+      pageSize,
+      searchLoginTerm,
+      searchEmailTerm,
+    } = query;
+
+    const offset = (pageNumber - 1) * pageSize;
+
+    const usersFromDB = await this.dataSource.query(
+      `
+        SELECT *
+        FROM "user" AS u
+        WHERE 
+            ($1 IS NULL OR u."login" ILIKE '%' || $1 || '%') AND
+            ($2 IS NULL OR u."email" ILIKE '%' || $2 || '%')
+        ORDER BY u."${sortBy}" '${sortDirection}'
+        LIMIT $3 OFFSET $4;
+      `,
+      [searchLoginTerm, searchEmailTerm, pageSize, offset],
+    );
+
+    const totalCountResult = await this.dataSource.query(
+      `
+        SELECT COUNT(*)
+        FROM "user" AS u
+        WHERE 
+            ($1 IS NULL OR u."login" ILIKE '%' || $1 || '%') AND
+            ($2 IS NULL OR u."email" ILIKE '%' || $2 || '%');
+      `,
+      [searchLoginTerm, searchEmailTerm],
+    );
+
+    return PaginatedViewDto.mapToView({
+      size: pageSize,
+      page: pageNumber,
+      totalCount: parseInt(totalCountResult[0].count, 10),
+      items: usersFromDB.map(UserViewMapperManager.mapUsersToView),
+    });
   }
 
   public async findById(id: string): Promise<UserDBEntity | null> {

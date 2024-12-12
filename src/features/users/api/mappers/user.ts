@@ -2,7 +2,7 @@ import { UserDBEntity } from '../../domain/userEntity';
 import { UserViewModel } from '../models/output';
 
 export class UserViewMapperManager {
-  static mapUsersToView(dbModels: UserDBEntity[]): UserViewModel[] {
-    return [];
+  static mapUsersToView(dbModel: UserDBEntity): UserViewModel {
+    return null;
   }
 }
