@@ -36,12 +36,7 @@ import {
 } from '../application';
 import { BlogsViewMapperManager } from './mappers';
 import { PostsViewMapperManager } from '../../posts/api/mappers';
-import { BlogViewModel } from './models/output';
 import { PostsService } from '../../posts/application/posts.service';
-import { PaginationService } from '../../../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
-import { FiltersType } from '../../../../common/enums';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../common/pipes';
 
@@ -51,22 +46,12 @@ export class BlogsController {
     private commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly paginationService: PaginationService,
     private readonly postsService: PostsService,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
-    private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<BlogViewModel>,
   ) {}
 
   @Get()
   public async getAll(@Query() query: BlogsQueryDto) {
-    const { sortBy, sortDirection, pageNumber, pageSize, searchNameTerm } =
-      query;
-
-    this.paginationService.setValues({ pageSize, pageNumber });
-    this.filterService.setValue('name', searchNameTerm, FiltersType.InnerText);
-    this.sortingService.setValue(sortBy, sortDirection);
-
     const data = await this.blogsQueryRepo.getWithPagination();
 
     return {
@@ -105,12 +90,6 @@ export class BlogsController {
     const blog = await this.blogsQueryRepo.getById(blogId);
 
     if (!blog) throw new NotFoundException();
-
-    const { sortBy, sortDirection, pageNumber, pageSize } = query;
-
-    this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(sortBy, sortDirection);
-    this.filterService.setValue('blogId', blogId, FiltersType.ById);
 
     const posts = await this.postsQueryRepo.getWithPagination();
 

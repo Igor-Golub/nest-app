@@ -44,10 +44,6 @@ import { PostsLikesQueryRepo } from '../infrastructure';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { PostsService } from '../application/posts.service';
 import { UsersQueryRepo } from '../../../users/infrastructure';
-import { PaginationService } from '../../../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
-import { FiltersType } from '../../../../common/enums';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
 
@@ -62,9 +58,6 @@ export class PostsController {
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
-    private readonly paginationService: PaginationService,
-    private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<ViewModels.Post>,
   ) {}
 
   @Get()
@@ -72,11 +65,6 @@ export class PostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
-    const { sortBy, sortDirection, pageSize, pageNumber } = query;
-
-    this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(sortBy, sortDirection);
-
     const posts = await this.postsQueryRepo.getWithPagination();
 
     const postsLikes = this.postsService.getPostsIds(posts.items);
@@ -124,10 +112,6 @@ export class PostsController {
     if (!post) throw new NotFoundException();
 
     const { sortBy, sortDirection, pageSize, pageNumber } = query;
-
-    this.paginationService.setValues({ pageSize, pageNumber });
-    this.sortingService.setValue(sortBy, sortDirection);
-    this.filterService.setValue('postId', id, FiltersType.ById);
 
     const data = await this.commentsQueryRepo.getWithPagination();
 

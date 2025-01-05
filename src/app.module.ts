@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,14 +15,15 @@ import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
 } from './common/decorators';
-import configuration from './settings/configuration';
 import { AccessTokenExistMiddleware } from './common/middleware';
 import { UsersModule } from './features/users/users.module';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
 import { BlogsModule } from './features/blogs/blogs.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { configModule } from './config-dynamic.module';
 
+@Global()
 @Module({
   imports: [
     ThrottlerModule.forRootAsync({
@@ -34,10 +35,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           limit: config.get('throttle.limit')!,
         },
       ],
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configuration],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -60,6 +57,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         uri: config.get('mongoDB.uri')!,
       }),
     }),
+    configModule,
     UsersModule,
     AuthModule,
     TestingModule,

@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function applyAppSettings(app: INestApplication) {
   app.enableCors();
@@ -16,6 +17,15 @@ export function applyAppSettings(app: INestApplication) {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   // app.setGlobalPrefix(APP_PREFIX);
+
+  const config = new DocumentBuilder()
+    .setTitle('API for bloggers platform')
+    .setVersion('1.0')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('api', app, documentFactory);
 
   app.useGlobalPipes(
     new ValidationPipe({
