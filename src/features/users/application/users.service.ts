@@ -85,7 +85,7 @@ export class UsersService {
   }
 
   public async findByEmail(email: string) {
-    return this.usersRepo.findByField({ email });
+    return this.usersRepo.findByFields({ email });
   }
 
   public async updateHash(id: string, hash: string) {
@@ -93,7 +93,7 @@ export class UsersService {
   }
 
   public async findByLoginOrEmail(loginOrEmail: string) {
-    return this.usersRepo.findByField({
+    return this.usersRepo.findByFields({
       login: loginOrEmail,
       email: loginOrEmail,
     });

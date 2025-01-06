@@ -16,7 +16,7 @@ export class LoginIsExistConstraint implements ValidatorConstraintInterface {
   public async validate(value: any): Promise<boolean> {
     if (typeof value !== 'string') return false;
 
-    const user = await this.userQueryRepo.findByField('login', value);
+    const user = await this.userQueryRepo.findByFields({ login: value });
 
     return !user;
   }

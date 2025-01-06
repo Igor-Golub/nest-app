@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/users.controller';
 import {
-  UsersRepo,
+  UsersRepository,
   UsersQueryRepo,
   ConfirmationRepo,
   ConfirmationQueryRepo,
@@ -27,7 +27,7 @@ import { Account } from './domain/account.entity';
     TypeOrmModule.forFeature([User, Confirmation, Account]),
   ],
   providers: [
-    UsersRepo,
+    UsersRepository,
     UsersQueryRepo,
     UsersService,
     CryptoService,

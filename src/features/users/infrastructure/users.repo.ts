@@ -30,7 +30,7 @@ export class UsersRepository {
     return !!affected;
   }
 
-  public async findByField(
+  public async findByFields(
     options: FindOptionsWhere<User> | FindOptionsWhere<User>[],
   ) {
     return this.repository.findOne({
