@@ -10,6 +10,7 @@ async function bootstrap() {
 
   applyAppSettings(app);
 
+  console.log(`Server started on ${coreConfig.port}`);
   await app.listen(coreConfig.port);
 }
 

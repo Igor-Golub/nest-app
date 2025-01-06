@@ -8,6 +8,7 @@ import {
   validateSync,
 } from 'class-validator';
 import { EnvironmentTypes } from '../common/enums';
+import { CoreEnvUtils } from './core.env.utils';
 
 @Injectable()
 export class CoreConfig {
@@ -22,12 +23,14 @@ export class CoreConfig {
   @IsEnum(EnvironmentTypes, {
     message: 'Set correct NODE_ENV value, ex.: development',
   })
-  public env = this.configService.get('NODE_ENV') as string;
+  public env = this.configService.get('NODE_ENV') as EnvironmentTypes;
 
   @IsBoolean({
     message: 'Set correct IS_SWAGGER_ENABLED value, ex.: false',
   })
-  public isSwaggerEnabled = this.configService.get('IS_SWAGGER_ENABLED');
+  public isSwaggerEnabled = CoreEnvUtils.convertToBoolean(
+    this.configService.get('IS_SWAGGER_ENABLED'),
+  );
 
   @IsNumber(
     {},
