@@ -8,8 +8,11 @@ import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.f
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CoreConfig } from '../core/core.config';
 
 export function applyAppSettings(app: INestApplication) {
+  const coreConfig = app.get(CoreConfig);
+
   app.enableCors();
 
   app.use(cookieParser());
@@ -18,14 +21,16 @@ export function applyAppSettings(app: INestApplication) {
 
   // app.setGlobalPrefix(APP_PREFIX);
 
-  const config = new DocumentBuilder()
-    .setTitle('API for bloggers platform')
-    .setVersion('1.0')
-    .build();
+  if (coreConfig.isSwaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('API for bloggers platform')
+      .setVersion('1.0')
+      .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, documentFactory);
+    SwaggerModule.setup('api', app, documentFactory);
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({

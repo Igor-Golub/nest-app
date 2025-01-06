@@ -1,14 +1,13 @@
 import { Global, MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import {
   BasicStrategy,
+  CookieRefreshTokenStrategy,
   JwtStrategy,
   LocalStrategy,
-  CookieRefreshTokenStrategy,
 } from './features/auth/strategies';
 import {
   BlogIsExistConstraint,
@@ -21,40 +20,39 @@ import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
 import { BlogsModule } from './features/blogs/blogs.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { configModule } from './config-dynamic.module';
+import { configModule } from './config';
+import { CoreConfig } from './core/core.config';
+import { CoreModule } from './core/core.module';
 
 @Global()
 @Module({
   imports: [
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => [
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => [
         {
-          ttl: config.get('throttle.ttl')!,
-          limit: config.get('throttle.limit')!,
+          ttl: coreConfig.throttleTTL,
+          limit: coreConfig.throttleLimit,
         },
       ],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
-        host: config.get('postgresDB.host'),
-        port: config.get('postgresDB.port'),
-        username: config.get('postgresDB.user'),
-        password: config.get('postgresDB.pass'),
-        database: config.get('postgresDB.name'),
+        host: coreConfig.host,
+        port: coreConfig.dbPort,
+        username: coreConfig.user,
+        password: coreConfig.pass,
+        database: coreConfig.name,
         autoLoadEntities: false,
         synchronize: false,
       }),
     }),
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        uri: config.get('mongoDB.uri')!,
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => ({
+        uri: coreConfig.mongoURI,
       }),
     }),
     configModule,
@@ -62,6 +60,7 @@ import { configModule } from './config-dynamic.module';
     AuthModule,
     TestingModule,
     BlogsModule,
+    CoreModule,
   ],
   providers: [
     JwtService,
