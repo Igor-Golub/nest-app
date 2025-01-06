@@ -1,4 +1,4 @@
-import { UserDBEntity } from '../../domain/userEntity';
+import { UserDBEntity } from '../../domain/user.entity';
 import { UserViewModel } from '../models/output';
 
 export class UserViewMapperManager {

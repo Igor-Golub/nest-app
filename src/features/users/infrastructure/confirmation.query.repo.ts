@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { ConfirmDBEntity, ConfirmEntity } from '../domain/confirmEntity';
+import { ConfirmDBEntity, ConfirmEntity } from '../domain/confirm.entity';
 import { IConfirmationQueryRepo } from './interfaces';
 
 @Injectable()

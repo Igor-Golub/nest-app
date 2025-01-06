@@ -16,9 +16,16 @@ import { PaginationService } from '../../infrastructure/services/pagination.serv
 import { ClientSortingService } from '../../infrastructure/services/clientSorting.service';
 import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './domain/user.entity';
+import { Confirmation } from './domain/confirm.entity';
+import { Account } from './domain/account.entity';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([User, Confirmation, Account]),
+  ],
   providers: [
     UsersRepo,
     UsersQueryRepo,

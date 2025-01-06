@@ -43,13 +43,9 @@ import { CoreModule } from './core/core.module';
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
-        host: coreConfig.host,
-        port: coreConfig.dbPort,
-        username: coreConfig.user,
-        password: coreConfig.pass,
-        database: coreConfig.name,
-        autoLoadEntities: false,
-        synchronize: false,
+        url: coreConfig.postgresURL,
+        autoLoadEntities: true,
+        synchronize: true,
       }),
     }),
     MongooseModule.forRootAsync({

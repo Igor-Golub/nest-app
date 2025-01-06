@@ -4,7 +4,6 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { UserViewModel } from '../api/models/output';
 import { UserViewMapperManager } from '../api/mappers';
 import { GetUsersQueryParams } from '../api/models/input';
-import { UserDBEntity, UserEntity } from '../domain/userEntity';
 import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 
 @Injectable()

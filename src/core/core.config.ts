@@ -57,39 +57,15 @@ export class CoreConfig {
   })
   public smtpPassword = this.configService.get('SMTP_PASSWORD');
 
-  // DB
   @IsNotEmpty({
     message: 'Set correct MONGO_URL value, ex.: http//*',
   })
   public mongoURI = this.configService.get('MONGO_URL');
 
   @IsNotEmpty({
-    message: 'Set correct POSTGRES_DB_HOST value, ex.: http//*',
+    message: 'Set correct POSTGRES_DB_URL value, ex.: postgresql://*',
   })
-  public host = this.configService.get('POSTGRES_DB_HOST');
-
-  @IsNumber(
-    {},
-    {
-      message: 'Set correct POSTGRES_DB_PORT value, ex.: 6000',
-    },
-  )
-  public dbPort = Number(this.configService.get('POSTGRES_DB_PORT'));
-
-  @IsNotEmpty({
-    message: 'Set correct POSTGRES_DB_NAME value, ex.: cats db',
-  })
-  public name = this.configService.get('POSTGRES_DB_NAME');
-
-  @IsNotEmpty({
-    message: 'Set correct POSTGRES_DB_USER_NAME value, ex.: some name',
-  })
-  public user = this.configService.get('POSTGRES_DB_USER_NAME');
-
-  @IsNotEmpty({
-    message: 'Set correct POSTGRES_DB_PASSWORD value, ex.: e23edsd',
-  })
-  public pass = this.configService.get('POSTGRES_DB_PASSWORD');
+  public postgresURL = this.configService.get('POSTGRES_DB_URL');
 
   constructor(private configService: ConfigService) {
     CoreEnvUtils.validateConfig(this);

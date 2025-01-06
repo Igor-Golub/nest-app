@@ -1,102 +1,40 @@
-import { DataSource } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { UserCommandRepo } from './interfaces';
-import { UserDBEntity, UserEntity } from '../domain/userEntity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../domain/user.entity';
+import { CreateUserDTO, UpdateUserDTO } from './interfaces';
 
 @Injectable()
-export class UsersRepo implements UserCommandRepo {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+export class UsersRepository {
+  constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
-  public async create(createUserDto: UserEntity): Promise<string> {
-    const { login, hash, email, isConfirmed } = createUserDto;
+  public async create(createUserDto: CreateUserDTO): Promise<string> {
+    const { id } = this.repository.create(createUserDto);
 
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(`
-      INSERT INTO "user"
-      ("login", "email", "hash", "isConfirmed")
-      VALUES ('${login}', '${email}', '${hash}', ${isConfirmed})
-      RETURNING id
-    `);
-
-    return queryResult[0].id;
+    return id;
   }
 
-  async updateField<key extends keyof UserEntity>(
+  async updateField<key extends keyof UpdateUserDTO>(
     id: string,
     field: key,
-    value: UserEntity[key],
+    value: UpdateUserDTO[key],
   ): Promise<boolean> {
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(
-      `
-        update "user" as u
-        set "${field}" = '${value}'
-        where u."id" = ${id}
-    `,
-    );
+    const { affected } = await this.repository.update(id, { [field]: value });
 
-    return !!queryResult[1];
-  }
-
-  async updateFields(
-    id: string,
-    updateDto: Partial<UserEntity>,
-  ): Promise<boolean> {
-    const prepareSetData = Object.entries(updateDto).reduce<string>(
-      (acc, [field, value]) => acc + `${field} = '${value}'`,
-      '',
-    );
-
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(
-      `
-        update "user" as u
-        set ${prepareSetData}
-        where u."id" = ${id}
-    `,
-    );
-
-    return !!queryResult[1];
+    return !!affected;
   }
 
   public async delete(id: string): Promise<boolean> {
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(`
-        delete from "user" as u
-        where u."id" = '${id}';
-    `);
+    const { affected } = await this.repository.delete({ id });
 
-    return !!queryResult[1];
+    return !!affected;
   }
 
-  public async findByField<key extends keyof UserEntity>(
-    field: key,
-    value: UserEntity[key],
+  public async findByField(
+    options: FindOptionsWhere<User> | FindOptionsWhere<User>[],
   ) {
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(
-      `
-        select *
-        from "user" as u
-        where u."${field}" = '${value}'
-    `,
-    );
-
-    return queryResult.length ? queryResult[0] : null;
-  }
-
-  public async findByFields<key extends keyof UserEntity>(
-    fields: key[],
-    value: UserEntity[key],
-  ): Promise<UserDBEntity | null> {
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(
-      `
-        select *
-        from "user" as u
-        where ${value} in ${fields.join(', ')}
-    `,
-    );
-
-    return queryResult.length ? queryResult[0] : null;
-  }
-
-  public async dropTable() {
-    await this.dataSource.query(`TRUNCATE "user";`);
+    return this.repository.findOne({
+      where: options,
+    });
   }
 }

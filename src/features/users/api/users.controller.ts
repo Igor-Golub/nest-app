@@ -39,7 +39,7 @@ export class UsersController {
   public async create(@Body() createUserDto: CreateUserDto) {
     const command = new CreateUserCommand(createUserDto);
 
-    return this.commandBus.execute(command);
+    return this.commandBus.execute<CreateUserCommand, string>(command);
   }
 
   @Delete(':id')
@@ -47,7 +47,9 @@ export class UsersController {
   public async delete(@Param() { id }: DeleteUserParams) {
     const command = new DeleteUserCommand({ id });
 
-    const result = await this.commandBus.execute(command);
+    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(
+      command,
+    );
 
     if (!result) throw new NotFoundException();
   }

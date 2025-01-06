@@ -6,17 +6,21 @@ import {
 } from '@nestjs/common';
 import { add, formatISO, isAfter } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { ConfirmationRepo, UsersQueryRepo, UsersRepo } from '../infrastructure';
+import {
+  ConfirmationRepo,
+  UsersQueryRepo,
+  UsersRepository,
+} from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
 import {
   ConfirmationStatuses,
   ConfirmationTypes,
-} from '../domain/confirmEntity';
+} from '../domain/confirm.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private usersRepo: UsersRepo,
+    private usersRepo: UsersRepository,
     private cryptoService: CryptoService,
     private usersQueryRepo: UsersQueryRepo,
     private confirmationRepo: ConfirmationRepo,
@@ -81,7 +85,7 @@ export class UsersService {
   }
 
   public async findByEmail(email: string) {
-    return this.usersRepo.findByField('email', email);
+    return this.usersRepo.findByField({ email });
   }
 
   public async updateHash(id: string, hash: string) {
@@ -89,7 +93,10 @@ export class UsersService {
   }
 
   public async findByLoginOrEmail(loginOrEmail: string) {
-    return this.usersRepo.findByFields(['login', 'email'], loginOrEmail);
+    return this.usersRepo.findByField({
+      login: loginOrEmail,
+      email: loginOrEmail,
+    });
   }
 
   public async confirmUser(code: string) {
@@ -152,13 +159,5 @@ export class UsersService {
     );
 
     return { newCode: confirmationCode };
-  }
-
-  public async dropUserTable() {
-    return this.usersRepo.dropTable();
-  }
-
-  public async dropConfirmationTable() {
-    return this.confirmationRepo.dropTable();
   }
 }
