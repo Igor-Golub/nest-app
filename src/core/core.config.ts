@@ -1,12 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import {
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  validateSync,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { EnvironmentTypes } from '../common/enums';
 import { CoreEnvUtils } from './core.env.utils';
 
@@ -63,50 +57,6 @@ export class CoreConfig {
   })
   public smtpPassword = this.configService.get('SMTP_PASSWORD');
 
-  // Auth
-  @IsNotEmpty({
-    message: 'Set correct JWT_SECRET value, ex.: 89u967',
-  })
-  public jwtSecret = this.configService.get('JWT_SECRET');
-
-  @IsNotEmpty({
-    message: 'Set correct PASSWORD_SECRET value, ex.: 89u967',
-  })
-  public passwordSecret = this.configService.get('PASSWORD_SECRET');
-
-  @IsNotEmpty({
-    message: 'Set correct HTTP_BASIC_USER value, ex.: user name',
-  })
-  public basicUser = this.configService.get('HTTP_BASIC_USER');
-
-  @IsNotEmpty({
-    message: 'Set correct HTTP_BASIC_PASS value, ex.: 89u967',
-  })
-  public basicPassword = this.configService.get('HTTP_BASIC_PASS');
-
-  @IsNumber(
-    {},
-    {
-      message: 'Set correct JWT_EXPIRE_TIME value, ex.: 40',
-    },
-  )
-  public jwtExpireTime = Number(this.configService.get('JWT_EXPIRE_TIME'));
-
-  @IsNumber(
-    {},
-    {
-      message: 'Set correct JWT_REFRESH_EXPIRE_TIME value, ex.: 40',
-    },
-  )
-  public jwtRefreshExpireTime = Number(
-    this.configService.get('JWT_REFRESH_EXPIRE_TIME'),
-  );
-
-  @IsNotEmpty({
-    message: 'Set correct JWT_REFRESH_SECRET value, ex.: 2312dsad',
-  })
-  public jwtRefreshSecret = this.configService.get('JWT_REFRESH_SECRET');
-
   // DB
   @IsNotEmpty({
     message: 'Set correct MONGO_URL value, ex.: http//*',
@@ -142,14 +92,6 @@ export class CoreConfig {
   public pass = this.configService.get('POSTGRES_DB_PASSWORD');
 
   constructor(private configService: ConfigService) {
-    const errors = validateSync(this);
-
-    if (errors.length) {
-      const sortedMessages = errors
-        .map((error) => Object.values(error.constraints || {}).join(', '))
-        .join(', ');
-
-      throw new Error('Validation failed: ' + sortedMessages);
-    }
+    CoreEnvUtils.validateConfig(this);
   }
 }

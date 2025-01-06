@@ -13,7 +13,6 @@ import {
   ResendConfirmationHandler,
   LogoutCommandHandler,
 } from './application/auth';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RefreshTokenHandler } from './application/auth/refreshToken.useCase';
 import { CookiesService } from '../../infrastructure/services/cookies.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
@@ -29,6 +28,8 @@ import {
   DeleteSessionCommandHandler,
 } from './application/sessions';
 import { SessionService } from './application/sessions/session.service';
+import { AuthConfig } from './config/auth.config';
+import { ConfigModule } from './config/config.module';
 
 const authHandlers = [
   LoginHandler,
@@ -48,16 +49,16 @@ const sessionHandlers = [
 
 @Module({
   imports: [
+    ConfigModule,
     CqrsModule,
     PassportModule,
     UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        global: true,
-        secret: configService.get('auth.jwtSecret'),
-        signOptions: { expiresIn: configService.get('auth.jwtExpireTime') },
+      inject: [AuthConfig],
+      useFactory: (authConfig: AuthConfig) => ({
+        secret: authConfig.jwtSecret,
+        signOptions: { expiresIn: authConfig.jwtExpireTime },
       }),
     }),
   ],
