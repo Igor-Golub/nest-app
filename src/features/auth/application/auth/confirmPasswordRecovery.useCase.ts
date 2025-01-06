@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RecoveryRepo } from '../../infrastructure';
 import { UsersService } from '../../../users/application';
-import { RecoveryStatuses } from '../../domain/recoveryEntity';
+import { RecoveryStatuses } from '../../domain/recovery.entity';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 
 export class ConfirmPasswordRecoveryCommand {

@@ -1,12 +1,13 @@
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import type { RecoveryCommandRepo } from './interfaces';
-import type { RecoveryDBEntity, RecoveryEntity } from '../domain';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Recovery } from '../domain/recovery.entity';
 
 @Injectable()
-export class RecoveryRepo implements RecoveryCommandRepo {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+export class RecoveryRepo {
+  constructor(
+    @InjectRepository(Recovery) private repository: Repository<Recovery>,
+  ) {}
 
   public async findById(id: string): Promise<RecoveryDBEntity | null> {
     return this.dataSource.query(

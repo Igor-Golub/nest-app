@@ -4,7 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { UsersService } from '../../../users/application';
 import { RecoveryRepo } from '../../infrastructure';
-import { RecoveryStatuses } from '../../domain/recoveryEntity';
+import { RecoveryStatuses } from '../../domain/recovery.entity';
 import { add, formatISO } from 'date-fns';
 
 export class PasswordRecoveryCommand {

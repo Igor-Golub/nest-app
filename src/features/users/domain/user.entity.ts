@@ -2,6 +2,8 @@ import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Confirmation } from './confirm.entity';
 import type { Account } from './account.entity';
+import type { Recovery } from '../../auth/domain/recovery.entity';
+import type { Session } from '../../auth/domain/session.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -24,4 +26,10 @@ export class User extends BaseEntity {
 
   @OneToOne('Account', (account: Account) => account.owner)
   public account: Account;
+
+  @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
+  public recovery: Recovery;
+
+  @OneToOne('Session', (session: Session) => session.owner)
+  public session: Session;
 }

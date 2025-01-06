@@ -1,12 +1,13 @@
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import type { SessionCommandRepo } from './interfaces';
-import type { SessionEntity, SessionDBEntity } from '../domain';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Session } from '../domain/session.entity';
 
 @Injectable()
-export class SessionRepo implements SessionCommandRepo {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+export class SessionRepo {
+  constructor(
+    @InjectRepository(Session) private repository: Repository<Session>,
+  ) {}
 
   public async findById(id: string): Promise<SessionDBEntity | null> {
     return this.dataSource.query(
