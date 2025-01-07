@@ -1,44 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PostModel } from '../domain/postModel';
-import { PaginationService } from '../../../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../../../infrastructure/services/filter.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from '../domain/post.entity';
+import { Repository } from 'typeorm';
+import { PostsQueryParams } from '../api/models/input';
+import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
-export class PostsQueryRepo {
+export class PostsQueryRepository {
   constructor(
-    @InjectModel(PostModel.name) private readonly postModel: Model<PostModel>,
-    private readonly paginationService: PaginationService,
-    private readonly sortingService: ClientSortingService,
-    private readonly filterService: ClientFilterService<ViewModels.Post>,
+    @InjectRepository(Post)
+    private readonly repository: Repository<Post>,
   ) {}
 
-  public async getById(id: string) {
-    return this.postModel.findById(id).lean();
+  public async findById(id: string) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Post, 'p')
+      .where('p.id = :id', { id })
+      .getOne();
   }
 
-  public async getWithPagination() {
-    const { pageNumber, pageSize } = this.paginationService.getPagination();
-    const sort = this.sortingService.createSortCondition() as any;
-    const filters = this.filterService.getFilters();
+  public async getWithPagination(query: PostsQueryParams) {
+    const offset = (query.pageNumber - 1) * query.pageSize;
 
-    const data = await this.postModel
-      .find(filters)
-      .sort(sort)
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean();
+    const [posts, totalCount] = await this.repository.findAndCount({
+      order: {
+        [query.sortBy]: query.sortDirection,
+      },
+      take: query.pageSize,
+      skip: offset,
+    });
 
-    const amountOfItems = await this.postModel.countDocuments(filters);
-
-    return {
-      page: pageNumber,
-      pageSize,
-      items: data,
-      totalCount: amountOfItems,
-      pagesCount: Math.ceil(amountOfItems / pageSize),
-    };
+    return PaginatedViewDto.mapToView({
+      totalCount,
+      size: query.pageSize,
+      page: query.pageNumber,
+      items: posts,
+    });
   }
 }

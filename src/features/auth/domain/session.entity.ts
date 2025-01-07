@@ -1,11 +1,15 @@
 import { BaseEntity } from '../../../core/entities/baseEntity';
-import { Column, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { User } from '../../users/domain/user.entity';
 
+@Entity()
 export class Session extends BaseEntity {
   @OneToOne(() => User, (user: User) => user.confirmation)
   @JoinColumn()
   owner: User;
+
+  @Column()
+  ownerId: string;
 
   @Column()
   version: string;

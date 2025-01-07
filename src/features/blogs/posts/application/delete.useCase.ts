@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { PostsRepo } from '../infrastructure/posts.repo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { PostsRepository } from '../infrastructure/posts.repo';
 
 interface DeletePostCommandPayload {
   id: string;
@@ -12,10 +12,10 @@ export class DeletePostCommand {
 
 @CommandHandler(DeletePostCommand)
 export class DeletePostHandler implements ICommandHandler<DeletePostCommand> {
-  constructor(private readonly postsRepo: PostsRepo) {}
+  constructor(private readonly postsRepository: PostsRepository) {}
 
   public async execute({ payload: { id } }: DeletePostCommand) {
-    const result = await this.postsRepo.delete(id);
+    const result = await this.postsRepository.delete(id);
 
     if (!result) throw new NotFoundException();
 

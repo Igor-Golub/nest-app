@@ -1,59 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { ConfirmDBEntity, ConfirmEntity } from '../domain/confirm.entity';
-import { UserDBEntity } from '../domain/user.entity';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { IConfirmationRepo } from './interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Confirmation } from '../domain/confirm.entity';
 
 @Injectable()
-export class ConfirmationRepo implements IConfirmationRepo {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+export class ConfirmationRepo {
+  constructor(
+    @InjectRepository(Confirmation)
+    private repository: Repository<Confirmation>,
+  ) {}
 
-  public async create(createConfirmationDto: ConfirmEntity): Promise<string> {
-    const { ownerId, status, type, code, expirationAt } = createConfirmationDto;
-
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(`
-      INSERT INTO "confirmation"
-      ("code", "status", "ownerId", "type", "expirationAt")
-      VALUES ('${code}', '${status}', '${ownerId}', '${type}', '${expirationAt}')
-      RETURNING id
-    `);
-
-    return queryResult[0].id;
+  public async create(createConfirmationDto: Base.DTOFromEntity<Confirmation>) {
+    return this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Confirmation)
+      .values(createConfirmationDto)
+      .execute();
   }
 
-  public async findByField<key extends keyof ConfirmEntity>(
+  public async findByField<key extends keyof Confirmation>(
     field: key,
-    value: ConfirmEntity[key],
-  ): Promise<ConfirmDBEntity | null> {
-    const queryResult = await this.dataSource.query<ConfirmDBEntity[]>(
-      `
-        select *
-        from "confirmation" as c
-        where c."${field}" = '${value}'
-    `,
-    );
-
-    return queryResult.length ? queryResult[0] : null;
+    value: Confirmation[key],
+  ) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Confirmation, 'c')
+      .where(`c.${field} = :value`, { value })
+      .getOne();
   }
 
-  public async updateField<key extends keyof ConfirmEntity>(
+  public async updateField<key extends keyof Base.DTOFromEntity<Confirmation>>(
     id: string,
     field: key,
-    value: ConfirmEntity[key],
-  ): Promise<boolean> {
-    const queryResult = await this.dataSource.query<UserDBEntity[]>(
-      `
-        update "confirmation" as c
-        set "${field}" = '${value}'
-        where c."id" = ${id}
-    `,
-    );
+    value: Base.DTOFromEntity<Confirmation>[key],
+  ) {
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .update(Confirmation)
+      .set({ [field]: value })
+      .where('c.id = :id', { id })
+      .execute();
 
-    return !!queryResult[1];
-  }
-
-  public async dropTable() {
-    await this.dataSource.query(`TRUNCATE "confirmation";`);
+    return !!affected;
   }
 }

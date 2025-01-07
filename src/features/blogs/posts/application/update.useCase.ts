@@ -1,5 +1,5 @@
-import { PostsRepo } from '../infrastructure/posts.repo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { PostsRepository } from '../infrastructure/posts.repo';
 
 interface UpdatePostCommandPayload {
   postId: string;
@@ -17,9 +17,9 @@ export class UpdatePostCommand {
 
 @CommandHandler(UpdatePostCommand)
 export class UpdatePostHandler implements ICommandHandler<UpdatePostCommand> {
-  constructor(private readonly postsRepo: PostsRepo) {}
+  constructor(private readonly postsRepository: PostsRepository) {}
 
   public async execute({ payload: { postId, data } }: UpdatePostCommand) {
-    return this.postsRepo.update(postId, data);
+    return this.postsRepository.update(postId, data);
   }
 }

@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import { User } from '../../users/domain/user.entity';
 
-export declare enum RecoveryStatuses {
+export enum RecoveryStatuses {
   Created = 1,
   Failed = 2,
   Success = 3,
@@ -16,6 +16,9 @@ export class Recovery extends BaseEntity {
   @OneToOne(() => User, (user: User) => user.recovery)
   @JoinColumn()
   owner: User;
+
+  @Column()
+  ownerId: string;
 
   @Column({ type: 'date', nullable: true })
   expirationAt: Date;

@@ -13,7 +13,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostsQueryRepo } from '../infrastructure';
 import {
   CommentsQueryRepo,
   PostsCommentsLikesQueryRepo,
@@ -40,20 +39,17 @@ import {
 } from '../application';
 import { PostsViewMapperManager } from './mappers';
 import { BlogsViewMapperManager } from '../../blogs/api/mappers';
-import { PostsLikesQueryRepo } from '../infrastructure';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
-import { PostsService } from '../application/posts.service';
 import { UsersQueryRepo } from '../../../users/infrastructure';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
+import { PostsQueryRepository } from '../infrastructure/posts.query.repo';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly postsService: PostsService,
-    private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
+    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
@@ -65,20 +61,7 @@ export class PostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
-    const posts = await this.postsQueryRepo.getWithPagination();
-
-    const postsLikes = this.postsService.getPostsIds(posts.items);
-
-    const likes = await this.postsLikesQueryRepo.findLikesByIds(postsLikes);
-
-    return {
-      ...posts,
-      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
-        posts.items,
-        likes,
-        userId,
-      ),
-    };
+    return this.postsQueryRepository.getWithPagination(query);
   }
 
   @Get(':id')
@@ -86,17 +69,13 @@ export class PostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
   ) {
-    const post = await this.postsQueryRepo.getById(id);
+    const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
 
-    const likes = await this.postsLikesQueryRepo.findLikesByIds([
-      post._id.toString(),
-    ]);
-
     return PostsViewMapperManager.mapPostsToViewModelWithLikes(
       [post],
-      likes,
+      [],
       userId,
     )[0];
   }
@@ -105,18 +84,16 @@ export class PostsController {
   public async getComments(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
-    @Query() query: Api.CommonQuery,
+    @Query() query: any,
   ) {
-    const post = await this.postsQueryRepo.getById(id);
+    const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
-
-    const { sortBy, sortDirection, pageSize, pageNumber } = query;
 
     const data = await this.commentsQueryRepo.getWithPagination();
 
     const commentsLikes = await this.postsCommentsLikesQueryRepo.findLikesByIds(
-      data.items.map(({ _id }) => _id.toString()),
+      data.items.map(({ _id }) => _id),
     );
 
     return {
@@ -145,7 +122,7 @@ export class PostsController {
 
     const createdPostId = await this.commandBus.execute(command);
 
-    const newPost = await this.postsQueryRepo.getById(createdPostId);
+    const newPost = await this.postsQueryRepository.findById(createdPostId);
 
     return PostsViewMapperManager.addDefaultLikesData(newPost);
   }
@@ -186,7 +163,7 @@ export class PostsController {
 
     if (!user) throw new BadRequestException();
 
-    const post = await this.postsQueryRepo.getById(id);
+    const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
 
@@ -212,7 +189,7 @@ export class PostsController {
     @Param() { id: postId }: UpdatePostLikeStatusParams,
     @Body() { likeStatus: nextLikeStatus }: UpdatePostLikeStatus,
   ) {
-    const post = await this.postsQueryRepo.getById(postId);
+    const post = await this.postsQueryRepository.findById(postId);
 
     if (!post) throw new NotFoundException();
 

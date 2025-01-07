@@ -14,5 +14,10 @@ export declare global {
       deviceId: string;
       refreshToken: string;
     }
+
+    type DTOFromEntity<Entity> = Omit<
+      Entity,
+      'id' | 'owner' | 'createdAt' | 'updatedAt'
+    >;
   }
 }

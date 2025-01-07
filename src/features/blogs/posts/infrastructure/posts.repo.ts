@@ -1,25 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PostModel } from '../domain/postModel';
-import { UpdatePostDto } from '../api/models/input';
+import { Post } from '../domain/post.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class PostsRepo {
+export class PostsRepository {
   constructor(
-    @InjectModel(PostModel.name)
-    private readonly postModel: Model<PostModel>,
+    @InjectRepository(Post)
+    private readonly repository: Repository<Post>,
   ) {}
 
-  public async create(createPostDto: DBModels.Post) {
-    return this.postModel.create(createPostDto);
+  public async create(createPostDto: Base.DTOFromEntity<Post>) {
+    const { identifiers } = await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Post)
+      .values(createPostDto)
+      .execute();
+
+    return { id: identifiers[0].id as string };
   }
 
-  public async update(id: string, updatePostDto: UpdatePostDto) {
-    return this.postModel.findByIdAndUpdate(id, updatePostDto);
+  public async update(
+    id: string,
+    updatePostDto: Omit<Base.DTOFromEntity<Post>, 'blogName'>,
+  ) {
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .update(Post)
+      .where('p.id = :id', { id })
+      .set(updatePostDto)
+      .execute();
+
+    return !!affected;
   }
 
   public async delete(id: string) {
-    return this.postModel.findByIdAndDelete(id);
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Post, 'p')
+      .where('p.id = :id', { id })
+      .execute();
+
+    return !!affected;
   }
 }

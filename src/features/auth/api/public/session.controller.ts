@@ -19,7 +19,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CurrentSession } from '../../../../common/pipes';
 import { SessionService } from '../../application/sessions/session.service';
 import { UsersService } from '../../../users/application';
-import { SessionRepo } from '../../infrastructure';
+import { SessionRepository } from '../../infrastructure/session.repository';
 
 enum SessionRoutes {
   Devices = 'devices',
@@ -31,7 +31,7 @@ enum SessionRoutes {
 export class SessionController {
   constructor(
     private commandBus: CommandBus,
-    private sessionRepo: SessionRepo,
+    private sessionRepository: SessionRepository,
     private usersService: UsersService,
     private sessionService: SessionService,
   ) {}
@@ -40,9 +40,9 @@ export class SessionController {
   public async getAllSessions(
     @CurrentSession() { id: userId }: Base.Session,
   ): Promise<SessionViewModel[]> {
-    const session = await this.sessionRepo.findByField('ownerId', userId);
+    const session = await this.sessionRepository.findByField('ownerId', userId);
 
-    return [SessionViewMapperManager.mapSessionToView(session)];
+    return session.map(SessionViewMapperManager.mapSessionToView);
   }
 
   @Delete(SessionRoutes.Devices)

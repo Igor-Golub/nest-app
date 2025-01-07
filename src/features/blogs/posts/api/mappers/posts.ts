@@ -33,7 +33,7 @@ export class PostsViewMapperManager {
     posts,
     postLikes,
     reqUserId: string | undefined,
-  ): ViewModels.PostWithFullLikes[] {
+  ): any {
     return posts.map(
       ({
         _id,

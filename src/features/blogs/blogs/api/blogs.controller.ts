@@ -14,10 +14,6 @@ import {
 } from '@nestjs/common';
 import { BlogsQueryRepo } from '../infrastructure';
 import {
-  PostsLikesQueryRepo,
-  PostsQueryRepo,
-} from '../../posts/infrastructure';
-import {
   BlogsQueryDtoParams,
   UpdateBlogParams,
   UpdateBlogDto,
@@ -39,13 +35,15 @@ import { PostsViewMapperManager } from '../../posts/api/mappers';
 import { PostsService } from '../../posts/application/posts.service';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../common/pipes';
+import { PostsQueryRepository } from '../../posts/infrastructure/posts.query.repo';
+import { PostsLikesQueryRepo } from '../../posts/infrastructure/postsLikes.query.repo';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepo,
-    private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly postsService: PostsService,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
   ) {}
@@ -85,13 +83,13 @@ export class BlogsController {
   public async getPostsOfBlog(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') blogId: string,
-    @Query() query: Api.CommonQuery,
+    @Query() query: any,
   ) {
     const blog = await this.blogsQueryRepo.getById(blogId);
 
     if (!blog) throw new NotFoundException();
 
-    const posts = await this.postsQueryRepo.getWithPagination();
+    const posts = await this.postsQueryRepository.getWithPagination(query);
 
     const postsLikesIds = this.postsService.getPostsIds(posts.items);
 
@@ -126,7 +124,7 @@ export class BlogsController {
 
     const createdPostId = await this.commandBus.execute(command);
 
-    const newPost = await this.postsQueryRepo.getById(createdPostId);
+    const newPost = await this.postsQueryRepository.findById(createdPostId);
 
     return PostsViewMapperManager.addDefaultLikesData(newPost);
   }

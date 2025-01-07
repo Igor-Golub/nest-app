@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { SessionRepo } from '../infrastructure';
+import { SessionRepository } from '../infrastructure/session.repository';
 
 interface SessionPayload {
   iat: number;
@@ -16,7 +16,7 @@ export class CookieRefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-cookie',
 ) {
-  constructor(private sessionRepo: SessionRepo) {
+  constructor(private sessionRepository: SessionRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => request?.cookies?.['refreshToken'],
@@ -27,7 +27,7 @@ export class CookieRefreshTokenStrategy extends PassportStrategy(
   }
 
   public async validate(payload: SessionPayload) {
-    const session = await this.sessionRepo.findByField(
+    const session = await this.sessionRepository.findByField(
       'version',
       new Date(payload.iat * 1000).toISOString(),
     );

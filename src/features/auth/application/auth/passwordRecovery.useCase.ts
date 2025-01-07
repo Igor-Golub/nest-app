@@ -3,12 +3,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { UsersService } from '../../../users/application';
-import { RecoveryRepo } from '../../infrastructure';
 import { RecoveryStatuses } from '../../domain/recovery.entity';
-import { add, formatISO } from 'date-fns';
+import { add } from 'date-fns';
+import { RecoveryRepository } from '../../infrastructure/recovery.repository';
 
 export class PasswordRecoveryCommand {
-  constructor(readonly payload: ServicesModels.PasswordRecovery) {}
+  constructor(readonly payload: any) {}
 }
 
 @CommandHandler(PasswordRecoveryCommand)
@@ -18,7 +18,7 @@ export class PasswordRecoveryHandler
   constructor(
     private readonly usersService: UsersService,
     private readonly notifyManager: NotifyManager,
-    private readonly recoveryRepo: RecoveryRepo,
+    private readonly recoveryRepository: RecoveryRepository,
   ) {}
 
   public async execute({ payload }: PasswordRecoveryCommand) {
@@ -32,15 +32,13 @@ export class PasswordRecoveryHandler
 
     const recoveryCode = `${uuidv4()}_${user.id}`;
 
-    await this.recoveryRepo.create({
+    await this.recoveryRepository.create({
       ownerId: user.id,
       code: recoveryCode,
       status: RecoveryStatuses.Created,
-      expirationAt: formatISO(
-        add(new Date(), {
-          minutes: 10,
-        }),
-      ),
+      expirationAt: add(new Date(), {
+        minutes: 10,
+      }),
     });
 
     await this.notifyManager.sendRecoveryEmail({

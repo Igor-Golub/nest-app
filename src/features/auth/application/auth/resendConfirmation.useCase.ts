@@ -4,7 +4,7 @@ import { NotifyManager } from '../../../../infrastructure/managers/notify.manage
 import { UsersService } from '../../../users/application';
 
 export class ResendConfirmationCommand {
-  constructor(readonly payload: ServicesModels.ResendConfirmation) {}
+  constructor(readonly payload: any) {}
 }
 
 @CommandHandler(ResendConfirmationCommand)

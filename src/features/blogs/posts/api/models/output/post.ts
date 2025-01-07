@@ -1,6 +1,8 @@
 import { LikeStatus } from '../../../../../../common/enums';
 
-export interface PostViewModel extends ViewModels.BaseModel {
+export interface PostViewModel {
+  id: string;
+  createdAt: string;
   title: string;
   blogId: string;
   content: string;

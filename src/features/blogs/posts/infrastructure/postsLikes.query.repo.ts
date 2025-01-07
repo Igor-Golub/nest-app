@@ -1,23 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PostLikesModel } from '../domain/postLikesModel';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { PostLike } from '../domain/postLikes.entity';
 
 @Injectable()
 export class PostsLikesQueryRepo {
   constructor(
-    @InjectModel(PostLikesModel.name)
-    private readonly postLikesModel: Model<PostLikesModel>,
+    @InjectRepository(PostLike)
+    private readonly repository: Repository<PostLike>,
   ) {}
 
   public async findLikeByUserIdAndPostId(userId: string, postId: string) {
-    return this.postLikesModel.findOne({ postId, userId }).lean();
+    return this.repository.findOne({
+      where: { userId, postId },
+    });
   }
 
   public async findLikesByIds(ids: string[]) {
-    return this.postLikesModel
-      .find({ postId: { $in: ids } })
-      .sort({ createdAt: 'desc' })
-      .lean();
+    return this.repository.find({
+      where: { postId: In(ids) },
+    });
   }
 }

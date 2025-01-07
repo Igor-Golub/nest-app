@@ -15,7 +15,7 @@ export class BlogsRepo {
     return this.blogModel.findById(id);
   }
 
-  public async create(createBlogDto: DBModels.Blog) {
+  public async create(createBlogDto: any) {
     return this.blogModel.create(createBlogDto);
   }
 

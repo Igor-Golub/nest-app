@@ -1,35 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { ConfirmDBEntity, ConfirmEntity } from '../domain/confirm.entity';
-import { IConfirmationQueryRepo } from './interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Confirmation } from '../domain/confirm.entity';
 
 @Injectable()
-export class ConfirmationQueryRepo implements IConfirmationQueryRepo {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+export class ConfirmationQueryRepo {
+  constructor(
+    @InjectRepository(Confirmation)
+    private repository: Repository<Confirmation>,
+  ) {}
 
-  public async findById(id: string): Promise<ConfirmDBEntity | null> {
-    return this.dataSource.query(
-      `
-        select *
-        from "confirmation" as c
-        where c."id" = ${id}
-    `,
-    );
+  public async findById(id: string) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Confirmation, 'c')
+      .where('c.id = :id', { id })
+      .getOne();
   }
 
-  public async findByField<key extends keyof ConfirmEntity>(
+  public async findByField<key extends keyof Confirmation>(
     field: key,
-    value: ConfirmEntity[key],
-  ): Promise<ConfirmDBEntity | null> {
-    const queryResult = await this.dataSource.query<ConfirmDBEntity[]>(
-      `
-        select *
-        from "confirmation" as c
-        where c."${field}" = '${value}'
-    `,
-    );
-
-    return queryResult.length ? queryResult[0] : null;
+    value: Confirmation[key],
+  ) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Confirmation, 'c')
+      .where(`c.${field} = :value`, { value })
+      .getMany();
   }
 }

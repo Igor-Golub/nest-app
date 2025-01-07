@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepo } from '../../infrastructure';
+import { SessionRepository } from '../../infrastructure/session.repository';
 
 interface DeleteAllSessionsCommandPayload {
   userId: string;
@@ -14,19 +14,22 @@ export class DeleteAllSessionsCommand {
 export class DeleteAllSessionsCommandHandler
   implements ICommandHandler<DeleteAllSessionsCommand>
 {
-  constructor(private sessionRepo: SessionRepo) {}
+  constructor(private sessionRepository: SessionRepository) {}
 
   public async execute({ payload }: DeleteAllSessionsCommand): Promise<any> {
     const { userId, currentSessionVersion } = payload;
 
-    const userSessions = await this.sessionRepo.findByField('ownerId', userId);
+    const userSessions = await this.sessionRepository.findByField(
+      'ownerId',
+      userId,
+    );
 
     const idsForDelete = this.defineSessionsIdsForDelete(
       userSessions,
       currentSessionVersion,
     );
 
-    return this.sessionRepo.deleteAllSessions(userId, idsForDelete);
+    return this.sessionRepository.deleteAllSessions(userId, idsForDelete);
   }
 
   private defineSessionsIdsForDelete(

@@ -3,7 +3,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 import { AuthService } from './auth.service';
-import { SessionRepo } from '../../infrastructure';
+import { SessionRepository } from '../../infrastructure/session.repository';
 
 interface LoginCommandUserData {
   id: string;
@@ -27,7 +27,7 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<LoginCommand> {
   constructor(
-    private sessionRepo: SessionRepo,
+    private sessionRepository: SessionRepository,
     private authService: AuthService,
     private cryptoService: CryptoService,
   ) {}
@@ -53,7 +53,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const { version, expirationDate } =
       this.authService.getSessionVersionAndExpirationDate(pairTokens.refresh);
 
-    await this.sessionRepo.create({
+    await this.sessionRepository.create({
       version,
       deviceId,
       expirationDate,

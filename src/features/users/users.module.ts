@@ -12,9 +12,6 @@ import {
   DeleteUserHandler,
   UsersService,
 } from './application';
-import { PaginationService } from '../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/user.entity';
@@ -33,10 +30,7 @@ import { Account } from './domain/account.entity';
     CryptoService,
     CreateUserHandler,
     DeleteUserHandler,
-    PaginationService,
     ConfirmationRepo,
-    ClientFilterService,
-    ClientSortingService,
     ConfirmationQueryRepo,
   ],
   controllers: [UsersController],

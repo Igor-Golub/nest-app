@@ -19,12 +19,6 @@ import {
 } from './posts/application';
 import { PostsService } from './posts/application/posts.service';
 import {
-  PostsLikesQueryRepo,
-  PostsLikesRepo,
-  PostsQueryRepo,
-  PostsRepo,
-} from './posts/infrastructure';
-import {
   DeleteCommentHandler,
   UpdateCommentLikeHandler,
   UpdateCommentLikeStatusHandler,
@@ -35,8 +29,6 @@ import {
   PostsCommentsLikesRepo,
   PostsCommentsRepo,
 } from './comments/infrastructure';
-import { PostModel, PostSchema } from './posts/domain/postModel';
-import { PostLikesModel, PostLikesSchema } from './posts/domain/postLikesModel';
 import { BlogModel, BlogSchema } from './blogs/domain/blogEntity';
 import {
   PostsCommentsModel,
@@ -46,11 +38,15 @@ import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
 } from './comments/domain/postsCommentsLikesModel';
-import { PaginationService } from '../../infrastructure/services/pagination.service';
-import { ClientSortingService } from '../../infrastructure/services/clientSorting.service';
-import { ClientFilterService } from '../../infrastructure/services/filter.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from '../users/users.module';
+import { PostsRepository } from './posts/infrastructure/posts.repo';
+import { PostsLikesRepo } from './posts/infrastructure/postsLikes.repo';
+import { PostsLikesQueryRepo } from './posts/infrastructure/postsLikes.query.repo';
+import { PostsQueryRepository } from './posts/infrastructure/posts.query.repo';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Post } from './posts/domain/post.entity';
+import { PostLike } from './posts/domain/postLikes.entity';
 
 const blogsProviders = [
   BlogsRepo,
@@ -63,9 +59,10 @@ const blogsProviders = [
 
 const postsProviders = [
   PostsService,
-  PostsRepo,
-  PostsQueryRepo,
+  PostsRepository,
   PostsLikesRepo,
+  PostsLikesRepo,
+  PostsQueryRepository,
   PostsLikesQueryRepo,
   CreatePostHandler,
   UpdatePostHandler,
@@ -88,26 +85,18 @@ const commentsProviders = [
   imports: [
     CqrsModule,
     UsersModule,
+    TypeOrmModule.forFeature([Post, PostLike]),
     MongooseModule.forFeature([
-      { name: PostModel.name, schema: PostSchema },
-      { name: PostLikesModel.name, schema: PostLikesSchema },
       { name: BlogModel.name, schema: BlogSchema },
       { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
       { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
     ]),
   ],
   controllers: [PostsController, BlogsController, CommentsController],
-  providers: [
-    ...blogsProviders,
-    ...postsProviders,
-    ...commentsProviders,
-    PaginationService,
-    ClientSortingService,
-    ClientFilterService,
-  ],
+  providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [
     BlogsQueryRepo,
-    PostsQueryRepo,
+    PostsQueryRepository,
     PostsLikesQueryRepo,
     PostsCommentsLikesQueryRepo,
   ],

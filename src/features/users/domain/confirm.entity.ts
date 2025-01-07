@@ -21,6 +21,9 @@ export class Confirmation extends BaseEntity {
   @JoinColumn()
   public owner: User;
 
+  @Column()
+  public ownerId: string;
+
   @Column({ nullable: true })
   public expirationAt: string;
 

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsLikesRepo } from '../infrastructure';
 import { LikeStatus } from '../../../../common/enums';
+import { PostsLikesRepo } from '../infrastructure/postsLikes.repo';
 
 interface UpdatePostLikeStatusCommandPayload {
   userId: string;
@@ -35,10 +35,7 @@ export class UpdatePostLikeStatusHandler
         nextLikeStatus,
       );
     } else {
-      await this.postsLikesRepo.updateStatus(
-        like._id.toString(),
-        nextLikeStatus,
-      );
+      await this.postsLikesRepo.updateStatus(like.id, nextLikeStatus);
     }
 
     return true;

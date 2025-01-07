@@ -22,7 +22,7 @@ export class CommentsViewMapperManager {
     comment,
     commentsLikes,
     reqUserId: string | undefined,
-  ): ViewModels.Comment {
+  ): any {
     const { _id, content, userId, userLogin } = comment;
 
     return {

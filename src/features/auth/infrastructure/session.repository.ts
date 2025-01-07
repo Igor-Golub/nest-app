@@ -2,10 +2,9 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Session } from '../domain/session.entity';
-import type { CreateSessionDTO, UpdateSessionDTO } from './interfaces';
 
 @Injectable()
-export class SessionRepo {
+export class SessionRepository {
   constructor(
     @InjectRepository(Session) private repository: Repository<Session>,
   ) {}
@@ -26,14 +25,16 @@ export class SessionRepo {
       .createQueryBuilder()
       .from(Session, 's')
       .where(`s.${field} = :value`, { value })
-      .getOne();
+      .getMany();
   }
 
   public async findByFields<key extends keyof Session>(
     fields: key[],
     value: Session[key],
   ) {
-    const queryBuilder = this.repository.createQueryBuilder('r');
+    const queryBuilder = this.repository
+      .createQueryBuilder()
+      .from(Session, 's');
 
     fields.forEach((field, index) => {
       const paramKey = `value${index}`;
@@ -45,10 +46,10 @@ export class SessionRepo {
     return queryBuilder.getMany();
   }
 
-  async updateField<key extends keyof UpdateSessionDTO>(
+  async updateField<key extends keyof Base.DTOFromEntity<Session>>(
     id: string,
     field: key,
-    value: UpdateSessionDTO[key],
+    value: Base.DTOFromEntity<Session>[key],
   ) {
     const { affected } = await this.repository
       .createQueryBuilder()
@@ -60,7 +61,7 @@ export class SessionRepo {
     return !!affected;
   }
 
-  public async create(createSessionDto: CreateSessionDTO) {
+  public async create(createSessionDto: Base.DTOFromEntity<Session>) {
     await this.repository
       .createQueryBuilder()
       .insert()

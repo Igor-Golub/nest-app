@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AuthService } from './auth.service';
-import { SessionRepo } from '../../infrastructure';
+import { SessionRepository } from '../../infrastructure/session.repository';
 
 interface RefreshTokenCommandPayload {
   userId: string;
@@ -18,7 +18,7 @@ export class RefreshTokenHandler
 {
   constructor(
     private authService: AuthService,
-    private sessionRepo: SessionRepo,
+    private sessionRepository: SessionRepository,
   ) {}
 
   public async execute({ payload }: RefreshTokenCommand) {
@@ -30,8 +30,12 @@ export class RefreshTokenHandler
       tokensPairs.refresh,
     );
 
-    await this.sessionRepo.updateField(sessionId, 'version', result.version);
-    await this.sessionRepo.updateField(
+    await this.sessionRepository.updateField(
+      sessionId,
+      'version',
+      result.version,
+    );
+    await this.sessionRepository.updateField(
       sessionId,
       'expirationDate',
       result.expirationDate,

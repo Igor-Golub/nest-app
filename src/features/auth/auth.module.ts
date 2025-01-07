@@ -21,7 +21,6 @@ import { NotifyManager } from '../../infrastructure/managers/notify.manager';
 import { EmailService } from '../../infrastructure/managers/email.service';
 import { SmtpService } from '../../infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emailTemplatesCreator.service';
-import { RecoveryRepo, SessionRepo } from './infrastructure';
 import { SessionController } from './api/public/session.controller';
 import {
   DeleteAllSessionsCommandHandler,
@@ -30,6 +29,11 @@ import {
 import { SessionService } from './application/sessions/session.service';
 import { AuthConfig } from './config/auth.config';
 import { ConfigModule } from './config/config.module';
+import { SessionRepository } from './infrastructure/session.repository';
+import { RecoveryRepository } from './infrastructure/recovery.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Session } from './domain/session.entity';
+import { Recovery } from './domain/recovery.entity';
 
 const authHandlers = [
   LoginHandler,
@@ -53,6 +57,7 @@ const sessionHandlers = [
     CqrsModule,
     PassportModule,
     UsersModule,
+    TypeOrmModule.forFeature([Session, Recovery]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [AuthConfig],
@@ -63,11 +68,11 @@ const sessionHandlers = [
     }),
   ],
   providers: [
-    SessionRepo,
+    SessionRepository,
     SessionService,
     AuthService,
     SmtpService,
-    RecoveryRepo,
+    RecoveryRepository,
     EmailService,
     NotifyManager,
     CryptoService,
@@ -77,6 +82,6 @@ const sessionHandlers = [
     ...sessionHandlers,
   ],
   controllers: [AuthController, SessionController],
-  exports: [AuthService, SessionRepo],
+  exports: [AuthService, SessionRepository],
 })
 export class AuthModule {}

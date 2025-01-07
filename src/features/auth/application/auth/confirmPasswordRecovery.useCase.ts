@@ -1,13 +1,13 @@
 import { isAfter } from 'date-fns';
 import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RecoveryRepo } from '../../infrastructure';
 import { UsersService } from '../../../users/application';
 import { RecoveryStatuses } from '../../domain/recovery.entity';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
+import { RecoveryRepository } from '../../infrastructure/recovery.repository';
 
 export class ConfirmPasswordRecoveryCommand {
-  constructor(readonly payload: ServicesModels.ConfirmPasswordRecovery) {}
+  constructor(readonly payload: any) {}
 }
 
 @CommandHandler(ConfirmPasswordRecoveryCommand)
@@ -17,11 +17,11 @@ export class ConfirmPasswordRecoveryHandler
   constructor(
     private readonly usersService: UsersService,
     private readonly cryptoService: CryptoService,
-    private readonly recoveryRepo: RecoveryRepo,
+    private readonly recoveryRepository: RecoveryRepository,
   ) {}
 
   public async execute({ payload }: ConfirmPasswordRecoveryCommand) {
-    const recovery = await this.recoveryRepo.findByField(
+    const recovery = await this.recoveryRepository.findByField(
       'code',
       payload.recoveryCode,
     );
@@ -40,7 +40,7 @@ export class ConfirmPasswordRecoveryHandler
     );
 
     await this.usersService.updateHash(recovery.ownerId, hash);
-    await this.recoveryRepo.updateField(
+    await this.recoveryRepository.updateField(
       recovery.id,
       'status',
       RecoveryStatuses.Success,

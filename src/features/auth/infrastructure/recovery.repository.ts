@@ -2,10 +2,9 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recovery } from '../domain/recovery.entity';
-import type { CreateRecoveryDTO, UpdateRecoveryDTO } from './interfaces';
 
 @Injectable()
-export class RecoveryRepo {
+export class RecoveryRepository {
   constructor(
     @InjectRepository(Recovery) private repository: Repository<Recovery>,
   ) {}
@@ -33,7 +32,9 @@ export class RecoveryRepo {
     fields: key[],
     value: Recovery[key],
   ) {
-    const queryBuilder = this.repository.createQueryBuilder('r');
+    const queryBuilder = this.repository
+      .createQueryBuilder()
+      .from(Recovery, 'r');
 
     fields.forEach((field, index) => {
       const paramKey = `value${index}`;
@@ -45,10 +46,10 @@ export class RecoveryRepo {
     return queryBuilder.getMany();
   }
 
-  async updateField<key extends keyof UpdateRecoveryDTO>(
+  async updateField<key extends keyof Base.DTOFromEntity<Recovery>>(
     id: string,
     field: key,
-    value: UpdateRecoveryDTO[key],
+    value: Base.DTOFromEntity<Recovery>[key],
   ) {
     const { affected } = await this.repository
       .createQueryBuilder()
@@ -60,7 +61,7 @@ export class RecoveryRepo {
     return !!affected;
   }
 
-  public async create(createRecoveryDto: CreateRecoveryDTO) {
+  public async create(createRecoveryDto: Base.DTOFromEntity<Recovery>) {
     return this.repository
       .createQueryBuilder()
       .insert()
