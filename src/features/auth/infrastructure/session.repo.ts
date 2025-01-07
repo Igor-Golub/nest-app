@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Session } from '../domain/session.entity';
+import type { CreateSessionDTO, UpdateSessionDTO } from './interfaces';
 
 @Injectable()
 export class SessionRepo {
@@ -9,116 +10,102 @@ export class SessionRepo {
     @InjectRepository(Session) private repository: Repository<Session>,
   ) {}
 
-  public async findById(id: string): Promise<SessionDBEntity | null> {
-    return this.dataSource.query(
-      `
-        select *
-        from "session" as s
-        where s."id" = ${id}
-    `,
-    );
+  public async findById(id: string) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Session, 's')
+      .where('s.id = :id', { id })
+      .getOne();
   }
 
-  public async findByField<key extends keyof SessionEntity>(
+  public async findByField<key extends keyof Session>(
     field: key,
-    value: SessionEntity[key],
-  ): Promise<SessionDBEntity[]> {
-    const queryResult = await this.dataSource.query<SessionDBEntity[]>(
-      `
-        select *
-        from "session" as s
-        where s."${field}" = '${value}'
-    `,
-    );
-
-    return queryResult.length ? queryResult : [];
+    value: Session[key],
+  ) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Session, 's')
+      .where(`s.${field} = :value`, { value })
+      .getOne();
   }
 
-  public async findByFields<key extends keyof SessionEntity>(
+  public async findByFields<key extends keyof Session>(
     fields: key[],
-    value: SessionEntity[key],
-  ): Promise<SessionDBEntity[] | null> {
-    const queryResult = await this.dataSource.query<SessionDBEntity[]>(
-      `
-        select *
-        from "session" as s
-        where ${value} in ${fields.join(', ')}
-    `,
-    );
+    value: Session[key],
+  ) {
+    const queryBuilder = this.repository.createQueryBuilder('r');
 
-    return queryResult.length ? queryResult : null;
+    fields.forEach((field, index) => {
+      const paramKey = `value${index}`;
+      queryBuilder[!index ? 'where' : 'orWhere'](`s.${field} = :${paramKey}`, {
+        [paramKey]: value,
+      });
+    });
+
+    return queryBuilder.getMany();
   }
 
-  async updateField<key extends keyof SessionEntity>(
+  async updateField<key extends keyof UpdateSessionDTO>(
     id: string,
     field: key,
-    value: SessionEntity[key],
-  ): Promise<boolean> {
-    const queryResult = await this.dataSource.query<SessionDBEntity[]>(
-      `
-        update "session" as s
-        set "${field}" = '${value}'
-        where s."id" = ${id}
-    `,
-    );
+    value: UpdateSessionDTO[key],
+  ) {
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .update(Session)
+      .set({ [field]: value })
+      .where('s.id = :id', { id })
+      .execute();
 
-    return !!queryResult[1];
+    return !!affected;
   }
 
-  public async create(createSessionDto: SessionEntity): Promise<string> {
-    const { deviceId, deviceName, deviceIp, version, ownerId } =
-      createSessionDto;
-
-    const queryResult = await this.dataSource.query<SessionDBEntity[]>(`
-        INSERT INTO "session"
-        ("deviceId", "deviceName", "deviceIp", "version", "ownerId",)
-        VALUES ('${deviceId}', '${deviceName}', '${deviceIp}', '${version}', '${ownerId}')
-        RETURNING id
-    `);
-
-    return queryResult[0].id;
+  public async create(createSessionDto: CreateSessionDTO) {
+    await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Session)
+      .values(createSessionDto)
+      .execute();
   }
 
   public async delete(id: string): Promise<boolean> {
-    const queryResult = await this.dataSource.query<SessionDBEntity[]>(`
-        delete from "session" as s
-        where s."id" = '${id}';
-    `);
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Session, 's')
+      .where('s.id = :id', { id })
+      .execute();
 
-    return !!queryResult[1];
+    return !!affected;
   }
 
-  public async deleteByFields(
-    conditions: Record<string, any>,
-  ): Promise<boolean> {
-    const conditionEntries = Object.entries(conditions);
+  public async deleteByFields(conditions: Record<string, any>) {
+    const queryBuilder = this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Session, 's');
 
-    const whereClauses = conditionEntries.map(
-      ([field], index) => `"${field}" = $${index + 1}`,
-    );
-    const queryParams = conditionEntries.map(([_, value]) => value);
+    Object.entries(conditions).forEach(([field, value], index) => {
+      queryBuilder[!index ? 'where' : 'andWhere'](`"${field}" = :${field}`, {
+        [field]: value,
+      });
+    });
 
-    const queryResult = await this.dataSource.query(
-      `
-        DELETE FROM "session"
-        WHERE ${whereClauses.join(' AND ')};
-    `,
-      queryParams,
-    );
+    const { affected } = await queryBuilder.execute();
 
-    return !!queryResult[1];
+    return !!affected;
   }
 
   public async deleteAllSessions(userId: string, sessionsIds: string[]) {
-    const queryResult = await this.dataSource.query(`
-        delete from "sessions" as s
-        where s."user_id" = ${userId} and id in (${sessionsIds});
-    `);
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Session, 's')
+      .where('"user_id" = :userId', { userId })
+      .andWhere('id IN (:...sessionsIds)', { sessionsIds })
+      .execute();
 
-    return !!queryResult[1];
-  }
-
-  public async dropTable() {
-    await this.dataSource.query(`TRUNCATE "session";`);
+    return !!affected;
   }
 }

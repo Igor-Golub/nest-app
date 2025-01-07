@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recovery } from '../domain/recovery.entity';
+import type { CreateRecoveryDTO, UpdateRecoveryDTO } from './interfaces';
 
 @Injectable()
 export class RecoveryRepo {
@@ -9,85 +10,73 @@ export class RecoveryRepo {
     @InjectRepository(Recovery) private repository: Repository<Recovery>,
   ) {}
 
-  public async findById(id: string): Promise<RecoveryDBEntity | null> {
-    return this.dataSource.query(
-      `
-        select *
-        from "recovery" as r
-        where r."id" = ${id}
-    `,
-    );
+  public async findById(id: string) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Recovery, 'r')
+      .where('r.id = :id', { id })
+      .getOne();
   }
 
-  public async findByField<key extends keyof RecoveryEntity>(
+  public async findByField<key extends keyof Recovery>(
     field: key,
-    value: RecoveryEntity[key],
-  ): Promise<RecoveryDBEntity | null> {
-    const queryResult = await this.dataSource.query<RecoveryDBEntity[]>(
-      `
-        select *
-        from "recovery" as r
-        where r."${field}" = '${value}'
-    `,
-    );
-
-    return queryResult.length ? queryResult[0] : null;
+    value: Recovery[key],
+  ) {
+    return this.repository
+      .createQueryBuilder()
+      .from(Recovery, 'r')
+      .where(`r.${field} = :value`, { value })
+      .getOne();
   }
 
-  public async findByFields<key extends keyof RecoveryEntity>(
+  public async findByFields<key extends keyof Recovery>(
     fields: key[],
-    value: RecoveryEntity[key],
-  ): Promise<RecoveryDBEntity | null> {
-    const queryResult = await this.dataSource.query<RecoveryDBEntity[]>(
-      `
-        select *
-        from "recovery" as r
-        where ${value} in ${fields.join(', ')}
-    `,
-    );
+    value: Recovery[key],
+  ) {
+    const queryBuilder = this.repository.createQueryBuilder('r');
 
-    return queryResult.length ? queryResult[0] : null;
+    fields.forEach((field, index) => {
+      const paramKey = `value${index}`;
+      queryBuilder[!index ? 'where' : 'orWhere'](`r.${field} = :${paramKey}`, {
+        [paramKey]: value,
+      });
+    });
+
+    return queryBuilder.getMany();
   }
 
-  async updateField<key extends keyof RecoveryEntity>(
+  async updateField<key extends keyof UpdateRecoveryDTO>(
     id: string,
     field: key,
-    value: RecoveryEntity[key],
-  ): Promise<boolean> {
-    const queryResult = await this.dataSource.query<RecoveryDBEntity[]>(
-      `
-        update "recovery" as r
-        set "${field}" = '${value}'
-        where r."id" = ${id}
-    `,
-    );
+    value: UpdateRecoveryDTO[key],
+  ) {
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .update(Recovery)
+      .set({ [field]: value })
+      .where('r.id = :id', { id })
+      .execute();
 
-    return !!queryResult[1];
+    return !!affected;
   }
 
-  public async create(createRecoveryDto: RecoveryEntity): Promise<string> {
-    const { ownerId, status, expirationAt, code } = createRecoveryDto;
-
-    const queryResult = await this.dataSource.query<RecoveryDBEntity[]>(`
-        INSERT INTO "recovery"
-        ("ownerId", "status", "expirationAt", "code")
-        VALUES ('${ownerId}', '${status}', '${expirationAt}', '${code}')
-        RETURNING id
-    `);
-
-    return queryResult[0].id;
+  public async create(createRecoveryDto: CreateRecoveryDTO) {
+    return this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Recovery)
+      .values(createRecoveryDto)
+      .execute();
   }
 
-  public async delete(id: string): Promise<boolean> {
-    const queryResult = await this.dataSource.query<RecoveryDBEntity[]>(`
-        delete from "recovery" as r
-        where r."id" = '${id}';
-    `);
+  public async delete(id: string) {
+    const { affected } = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Recovery)
+      .where('id = :id', { id })
+      .execute();
 
-    return !!queryResult[1];
-  }
-
-  public async dropTable() {
-    await this.dataSource.query(`TRUNCATE "recovery";`);
+    return !!affected;
   }
 }
