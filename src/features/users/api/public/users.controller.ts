@@ -12,13 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { UserViewModel } from './models/output';
-import { DeleteUserParams } from './models/input';
-import { BasicAuthGuard } from '../../auth/guards';
-import { UsersQueryRepo } from '../infrastructure';
-import { GetUsersQueryParams, CreateUserDto } from './models/input';
-import { CreateUserCommand, DeleteUserCommand } from '../application';
-import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
+import { UserViewModel } from '../models/output';
+import { DeleteUserParams } from '../models/input';
+import { BasicAuthGuard } from '../../../auth/guards';
+import { UsersQueryRepo } from '../../infrastructure';
+import { GetUsersQueryParams, CreateUserDto } from '../models/input';
+import { CreateUserCommand, DeleteUserCommand } from '../../application';
+import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')

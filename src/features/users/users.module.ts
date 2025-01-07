@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UsersController } from './api/users.controller';
+import { UsersController } from './api/public/users.controller';
 import {
   UsersRepository,
   UsersQueryRepo,
@@ -17,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/user.entity';
 import { Confirmation } from './domain/confirm.entity';
 import { Account } from './domain/account.entity';
+import { AdminUsersController } from './api/admin/adminUsers.controller';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { Account } from './domain/account.entity';
     ConfirmationRepo,
     ConfirmationQueryRepo,
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, AdminUsersController],
   exports: [UsersService, UsersQueryRepo],
 })
 export class UsersModule {}

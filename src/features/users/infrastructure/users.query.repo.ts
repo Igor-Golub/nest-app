@@ -23,8 +23,8 @@ export class UsersQueryRepo {
       take: query.pageSize,
       skip: offset,
       where: {
-        login: Like(`%${query.searchLoginTerm}%`),
-        email: Like(`%${query.searchEmailTerm}%`),
+        login: Like(`%${query.searchLoginTerm ?? ''}%`),
+        email: Like(`%${query.searchEmailTerm ?? ''}%`),
       },
     });
 

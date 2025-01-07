@@ -13,9 +13,14 @@ export class UsersRepository {
       'confirmation' | 'recovery' | 'account' | 'session'
     >,
   ) {
-    const { id } = this.repository.create(createUserDto);
+    const { identifiers } = await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values(createUserDto)
+      .execute();
 
-    return id;
+    return { id: identifiers[0]?.id as string };
   }
 
   async updateField<key extends keyof Base.DTOFromEntity<User>>(

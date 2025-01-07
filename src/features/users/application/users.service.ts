@@ -53,7 +53,7 @@ export class UsersService {
 
     const { hash } = await this.cryptoService.createSaltAndHash(password);
 
-    const userId = await this.usersRepo.create({
+    const { id } = await this.usersRepo.create({
       hash,
       login,
       email,
@@ -64,7 +64,7 @@ export class UsersService {
       const confirmationCode = uuidv4();
 
       await this.confirmationRepo.create({
-        ownerId: userId,
+        ownerId: id,
         code: confirmationCode,
         type: ConfirmationTypes.Email,
         status: ConfirmationStatuses.Created,
@@ -78,10 +78,10 @@ export class UsersService {
         ),
       });
 
-      return { userId, confirmationCode };
+      return { userId: id, confirmationCode };
     }
 
-    return { userId };
+    return { userId: id };
   }
 
   public async findByEmail(email: string) {
