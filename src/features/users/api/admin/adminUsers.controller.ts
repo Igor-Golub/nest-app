@@ -17,11 +17,9 @@ import {
   DeleteUserParams,
   GetUsersQueryParams,
 } from '../models/input';
-import { UserViewModel } from '../models/output';
 import { UsersQueryRepo } from '../../infrastructure';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
-import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/users')
@@ -32,9 +30,7 @@ export class AdminUsersController {
   ) {}
 
   @Get()
-  public async getAll(
-    @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewModel[]>> {
+  public async getAll(@Query() query: GetUsersQueryParams) {
     return this.usersQueryRepo.findWithPagination(query);
   }
 
@@ -42,7 +38,9 @@ export class AdminUsersController {
   public async create(@Body() createUserDto: CreateUserDto) {
     const command = new CreateUserCommand(createUserDto);
 
-    return this.commandBus.execute<CreateUserCommand, string>(command);
+    return this.commandBus.execute<CreateUserCommand, { userId: string }>(
+      command,
+    );
   }
 
   @Delete(':id')

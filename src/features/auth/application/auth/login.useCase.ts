@@ -15,13 +15,13 @@ interface LoginCommandDeviceData {
   name: string;
 }
 
-interface LoginCommandDto {
+interface LoginCommandPayload {
   userData: LoginCommandUserData;
   deviceData: LoginCommandDeviceData;
 }
 
 export class LoginCommand {
-  constructor(readonly payload: LoginCommandDto) {}
+  constructor(readonly payload: LoginCommandPayload) {}
 }
 
 @CommandHandler(LoginCommand)

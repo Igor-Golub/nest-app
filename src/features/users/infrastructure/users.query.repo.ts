@@ -31,7 +31,7 @@ export class UsersQueryRepo {
     });
   }
 
-  public async findById(id: string): Promise<User | null> {
+  public async findById(id: string) {
     return this.repository.findOne({
       where: {
         id,
@@ -39,11 +39,13 @@ export class UsersQueryRepo {
     });
   }
 
-  public async findByFields(
-    options: FindOptionsWhere<User> | FindOptionsWhere<User>[],
-  ) {
+  public async findByFields(options: FindOptionsWhere<User>) {
+    const conditions = Object.entries(options).map(([key, value]) => ({
+      [key]: value,
+    }));
+
     return this.repository.findOne({
-      where: options,
+      where: conditions,
     });
   }
 }

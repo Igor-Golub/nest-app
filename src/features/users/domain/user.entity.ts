@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Confirmation } from './confirm.entity';
 import type { Account } from './account.entity';
@@ -30,6 +30,6 @@ export class User extends BaseEntity {
   @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
   public recovery: Recovery;
 
-  @OneToOne('Session', (session: Session) => session.owner)
+  @OneToMany('Session', (session: Session) => session.owner)
   public session: Session;
 }

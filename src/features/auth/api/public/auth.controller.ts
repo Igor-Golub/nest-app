@@ -21,7 +21,7 @@ import {
   PasswordRecoveryDto,
   RegistrationDto,
   ResendConfirmationDto,
-} from './models/input';
+} from '../models/input';
 import { UsersQueryRepo } from '../../../users/infrastructure';
 import {
   ConfirmPasswordRecoveryCommand,
@@ -31,7 +31,7 @@ import {
   RegisterCommand,
   ResendConfirmationCommand,
 } from '../../application/auth';
-import { AuthViewMapperManager } from './mappers';
+import { AuthViewMapperManager } from '../mappers';
 import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../../guards';
 import { RefreshTokenCommand } from '../../application/auth/refreshToken.useCase';
 import { CookiesService } from '../../../../infrastructure/services/cookies.service';
@@ -59,17 +59,17 @@ enum AuthRoutes {
 @Controller('auth')
 export class AuthController {
   constructor(
-    private commandBus: CommandBus,
-    private userQueryRepo: UsersQueryRepo,
-    private cookiesService: CookiesService,
-    private sessionService: SessionService,
-    private usersService: UsersService,
+    private readonly commandBus: CommandBus,
+    private readonly userQueryRepository: UsersQueryRepo,
+    private readonly cookiesService: CookiesService,
+    private readonly sessionService: SessionService,
+    private readonly usersService: UsersService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
   public async getProfile(@CurrentUserId() currentUserId: string) {
-    const data = await this.userQueryRepo.findById(currentUserId);
+    const data = await this.userQueryRepository.findById(currentUserId);
 
     if (!data) throw new NotFoundException();
 
@@ -84,7 +84,7 @@ export class AuthController {
     @Body() { loginOrEmail, password }: LoginDto,
     @CurrentDevice() { deviceIp, deviceName },
   ) {
-    const user = await this.userQueryRepo.findByFields({
+    const user = await this.userQueryRepository.findByFields({
       login: loginOrEmail,
       email: loginOrEmail,
     });
@@ -154,7 +154,7 @@ export class AuthController {
   ) {
     const { email } = resendConfirmation;
 
-    const user = await this.userQueryRepo.findByFields({ email });
+    const user = await this.userQueryRepository.findByFields({ email });
 
     if (!user)
       throw new BadRequestException([

@@ -7,10 +7,10 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { DeleteSessionParams } from './models/input';
+import { DeleteSessionParams } from '../models/input';
 import { JwtCookieRefreshAuthGuard } from '../../guards';
-import { SessionViewModel } from './models/output';
-import { SessionViewMapperManager } from './mappers';
+import { SessionViewModel } from '../models/output';
+import { SessionViewMapperManager } from '../mappers';
 import {
   DeleteAllSessionsCommand,
   DeleteSessionCommand,

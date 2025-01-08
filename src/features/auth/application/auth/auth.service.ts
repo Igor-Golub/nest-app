@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { AuthConfig } from '../../config/auth.config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
+    private readonly authConfig: AuthConfig,
   ) {}
 
   public async generateTokens(userId: string, deviceId: string) {
@@ -14,13 +14,13 @@ export class AuthService {
 
     const [access, refresh] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
-        secret: this.config.get<string>('auth.jwtSecret'),
-        expiresIn: this.config.get<string>('auth.jwtExpireTime'),
+        secret: this.authConfig.jwtSecret,
+        expiresIn: this.authConfig.jwtExpireTime,
       }),
 
       this.jwtService.signAsync(jwtPayload, {
-        secret: this.config.get<string>('auth.jwtRefreshSecret'),
-        expiresIn: this.config.get<string>('auth.jwtRefreshExpireTime'),
+        secret: this.authConfig.jwtRefreshSecret,
+        expiresIn: this.authConfig.jwtRefreshExpireTime,
       }),
     ]);
 
