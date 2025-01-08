@@ -31,5 +31,5 @@ export class User extends BaseEntity {
   public recovery: Recovery;
 
   @OneToMany('Session', (session: Session) => session.owner)
-  public session: Session;
+  public sessions: Session[];
 }

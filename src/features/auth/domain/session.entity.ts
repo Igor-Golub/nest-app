@@ -1,11 +1,10 @@
 import { BaseEntity } from '../../../core/entities/baseEntity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../../users/domain/user.entity';
 
 @Entity()
 export class Session extends BaseEntity {
-  @ManyToOne(() => User, (user: User) => user.session)
-  @JoinColumn()
+  @ManyToOne(() => User, (user: User) => user.sessions)
   public owner: User;
 
   @Column()

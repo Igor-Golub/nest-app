@@ -10,7 +10,7 @@ export class UsersRepository {
   public async create(
     createUserDto: Omit<
       Base.DTOFromEntity<User>,
-      'confirmation' | 'recovery' | 'account' | 'session'
+      'confirmation' | 'recovery' | 'account' | 'sessions'
     >,
   ) {
     const { identifiers } = await this.repository

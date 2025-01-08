@@ -22,8 +22,7 @@ export class SessionRepository {
     value: Session[key],
   ) {
     return this.repository
-      .createQueryBuilder()
-      .from(Session, 's')
+      .createQueryBuilder('s')
       .where(`s.${field} = :value`, { value })
       .getMany();
   }
