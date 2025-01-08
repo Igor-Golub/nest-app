@@ -28,12 +28,18 @@ import {
 } from './application/sessions';
 import { SessionService } from './application/sessions/session.service';
 import { AuthConfig } from './config/auth.config';
-import { ConfigModule } from './config/config.module';
+import { AuthConfigModule } from './config/config.module';
 import { SessionRepository } from './infrastructure/session.repository';
 import { RecoveryRepository } from './infrastructure/recovery.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './domain/session.entity';
 import { Recovery } from './domain/recovery.entity';
+import {
+  BasicStrategy,
+  CookieRefreshTokenStrategy,
+  JwtStrategy,
+  LocalStrategy,
+} from './strategies';
 
 const authHandlers = [
   LoginHandler,
@@ -53,13 +59,13 @@ const sessionHandlers = [
 
 @Module({
   imports: [
-    ConfigModule,
+    AuthConfigModule,
     CqrsModule,
     PassportModule,
     UsersModule,
     TypeOrmModule.forFeature([Session, Recovery]),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [AuthConfigModule],
       inject: [AuthConfig],
       useFactory: (authConfig: AuthConfig) => ({
         secret: authConfig.jwtSecret,
@@ -78,6 +84,10 @@ const sessionHandlers = [
     CryptoService,
     CookiesService,
     EmailTemplatesCreatorService,
+    LocalStrategy,
+    JwtStrategy,
+    CookieRefreshTokenStrategy,
+    BasicStrategy,
     ...authHandlers,
     ...sessionHandlers,
   ],

@@ -1,17 +1,17 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BasicStrategy as Strategy } from 'passport-http';
 import { PassportStrategy } from '@nestjs/passport';
-import { ConfigService } from '@nestjs/config';
+import { AuthConfig } from '../config/auth.config';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly authConfig: AuthConfig) {
     super();
   }
 
   public async validate(login: string, password: string) {
-    const basicEmail = this.configService.get<string>('auth.basicUser');
-    const basicPassword = this.configService.get<string>('auth.basicPassword');
+    const basicEmail = this.authConfig.basicUser;
+    const basicPassword = this.authConfig.basicPassword;
 
     if (!basicEmail || !basicPassword) {
       throw new UnauthorizedException();

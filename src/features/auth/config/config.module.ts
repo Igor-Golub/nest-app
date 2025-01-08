@@ -5,4 +5,4 @@ import { AuthConfig } from './auth.config';
   providers: [AuthConfig],
   exports: [AuthConfig],
 })
-export class ConfigModule {}
+export class AuthConfigModule {}

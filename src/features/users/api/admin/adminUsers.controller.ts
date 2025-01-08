@@ -1,11 +1,29 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { UserViewModel } from '../models/output';
-import { CreateUserDto, GetUsersQueryParams } from '../models/input';
-import { UsersQueryRepo } from '../../infrastructure';
-import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
-import { CreateUserCommand } from '../../application';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import {
+  CreateUserDto,
+  DeleteUserParams,
+  GetUsersQueryParams,
+} from '../models/input';
+import { UserViewModel } from '../models/output';
+import { UsersQueryRepo } from '../../infrastructure';
+import { BasicAuthGuard } from '../../../auth/guards';
+import { CreateUserCommand, DeleteUserCommand } from '../../application';
+import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
+@UseGuards(BasicAuthGuard)
 @Controller('sa/users')
 export class AdminUsersController {
   constructor(
@@ -25,5 +43,17 @@ export class AdminUsersController {
     const command = new CreateUserCommand(createUserDto);
 
     return this.commandBus.execute<CreateUserCommand, string>(command);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async delete(@Param() { id }: DeleteUserParams) {
+    const command = new DeleteUserCommand({ id });
+
+    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(
+      command,
+    );
+
+    if (!result) throw new NotFoundException();
   }
 }

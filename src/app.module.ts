@@ -6,12 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import {
-  BasicStrategy,
-  CookieRefreshTokenStrategy,
-  JwtStrategy,
-  LocalStrategy,
-} from './features/auth/strategies';
-import {
   BlogIsExistConstraint,
   EmailIsExistConstraint,
   LoginIsExistConstraint,
@@ -64,13 +58,9 @@ import { CoreModule } from './core/core.module';
   providers: [
     JwtService,
     CryptoService,
-    LocalStrategy,
-    JwtStrategy,
-    BasicStrategy,
     BlogIsExistConstraint,
     EmailIsExistConstraint,
     LoginIsExistConstraint,
-    CookieRefreshTokenStrategy,
   ],
 })
 export class AppModule {
