@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { DeleteSessionParams } from '../models/input';
 import { JwtCookieRefreshAuthGuard } from '../../guards';
-import { SessionViewModel } from '../models/output';
 import { SessionViewMapperManager } from '../mappers';
 import {
   DeleteAllSessionsCommand,
@@ -37,9 +36,7 @@ export class SessionController {
   ) {}
 
   @Get(SessionRoutes.Devices)
-  public async getAllSessions(
-    @CurrentSession() { id: userId }: Base.Session,
-  ): Promise<SessionViewModel[]> {
+  public async getAllSessions(@CurrentSession() { id: userId }: Base.Session) {
     const session = await this.sessionRepository.findByField('ownerId', userId);
 
     return session.map(SessionViewMapperManager.mapSessionToView);

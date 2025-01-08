@@ -4,27 +4,27 @@ import { User } from '../../users/domain/user.entity';
 
 @Entity()
 export class Session extends BaseEntity {
-  @ManyToOne(() => User, (user: User) => user.confirmation)
+  @ManyToOne(() => User, (user: User) => user.session)
   @JoinColumn()
-  owner: User;
+  public owner: User;
 
   @Column()
-  ownerId: string;
+  public ownerId: string;
+
+  @Column({ unique: true })
+  public version: string;
+
+  @Column({ unique: true })
+  public deviceId: string;
 
   @Column()
-  version: string;
+  public deviceName: string;
 
   @Column()
-  deviceId: string;
-
-  @Column()
-  deviceName: string;
-
-  @Column()
-  deviceIp: string;
+  public deviceIp: string;
 
   @Column({
     type: 'date',
   })
-  expirationDate: Date;
+  public expirationDate: Date;
 }
