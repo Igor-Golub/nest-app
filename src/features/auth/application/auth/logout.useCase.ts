@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infrastructure/session.repository';
+import { UnauthorizedException } from '@nestjs/common';
 
 interface LogoutCommandPayload {
-  userId: string;
+  ownerId: string;
   deviceId: string;
 }
 
@@ -17,10 +18,10 @@ export class LogoutCommandHandler implements ICommandHandler<LogoutCommand> {
   public async execute({ payload }: LogoutCommand) {
     const [session] = await this.sessionRepository.findByField(
       'ownerId',
-      payload.userId,
+      payload.ownerId,
     );
 
-    if (!session) return null;
+    if (!session) throw new UnauthorizedException();
 
     return this.sessionRepository.delete(session.id);
   }

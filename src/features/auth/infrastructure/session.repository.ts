@@ -69,12 +69,12 @@ export class SessionRepository {
       .execute();
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string) {
     const { affected } = await this.repository
       .createQueryBuilder()
       .delete()
-      .from(Session, 's')
-      .where('s.id = :id', { id })
+      .from(Session)
+      .where('id = :id', { id })
       .execute();
 
     return !!affected;

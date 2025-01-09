@@ -208,11 +208,8 @@ export class AuthController {
   ) {
     await this.sessionService.isSessionExist(refreshToken);
 
-    const command = new LogoutCommand({
-      deviceId,
-      userId,
-    });
+    const command = new LogoutCommand({ deviceId, ownerId: userId });
 
-    await this.commandBus.execute(command);
+    await this.commandBus.execute<LogoutCommand, boolean>(command);
   }
 }
