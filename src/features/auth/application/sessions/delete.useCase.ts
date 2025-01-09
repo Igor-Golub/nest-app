@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infrastructure/session.repository';
 
 interface DeleteSessionCommandPayload {
-  userId: string;
+  ownerId: string;
   deviceId: string;
 }
 
@@ -16,12 +16,12 @@ export class DeleteSessionCommandHandler
 {
   constructor(private sessionRepository: SessionRepository) {}
 
-  public async execute({ payload }: DeleteSessionCommand): Promise<any> {
-    const { userId, deviceId } = payload;
+  public async execute({ payload }: DeleteSessionCommand) {
+    const { ownerId, deviceId } = payload;
 
     return await this.sessionRepository.deleteByFields({
       deviceId,
-      userId,
+      ownerId,
     });
   }
 }

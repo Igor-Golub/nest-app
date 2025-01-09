@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infrastructure/session.repository';
+import { Session } from '../../domain/session.entity';
 
 interface DeleteAllSessionsCommandPayload {
-  userId: string;
+  ownerId: string;
   currentSessionVersion: string;
 }
 
@@ -16,12 +17,12 @@ export class DeleteAllSessionsCommandHandler
 {
   constructor(private sessionRepository: SessionRepository) {}
 
-  public async execute({ payload }: DeleteAllSessionsCommand): Promise<any> {
-    const { userId, currentSessionVersion } = payload;
+  public async execute({ payload }: DeleteAllSessionsCommand) {
+    const { ownerId, currentSessionVersion } = payload;
 
     const userSessions = await this.sessionRepository.findByField(
       'ownerId',
-      userId,
+      ownerId,
     );
 
     const idsForDelete = this.defineSessionsIdsForDelete(
@@ -29,15 +30,15 @@ export class DeleteAllSessionsCommandHandler
       currentSessionVersion,
     );
 
-    return this.sessionRepository.deleteAllSessions(userId, idsForDelete);
+    return this.sessionRepository.deleteAllSessions(ownerId, idsForDelete);
   }
 
   private defineSessionsIdsForDelete(
-    userSessions,
+    userSessions: Session[],
     currentSessionVersion: string,
   ) {
     return userSessions
-      .filter(({ version }) => String(version) !== currentSessionVersion)
-      .map(({ _id }) => _id);
+      .filter(({ version }) => version !== currentSessionVersion)
+      .map(({ id }) => id);
   }
 }

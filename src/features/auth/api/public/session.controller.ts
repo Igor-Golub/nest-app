@@ -46,15 +46,15 @@ export class SessionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async closeAllSessions(
     @CurrentSession() { id: userId, refreshToken }: Base.Session,
-  ): Promise<void> {
+  ) {
     const { session } = await this.sessionService.isSessionExist(refreshToken);
 
     const command = new DeleteAllSessionsCommand({
       currentSessionVersion: session.version,
-      userId,
+      ownerId: userId,
     });
 
-    await this.commandBus.execute(command);
+    await this.commandBus.execute<DeleteAllSessionsCommand, boolean>(command);
   }
 
   @Delete(SessionRoutes.DeleteSessionByDeviceId)
@@ -62,14 +62,14 @@ export class SessionController {
   public async closeSessionById(
     @Param() { id: deviceId }: DeleteSessionParams,
     @CurrentSession() { id: userId }: Base.Session,
-  ): Promise<void> {
+  ) {
     await this.usersService.isUserExist(userId);
 
     await this.sessionService.isSessionExistForDevice(deviceId);
     await this.sessionService.isSessionOfCurrentUser(userId, deviceId);
 
-    const command = new DeleteSessionCommand({ userId, deviceId });
+    const command = new DeleteSessionCommand({ ownerId: userId, deviceId });
 
-    await this.commandBus.execute(command);
+    await this.commandBus.execute<DeleteSessionCommand, boolean>(command);
   }
 }

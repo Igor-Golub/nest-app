@@ -97,12 +97,12 @@ export class SessionRepository {
     return !!affected;
   }
 
-  public async deleteAllSessions(userId: string, sessionsIds: string[]) {
+  public async deleteAllSessions(ownerId: string, sessionsIds: string[]) {
     const { affected } = await this.repository
       .createQueryBuilder()
       .delete()
       .from(Session, 's')
-      .where('"user_id" = :userId', { userId })
+      .where('"ownerId" = :ownerId', { ownerId })
       .andWhere('id IN (:...sessionsIds)', { sessionsIds })
       .execute();
 
