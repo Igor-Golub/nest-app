@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { EnvironmentTypes } from '../common/enums';
 import { CoreEnvUtils } from './core.env.utils';
+import { PostgresLoggingLevels } from '../common/enums/env';
+import { LogLevel } from 'typeorm';
 
 @Injectable()
 export class CoreConfig {
@@ -66,6 +68,13 @@ export class CoreConfig {
     message: 'Set correct POSTGRES_DB_URL value, ex.: postgresql://*',
   })
   public postgresURL = this.configService.get('POSTGRES_DB_URL');
+
+  @IsEnum(PostgresLoggingLevels, {
+    message: 'Set correct POSTGRES_LOGGER value, ex.: query',
+  })
+  public postgresLoggingLevel = this.configService.get(
+    'POSTGRES_LOGGER',
+  ) as LogLevel;
 
   constructor(private configService: ConfigService) {
     CoreEnvUtils.validateConfig(this);

@@ -38,6 +38,7 @@ import { CoreModule } from './core/core.module';
       useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
         url: coreConfig.postgresURL,
+        logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
         synchronize: true,
       }),
