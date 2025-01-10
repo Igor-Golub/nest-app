@@ -29,7 +29,7 @@ import {
   CreatePostComment,
 } from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { BlogsQueryRepo } from '../../blogs/infrastructure';
+import { BlogsQueryRepository } from '../../blogs/infrastructure';
 import {
   UpdatePostCommand,
   DeletePostCommand,
@@ -51,7 +51,7 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
   ) {}

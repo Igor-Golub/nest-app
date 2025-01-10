@@ -8,7 +8,7 @@ import {
   DeleteBlogHandler,
   UpdateBlogHandler,
 } from './blogs/application';
-import { BlogsQueryRepo, BlogsRepo } from './blogs/infrastructure';
+import { BlogsQueryRepository, BlogsRepository } from './blogs/infrastructure';
 import {
   CreatePostCommentHandler,
   CreatePostHandler,
@@ -42,8 +42,8 @@ import { Post } from './posts/domain/post.entity';
 import { PostLike } from './posts/domain/postLikes.entity';
 
 const blogsProviders = [
-  BlogsRepo,
-  BlogsQueryRepo,
+  BlogsRepository,
+  BlogsQueryRepository,
   CreateBlogHandler,
   UpdateBlogHandler,
   DeleteBlogHandler,
@@ -83,7 +83,7 @@ const commentsProviders = [
   controllers: [PostsController, BlogsController, CommentsController],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [
-    BlogsQueryRepo,
+    BlogsQueryRepository,
     PostsQueryRepository,
     PostsLikesQueryRepo,
     PostsCommentsLikesQueryRepo,

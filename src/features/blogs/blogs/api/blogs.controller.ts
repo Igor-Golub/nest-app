@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsQueryRepo } from '../infrastructure';
+import { BlogsQueryRepository } from '../infrastructure';
 import {
   BlogsQueryDtoParams,
   UpdateBlogParams,
@@ -42,7 +42,7 @@ import { PostsLikesQueryRepo } from '../../posts/infrastructure/postsLikes.query
 export class BlogsController {
   constructor(
     private commandBus: CommandBus,
-    private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly postsService: PostsService,
     private readonly postsLikesQueryRepo: PostsLikesQueryRepo,

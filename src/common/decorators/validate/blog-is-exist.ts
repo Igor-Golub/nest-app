@@ -5,12 +5,12 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { BlogsQueryRepo } from '../../../features/blogs/blogs/infrastructure';
+import { BlogsQueryRepository } from '../../../features/blogs/blogs/infrastructure';
 
 @ValidatorConstraint({ name: 'BlogIsExist', async: true })
 @Injectable()
 export class BlogIsExistConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly blogsQueryRepo: BlogsQueryRepo) {}
+  constructor(private readonly blogsQueryRepo: BlogsQueryRepository) {}
 
   public async validate(value: any): Promise<boolean> {
     if (typeof value !== 'string') return false;
