@@ -50,17 +50,12 @@ export class BlogsController {
 
   @Get()
   public async getAll(@Query() query: BlogsQueryDto) {
-    const data = await this.blogsQueryRepo.getWithPagination();
-
-    return {
-      ...data,
-      items: data.items.map(BlogsViewMapperManager.mapBlogsToViewModel),
-    };
+    return this.blogsQueryRepo.getWithPagination(query);
   }
 
   @Get(':id')
   public async getById(@Param() { id }: BlogsQueryDtoParams) {
-    const blog = await this.blogsQueryRepo.getById(id);
+    const blog = await this.blogsQueryRepo.findById(id);
 
     if (!blog) throw new NotFoundException();
 
@@ -72,9 +67,14 @@ export class BlogsController {
   public async create(@Body() createBlogDto: CreateBlogDto) {
     const command = new CreateBlogCommand(createBlogDto);
 
-    const { id } = await this.commandBus.execute(command);
+    const { id } = await this.commandBus.execute<
+      CreateBlogCommand,
+      { id: string }
+    >(command);
 
-    const blog = await this.blogsQueryRepo.getById(id);
+    const blog = await this.blogsQueryRepo.findById(id);
+
+    if (!blog) throw new NotFoundException();
 
     return BlogsViewMapperManager.mapBlogsToViewModel(blog);
   }
@@ -85,7 +85,7 @@ export class BlogsController {
     @Param('id') blogId: string,
     @Query() query: any,
   ) {
-    const blog = await this.blogsQueryRepo.getById(blogId);
+    const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
 
@@ -112,7 +112,7 @@ export class BlogsController {
     @Param() { id: blogId }: CreatePostForBlogParams,
     @Body() createCommentDto: CreatePostForBlogDto,
   ) {
-    const blog = await this.blogsQueryRepo.getById(blogId);
+    const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
 
@@ -136,13 +136,13 @@ export class BlogsController {
     @Param() { id }: UpdateBlogParams,
     @Body() updateBlogDto: UpdateBlogDto,
   ) {
+    const blog = await this.blogsQueryRepo.findById(id);
+
+    if (!blog) throw new NotFoundException();
+
     const command = new UpdateBlogCommand({ id, updateData: updateBlogDto });
 
-    const result = await this.commandBus.execute(command);
-
-    if (!result) throw new NotFoundException();
-
-    return result;
+    return this.commandBus.execute<UpdateBlogCommand, boolean>(command);
   }
 
   @Delete(':id')
@@ -152,12 +152,12 @@ export class BlogsController {
     @Param()
     { id }: DeleteBlogParams,
   ) {
+    const blog = await this.blogsQueryRepo.findById(id);
+
+    if (!blog) throw new NotFoundException();
+
     const command = new DeleteBlogCommand({ id });
 
-    const result = await this.commandBus.execute(command);
-
-    if (!result) throw new NotFoundException();
-
-    return true;
+    return this.commandBus.execute<DeleteBlogCommand, boolean>(command);
   }
 }

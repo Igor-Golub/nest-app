@@ -2,6 +2,9 @@ import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../domain/blog.entity';
+import { BlogsQueryDto } from '../api/models/input';
+import { BlogsViewMapperManager } from '../api/mappers';
+import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -10,8 +13,8 @@ export class BlogsQueryRepository {
     private readonly blogRepository: Repository<Blog>,
   ) {}
 
-  public async getWithPagination(query: any) {
-    return this.blogRepository.findAndCount({
+  public async getWithPagination(query: BlogsQueryDto) {
+    const [blogs, totalCount] = await this.blogRepository.findAndCount({
       order: {
         [query.sortBy]: query.sortDirection,
       },
@@ -21,5 +24,20 @@ export class BlogsQueryRepository {
         name: Like(`%${query.searchNameTerm ?? ''}%`),
       },
     });
+
+    return PaginatedViewDto.mapToView({
+      totalCount,
+      size: query.pageSize,
+      page: query.pageNumber,
+      items: blogs.map(BlogsViewMapperManager.mapBlogsToViewModel),
+    });
+  }
+
+  public async findById(id: string) {
+    return this.blogRepository
+      .createQueryBuilder()
+      .select()
+      .where('id = :id', { id })
+      .getOne();
   }
 }
