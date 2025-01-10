@@ -31,13 +31,11 @@ export class SessionRepository {
     fields: key[],
     value: Session[key],
   ) {
-    const queryBuilder = this.repository
-      .createQueryBuilder()
-      .from(Session, 's');
+    const queryBuilder = this.repository.createQueryBuilder();
 
     fields.forEach((field, index) => {
       const paramKey = `value${index}`;
-      queryBuilder[!index ? 'where' : 'orWhere'](`s.${field} = :${paramKey}`, {
+      queryBuilder[!index ? 'where' : 'orWhere'](`${field} = :${paramKey}`, {
         [paramKey]: value,
       });
     });
@@ -54,7 +52,7 @@ export class SessionRepository {
       .createQueryBuilder()
       .update(Session)
       .set({ [field]: value })
-      .where('s.id = :id', { id })
+      .where('id = :id', { id })
       .execute();
 
     return !!affected;
@@ -84,7 +82,7 @@ export class SessionRepository {
     const queryBuilder = this.repository
       .createQueryBuilder()
       .delete()
-      .from(Session, 's');
+      .from(Session);
 
     Object.entries(conditions).forEach(([field, value], index) => {
       queryBuilder[!index ? 'where' : 'andWhere'](`"${field}" = :${field}`, {
@@ -101,7 +99,7 @@ export class SessionRepository {
     const { affected } = await this.repository
       .createQueryBuilder()
       .delete()
-      .from(Session, 's')
+      .from(Session)
       .where('"ownerId" = :ownerId', { ownerId })
       .andWhere('id IN (:...sessionsIds)', { sessionsIds })
       .execute();

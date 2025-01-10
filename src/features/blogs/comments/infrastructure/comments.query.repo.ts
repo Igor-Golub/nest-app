@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostsCommentsModel } from '../domain/postsCommentsModel';
+import { PostCommentEntity } from '../domain/postComment.entity';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class CommentsQueryRepo {
   constructor(
-    @InjectModel(PostsCommentsModel.name)
-    private readonly postsCommentsModel: Model<PostsCommentsModel>,
+    @InjectModel(PostCommentEntity.name)
+    private readonly postsCommentsModel: Model<PostCommentEntity>,
   ) {}
 
   public async getById(id: string) {

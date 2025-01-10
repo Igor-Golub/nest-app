@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { PostsController } from './posts/api/posts.controller';
 import { BlogsController } from './blogs/api/blogs.controller';
 import { CommentsController } from './comments/api/comments.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
   CreateBlogHandler,
   CreatePostForBlogHandler,
@@ -29,15 +28,9 @@ import {
   PostsCommentsLikesRepo,
   PostsCommentsRepo,
 } from './comments/infrastructure';
-import { BlogModel, BlogSchema } from './blogs/domain/blogEntity';
-import {
-  PostsCommentsModel,
-  PostsCommentsSchema,
-} from './comments/domain/postsCommentsModel';
-import {
-  PostCommentLikeModel,
-  PostCommentLikeSchema,
-} from './comments/domain/postsCommentsLikesModel';
+import { Blog } from './blogs/domain/blog.entity';
+import { PostComment } from './comments/domain/postComment.entity';
+import { CommentLike } from './comments/domain/commentLike.entity';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from '../users/users.module';
 import { PostsRepository } from './posts/infrastructure/posts.repo';
@@ -85,12 +78,7 @@ const commentsProviders = [
   imports: [
     CqrsModule,
     UsersModule,
-    TypeOrmModule.forFeature([Post, PostLike]),
-    MongooseModule.forFeature([
-      { name: BlogModel.name, schema: BlogSchema },
-      { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
-      { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
-    ]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike, PostComment, CommentLike]),
   ],
   controllers: [PostsController, BlogsController, CommentsController],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],

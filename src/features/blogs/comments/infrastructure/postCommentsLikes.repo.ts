@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostCommentLikeModel } from '../domain/postsCommentsLikesModel';
+import { PostCommentLikeModel } from '../domain/commentLike.entity';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../../../common/enums';
 

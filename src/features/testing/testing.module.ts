@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TestingController } from './api/testing.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlogModel, BlogSchema } from '../blogs/blogs/domain/blogEntity';
+import { BlogModel, BlogSchema } from '../blogs/blogs/domain/blog.entity';
 import {
-  PostsCommentsModel,
+  PostCommentEntity,
   PostsCommentsSchema,
-} from '../blogs/comments/domain/postsCommentsModel';
+} from '../blogs/comments/domain/postComment.entity';
 import {
   PostCommentLikeModel,
   PostCommentLikeSchema,
-} from '../blogs/comments/domain/postsCommentsLikesModel';
+} from '../blogs/comments/domain/commentLike.entity';
 import { UsersModule } from '../users/users.module';
 
 @Module({
@@ -17,7 +17,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
     MongooseModule.forFeature([
       { name: BlogModel.name, schema: BlogSchema },
-      { name: PostsCommentsModel.name, schema: PostsCommentsSchema },
+      { name: PostCommentEntity.name, schema: PostsCommentsSchema },
       { name: PostCommentLikeModel.name, schema: PostCommentLikeSchema },
     ]),
   ],

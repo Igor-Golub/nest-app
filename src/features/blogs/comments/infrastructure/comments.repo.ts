@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostsCommentsModel } from '../domain/postsCommentsModel';
+import { PostCommentEntity } from '../domain/postComment.entity';
 import { Model } from 'mongoose';
 
 interface CreatePostCommentDto {
@@ -13,8 +13,8 @@ interface CreatePostCommentDto {
 @Injectable()
 export class PostsCommentsRepo {
   constructor(
-    @InjectModel(PostsCommentsModel.name)
-    private readonly postCommentsModel: Model<PostsCommentsModel>,
+    @InjectModel(PostCommentEntity.name)
+    private readonly postCommentsModel: Model<PostCommentEntity>,
   ) {}
 
   public async create(createPostCommentDto: CreatePostCommentDto) {
