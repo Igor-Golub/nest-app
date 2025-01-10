@@ -2,7 +2,6 @@
 import { configModule } from './config';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import {
@@ -41,13 +40,6 @@ import { CoreModule } from './core/core.module';
         // logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
         synchronize: true,
-      }),
-    }),
-    MongooseModule.forRootAsync({
-      imports: [CoreModule],
-      inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => ({
-        uri: coreConfig.mongoURI,
       }),
     }),
     UsersModule,
