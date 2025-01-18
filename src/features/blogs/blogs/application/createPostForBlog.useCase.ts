@@ -4,6 +4,7 @@ import { PostsRepository } from '../../posts/infrastructure/posts.repo';
 export class CreatePostForBlogCommand {
   constructor(
     readonly payload: {
+      userId: string;
       blogId: string;
       blogName: string;
       createData: {
@@ -24,8 +25,10 @@ export class CreatePostForBlogHandler
   public async execute({ payload }: CreatePostForBlogCommand) {
     const { id } = await this.postsRepository.create({
       blogId: payload.blogId,
-      blogName: payload.blogName,
-      ...payload.createData,
+      authorId: payload.userId,
+      title: payload.createData.title,
+      content: payload.createData.content,
+      shortDescription: payload.createData.shortDescription,
     });
 
     return id;

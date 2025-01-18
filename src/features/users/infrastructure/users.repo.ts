@@ -3,16 +3,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/user.entity';
 
+interface CreateUserDto {
+  login: string;
+  email: string;
+  hash: string;
+  isConfirmed: boolean;
+}
+
 @Injectable()
 export class UsersRepository {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
-  public async create(
-    createUserDto: Omit<
-      Base.DTOFromEntity<User>,
-      'confirmation' | 'recovery' | 'account' | 'sessions'
-    >,
-  ) {
+  public async create(createUserDto: CreateUserDto) {
     const { identifiers } = await this.repository
       .createQueryBuilder()
       .insert()

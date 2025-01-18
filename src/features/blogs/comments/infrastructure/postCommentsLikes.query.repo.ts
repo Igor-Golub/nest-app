@@ -1,28 +1,43 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { PostCommentLikeModel } from '../domain/commentLike.entity';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CommentLike } from '../domain/commentLike.entity';
 
 @Injectable()
-export class PostsCommentsLikesQueryRepo {
+export class PostsCommentsLikesQueryRepository {
   constructor(
-    @InjectModel(PostCommentLikeModel.name)
-    private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
+    @InjectRepository(CommentLike) private repository: Repository<CommentLike>,
   ) {}
 
   public async isLikeForCommentExist(commentId: string) {
-    return this.postCommentLikeModel.countDocuments({ commentId }).lean();
+    return this.repository
+      .createQueryBuilder()
+      .select()
+      .where('commentId = :commentId', { commentId })
+      .getCount();
   }
 
   public async findCommentsLikesByCommentId(commentId: string) {
-    return this.postCommentLikeModel.find({ commentId }).lean();
+    return this.repository
+      .createQueryBuilder()
+      .where('commentId = :commentId', { commentId })
+      .getMany();
   }
 
   public async findLikeByUserIdAndCommentId(userId: string, commentId: string) {
-    return this.postCommentLikeModel.findOne({ userId, commentId }).lean();
+    return this.repository
+      .createQueryBuilder()
+      .where('commentId = :id and ownerId = :ownerId', {
+        commentId,
+        ownerId: userId,
+      })
+      .getMany();
   }
 
   public async findLikesByIds(ids: string[]) {
-    return this.postCommentLikeModel.find({ commentId: { $in: ids } }).lean();
+    return this.repository
+      .createQueryBuilder('like')
+      .where('like.commentId IN (:...ids)', { ids })
+      .getMany();
   }
 }

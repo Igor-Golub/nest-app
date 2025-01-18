@@ -1,7 +1,7 @@
-import { LikeStatus } from '../../../../common/enums';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import type { User } from '../../../users/domain/user.entity';
+import { LikeStatus } from '../../../../common/enums';
 import type { PostComment } from './postComment.entity';
+import type { User } from '../../../users/domain/user.entity';
 
 @Entity()
 export class CommentLike {

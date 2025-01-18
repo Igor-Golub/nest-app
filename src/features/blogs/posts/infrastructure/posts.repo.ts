@@ -1,7 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { Post } from '../domain/post.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from '../domain/post.entity';
+
+interface CreatePostDto {
+  title: string;
+  blogId: string;
+  content: string;
+  authorId: string;
+  shortDescription: string;
+}
 
 @Injectable()
 export class PostsRepository {
@@ -10,7 +18,7 @@ export class PostsRepository {
     private readonly repository: Repository<Post>,
   ) {}
 
-  public async create(createPostDto: Base.DTOFromEntity<Post>) {
+  public async create(createPostDto: CreatePostDto) {
     const { identifiers } = await this.repository
       .createQueryBuilder()
       .insert()

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsRepo } from '../infrastructure';
+import { BlogsRepository } from '../infrastructure';
 
 export class UpdateBlogCommand {
   constructor(
@@ -16,9 +16,9 @@ export class UpdateBlogCommand {
 
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogHandler implements ICommandHandler<UpdateBlogCommand> {
-  constructor(private readonly blogsRepo: BlogsRepo) {}
+  constructor(private readonly blogsRepository: BlogsRepository) {}
 
   public async execute({ payload }: UpdateBlogCommand) {
-    return this.blogsRepo.update(payload.id, payload.updateData);
+    return this.blogsRepository.update(payload.id, payload.updateData);
   }
 }

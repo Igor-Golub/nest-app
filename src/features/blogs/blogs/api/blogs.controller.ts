@@ -109,14 +109,16 @@ export class BlogsController {
   @Post(':id/posts')
   @UseGuards(BasicAuthGuard)
   public async createPostForBlog(
+    @UserIdFromAccessToken() userId: string | undefined,
     @Param() { id: blogId }: CreatePostForBlogParams,
     @Body() createCommentDto: CreatePostForBlogDto,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
-    if (!blog) throw new NotFoundException();
+    if (!blog || !userId) throw new NotFoundException();
 
     const command = new CreatePostForBlogCommand({
+      userId,
       blogId,
       blogName: blog.name,
       createData: createCommentDto,
