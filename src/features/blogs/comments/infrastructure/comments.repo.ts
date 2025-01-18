@@ -1,7 +1,7 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { PostCommentEntity } from '../domain/postComment.entity';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PostComment } from '../domain/postComment.entity';
 
 interface CreatePostCommentDto {
   postId: string;
@@ -13,19 +13,33 @@ interface CreatePostCommentDto {
 @Injectable()
 export class PostsCommentsRepo {
   constructor(
-    @InjectModel(PostCommentEntity.name)
-    private readonly postCommentsModel: Model<PostCommentEntity>,
+    @InjectRepository(PostComment)
+    private readonly postCommentRepository: Repository<PostComment>,
   ) {}
 
   public async create(createPostCommentDto: CreatePostCommentDto) {
-    return this.postCommentsModel.create(createPostCommentDto);
+    return this.postCommentRepository.create(createPostCommentDto);
   }
 
-  public async update(id: string, content: string) {
-    return this.postCommentsModel.findByIdAndUpdate(id, { content });
+  public async updateField<Key extends keyof Base.DTOFromEntity<PostComment>>(
+    id: string,
+    field: Key,
+    value: Base.DTOFromEntity<PostComment>[Key],
+  ) {
+    const { affected } = await this.postCommentRepository.update(id, {
+      [field]: value,
+    });
+
+    return !!affected;
   }
 
   public async delete(id: string) {
-    return this.postCommentsModel.findByIdAndDelete(id);
+    const { affected } = await this.postCommentRepository
+      .createQueryBuilder()
+      .delete()
+      .where('id = :id', { id })
+      .execute();
+
+    return !!affected;
   }
 }

@@ -12,7 +12,7 @@ export class PostsLikesQueryRepo {
 
   public async findLikeByUserIdAndPostId(userId: string, postId: string) {
     return this.repository.findOne({
-      where: { userId, postId },
+      where: { ownerId: userId, postId },
     });
   }
 

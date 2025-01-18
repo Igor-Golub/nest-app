@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsCommentsRepo } from '../infrastructure/comments.repo';
+import { PostsCommentsRepo } from '../infrastructure';
 
 export class UpdateCommentLikeCommand {
   constructor(
@@ -17,6 +17,6 @@ export class UpdateCommentLikeHandler
   constructor(private readonly postsCommentRepo: PostsCommentsRepo) {}
 
   public async execute({ payload: { id, content } }: UpdateCommentLikeCommand) {
-    return this.postsCommentRepo.update(id, content);
+    return this.postsCommentRepo.updateField(id, 'content', content);
   }
 }

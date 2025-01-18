@@ -50,7 +50,7 @@ export class CommentsController {
     @Param() { id: commentId }: CommentsQuery,
     @UserIdFromAccessToken() userId: string | undefined,
   ) {
-    const comment = await this.commentsQueryRepo.getById(commentId);
+    const comment = await this.commentsQueryRepo.findById(commentId);
 
     if (!comment) throw new NotFoundException();
 
@@ -74,9 +74,9 @@ export class CommentsController {
     @CurrentUserId() currentUserId: string,
     @Body() updateCommentDto: UpdateComment,
   ) {
-    const isCommentExist = await this.commentsQueryRepo.isCommentExist(id);
+    const comment = await this.commentsQueryRepo.findById(id);
 
-    if (!isCommentExist) throw new NotFoundException();
+    if (!comment) throw new NotFoundException();
 
     const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
       id,
@@ -102,9 +102,9 @@ export class CommentsController {
     @Param() { id }: DeleteCommentParams,
     @CurrentUserId() currentUserId: string,
   ) {
-    const isCommentExist = await this.commentsQueryRepo.isCommentExist(id);
+    const comment = await this.commentsQueryRepo.findById(id);
 
-    if (!isCommentExist) throw new NotFoundException();
+    if (!comment) throw new NotFoundException();
 
     const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
       id,
@@ -128,7 +128,7 @@ export class CommentsController {
   ) {
     const { likeStatus } = updateCommentDto;
 
-    const comment = await this.commentsQueryRepo.getById(commentId);
+    const comment = await this.commentsQueryRepo.findById(commentId);
 
     if (!comment) throw new NotFoundException();
 

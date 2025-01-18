@@ -15,7 +15,7 @@ export class BlogIsExistConstraint implements ValidatorConstraintInterface {
   public async validate(value: any): Promise<boolean> {
     if (typeof value !== 'string') return false;
 
-    const blog = await this.blogsQueryRepo.getById(value);
+    const blog = await this.blogsQueryRepo.findById(value);
 
     return !!blog;
   }

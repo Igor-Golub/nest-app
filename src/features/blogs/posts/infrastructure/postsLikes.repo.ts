@@ -1,8 +1,8 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { LikeStatus } from '../../../../common/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostLike } from '../domain/postLikes.entity';
-import { Repository } from 'typeorm';
+import { LikeStatus } from '../../../../common/enums';
 
 @Injectable()
 export class PostsLikesRepo {
@@ -12,7 +12,7 @@ export class PostsLikesRepo {
   ) {}
 
   public async findLikeByUserIdAndPostId(userId: string, postId: string) {
-    return this.repository.findOne({ where: { userId, postId } });
+    return this.repository.findOne({ where: { ownerId: userId, postId } });
   }
 
   public async create(
