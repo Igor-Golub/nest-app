@@ -1,4 +1,6 @@
 import { LikeStatus } from '../../../../../common/enums';
+import { Post } from '../../domain/post.entity';
+import { PostViewModelWithLikes } from '../models/output';
 
 export class PostsViewMapperManager {
   static addDefaultLikesData(post) {
@@ -30,53 +32,46 @@ export class PostsViewMapperManager {
   }
 
   static mapPostsToViewModelWithLikes(
-    posts,
-    postLikes,
+    posts: Post[],
     reqUserId: string | undefined,
-  ): any {
-    return posts.map(
-      ({
-        _id,
-        content,
-        blogName,
-        blogId,
-        createdAt,
-        title,
-        shortDescription,
-      }) => ({
-        id: _id.toString(),
-        createdAt,
-        content,
-        blogName,
-        blogId,
-        title,
-        shortDescription,
-        extendedLikesInfo: postLikes.reduce(
-          (acc, { status, userId, createdAt, postId, userLogin }) => {
-            if (_id.toString() !== postId) return acc;
+  ): PostViewModelWithLikes[] {
+    return posts.map((post) => ({
+      id: post.id,
+      createdAt: post.createdAt.toISOString(),
+      content: post.content,
+      blogName: post.blogName,
+      blogId: post.blogId,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      extendedLikesInfo: post.likes.reduce<
+        PostViewModelWithLikes['extendedLikesInfo']
+      >(
+        (acc, like) => {
+          if (like.id !== like.postId) return acc;
 
-            if (status === LikeStatus.Like) acc.likesCount += 1;
-            if (status === LikeStatus.Dislike) acc.dislikesCount += 1;
-            if (reqUserId && reqUserId === userId) acc.myStatus = status;
+          if (like.status === LikeStatus.Like) acc.likesCount += 1;
+          if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
+          if (reqUserId && reqUserId === like.ownerId) {
+            acc.myStatus = like.status;
+          }
 
-            if (status === LikeStatus.Like && acc.newestLikes.length < 3) {
-              acc.newestLikes.push({
-                addedAt: new Date(createdAt!.toString()).toISOString(),
-                userId,
-                login: userLogin,
-              });
-            }
+          if (like.status === LikeStatus.Like && acc.newestLikes.length < 3) {
+            acc.newestLikes.push({
+              addedAt: like.createdAt.toISOString(),
+              userId: like.ownerId,
+              login: like.owner.login,
+            });
+          }
 
-            return acc;
-          },
-          {
-            likesCount: 0,
-            dislikesCount: 0,
-            newestLikes: [],
-            myStatus: LikeStatus.None,
-          },
-        ),
-      }),
-    );
+          return acc;
+        },
+        {
+          likesCount: 0,
+          dislikesCount: 0,
+          newestLikes: [],
+          myStatus: LikeStatus.None,
+        },
+      ),
+    }));
   }
 }

@@ -1,17 +1,21 @@
 import { LikeStatus } from '../../../../../../common/enums';
 
-export interface PostViewModel {
+export interface PostViewModelWithLikes {
   id: string;
-  createdAt: string;
   title: string;
   blogId: string;
   content: string;
   blogName: string;
+  createdAt: string;
   shortDescription: string;
   extendedLikesInfo: {
     likesCount: number;
     dislikesCount: number;
     myStatus: LikeStatus;
-    newestLikes: any[];
+    newestLikes: {
+      addedAt: string;
+      userId: string;
+      login: string;
+    }[];
   };
 }

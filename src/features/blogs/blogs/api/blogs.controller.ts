@@ -32,11 +32,9 @@ import {
 } from '../application';
 import { BlogsViewMapperManager } from './mappers';
 import { PostsViewMapperManager } from '../../posts/api/mappers';
-import { PostsService } from '../../posts/application/posts.service';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../common/pipes';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query.repo';
-import { PostsLikesQueryRepo } from '../../posts/infrastructure/postsLikes.query.repo';
 
 @Controller('blogs')
 export class BlogsController {
@@ -44,8 +42,6 @@ export class BlogsController {
     private commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly postsService: PostsService,
-    private readonly postsLikesQueryRepo: PostsLikesQueryRepo,
   ) {}
 
   @Get()
@@ -91,16 +87,10 @@ export class BlogsController {
 
     const posts = await this.postsQueryRepository.getWithPagination(query);
 
-    const postsLikesIds = this.postsService.getPostsIds(posts.items);
-
-    const postLikes =
-      await this.postsLikesQueryRepo.findLikesByIds(postsLikesIds);
-
     return {
       ...posts,
       items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
         posts.items,
-        postLikes,
         userId,
       ),
     };

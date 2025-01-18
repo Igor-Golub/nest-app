@@ -33,9 +33,9 @@ export class PostsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       totalCount,
+      items: posts,
       size: query.pageSize,
       page: query.pageNumber,
-      items: posts,
     });
   }
 }

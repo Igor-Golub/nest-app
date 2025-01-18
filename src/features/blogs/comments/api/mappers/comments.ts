@@ -1,4 +1,6 @@
 import { LikeStatus } from '../../../../../common/enums';
+import { PostComment } from '../../domain/postComment.entity';
+import { CommentViewModel } from '../models/output/comment';
 
 export class CommentsViewMapperManager {
   static commentWithoutLikesToViewModel(dbModel) {
@@ -19,24 +21,26 @@ export class CommentsViewMapperManager {
   }
 
   static commentWithLikeToViewModel(
-    comment,
-    commentsLikes,
+    comment: PostComment,
     reqUserId: string | undefined,
-  ): any {
-    const { _id, content, userId, userLogin } = comment;
-
+  ): CommentViewModel {
     return {
-      id: _id.toString(),
-      createdAt: _id.getTimestamp().toISOString(),
-      content,
-      commentatorInfo: { userId, userLogin },
-      likesInfo: commentsLikes
-        .filter(({ commentId }) => commentId === _id.toString())
-        .reduce(
-          (acc, { status, userId }) => {
-            if (status === LikeStatus.Like) acc.likesCount += 1;
-            if (status === LikeStatus.Dislike) acc.dislikesCount += 1;
-            if (reqUserId && reqUserId === userId) acc.myStatus = status;
+      id: comment.id,
+      createdAt: comment.createdAt.toISOString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.authorId,
+        userLogin: comment.author.login,
+      },
+      likesInfo: comment.likes
+        .filter(({ commentId }) => commentId === comment.id)
+        .reduce<CommentViewModel['likesInfo']>(
+          (acc, like) => {
+            if (like.status === LikeStatus.Like) acc.likesCount += 1;
+            if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
+            if (reqUserId && reqUserId === like.ownerId) {
+              acc.myStatus = like.status;
+            }
 
             return acc;
           },

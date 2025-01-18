@@ -61,7 +61,15 @@ export class PostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
-    return this.postsQueryRepository.getWithPagination(query);
+    const posts = await this.postsQueryRepository.getWithPagination(query);
+
+    return {
+      ...posts,
+      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
+        posts.items,
+        userId,
+      ),
+    };
   }
 
   @Get(':id')
@@ -73,11 +81,12 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    return PostsViewMapperManager.mapPostsToViewModelWithLikes(
+    const [result] = PostsViewMapperManager.mapPostsToViewModelWithLikes(
       [post],
-      [],
       userId,
-    )[0];
+    );
+
+    return result;
   }
 
   @Get(':id/comments')
@@ -111,7 +120,9 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   public async create(@Body() createPostDto: CreatePostDto) {
-    const blog = await this.blogsQueryRepo.getById(createPostDto.blogId);
+    const blog = await this.blogsQueryRepo.findById(createPostDto.blogId);
+
+    if (!blog) throw new NotFoundException();
 
     const viewBlog = BlogsViewMapperManager.mapBlogsToViewModel(blog);
 
