@@ -15,17 +15,11 @@ export class PostsLikesRepo {
     return this.repository.findOne({ where: { ownerId: userId, postId } });
   }
 
-  public async create(
-    userId: string,
-    userLogin: string,
-    postId: string,
-    status: LikeStatus,
-  ) {
+  public async create(userId: string, postId: string, status: LikeStatus) {
     return this.repository.create({
       postId,
-      userLogin,
+      ownerId: userId,
       status,
-      userId,
     });
   }
 

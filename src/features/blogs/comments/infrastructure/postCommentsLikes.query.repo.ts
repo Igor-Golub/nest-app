@@ -31,7 +31,7 @@ export class PostsCommentsLikesQueryRepository {
         commentId,
         ownerId: userId,
       })
-      .getMany();
+      .getOne();
   }
 
   public async findLikesByIds(ids: string[]) {

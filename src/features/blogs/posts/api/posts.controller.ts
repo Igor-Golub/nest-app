@@ -13,10 +13,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {
-  CommentsQueryRepo,
-  PostsCommentsLikesQueryRepo,
-} from '../../comments/infrastructure';
+import { CommentsQueryRepo } from '../../comments/infrastructure';
 import {
   CreatePostDto,
   DeletePostParams,
@@ -38,7 +35,6 @@ import {
   CreatePostCommentCommand,
 } from '../application';
 import { PostsViewMapperManager } from './mappers';
-import { BlogsViewMapperManager } from '../../blogs/api/mappers';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
 import { UsersQueryRepo } from '../../../users/infrastructure';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
@@ -53,7 +49,6 @@ export class PostsController {
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
   ) {}
 
   @Get()
@@ -99,20 +94,12 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    const data = await this.commentsQueryRepo.getWithPagination();
-
-    const commentsLikes = await this.postsCommentsLikesQueryRepo.findLikesByIds(
-      data.items.map(({ _id }) => _id),
-    );
+    const data = await this.commentsQueryRepo.getWithPagination(query);
 
     return {
       ...data,
       items: data.items.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(
-          comment,
-          commentsLikes,
-          userId,
-        ),
+        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
       ),
     };
   }
@@ -124,11 +111,8 @@ export class PostsController {
 
     if (!blog) throw new NotFoundException();
 
-    const viewBlog = BlogsViewMapperManager.mapBlogsToViewModel(blog);
-
     const command = new CreatePostCommand({
-      blog: viewBlog,
-      data: createPostDto,
+      data: { ...createPostDto, userId: 'userId' },
     });
 
     const createdPostId = await this.commandBus.execute(command);
@@ -204,13 +188,10 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    const user = await this.usersQueryRepo.findById(currentUserId);
-
     const command = new UpdatePostLikeStatusCommand({
       postId,
       nextLikeStatus,
       userId: currentUserId,
-      userLogin: user!.login,
     });
 
     return await this.commandBus.execute(command);

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
-  PostsCommentsLikesQueryRepo,
+  PostsCommentsLikesQueryRepository,
   PostsCommentsLikesRepo,
 } from '../infrastructure';
 import { LikeStatus } from '../../../../common/enums';
@@ -22,7 +22,7 @@ export class UpdateCommentLikeStatusHandler
 {
   constructor(
     private readonly postsCommentsLikesRepo: PostsCommentsLikesRepo,
-    private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepo,
+    private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepository,
   ) {}
 
   public async execute({ payload }: UpdateCommentLikeStatusCommand) {
@@ -42,10 +42,7 @@ export class UpdateCommentLikeStatusHandler
         userLogin,
       });
     } else {
-      await this.postsCommentsLikesRepo.updateStatus(
-        like._id.toString(),
-        nextStatus,
-      );
+      await this.postsCommentsLikesRepo.updateStatus(like.id, nextStatus);
     }
 
     return true;

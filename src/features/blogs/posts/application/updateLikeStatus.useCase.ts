@@ -4,7 +4,6 @@ import { PostsLikesRepo } from '../infrastructure/postsLikes.repo';
 
 interface UpdatePostLikeStatusCommandPayload {
   userId: string;
-  userLogin: string;
   postId: string;
   nextLikeStatus: LikeStatus;
 }
@@ -20,7 +19,7 @@ export class UpdatePostLikeStatusHandler
   constructor(private readonly postsLikesRepo: PostsLikesRepo) {}
 
   public async execute({
-    payload: { postId, nextLikeStatus, userId, userLogin },
+    payload: { postId, nextLikeStatus, userId },
   }: UpdatePostLikeStatusCommand) {
     const like = await this.postsLikesRepo.findLikeByUserIdAndPostId(
       userId,
@@ -28,12 +27,7 @@ export class UpdatePostLikeStatusHandler
     );
 
     if (!like) {
-      await this.postsLikesRepo.create(
-        userId,
-        userLogin,
-        postId,
-        nextLikeStatus,
-      );
+      await this.postsLikesRepo.create(userId, postId, nextLikeStatus);
     } else {
       await this.postsLikesRepo.updateStatus(like.id, nextLikeStatus);
     }

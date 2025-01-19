@@ -24,7 +24,7 @@ import {
 } from './comments/application';
 import {
   CommentsQueryRepo,
-  PostsCommentsLikesQueryRepo,
+  PostsCommentsLikesQueryRepository,
   PostsCommentsLikesRepo,
   PostsCommentsRepo,
 } from './comments/infrastructure';
@@ -66,7 +66,7 @@ const postsProviders = [
 
 const commentsProviders = [
   PostsCommentsRepo,
-  PostsCommentsLikesQueryRepo,
+  PostsCommentsLikesQueryRepository,
   CommentsQueryRepo,
   UpdateCommentLikeHandler,
   UpdateCommentLikeStatusHandler,
@@ -86,7 +86,7 @@ const commentsProviders = [
     BlogsQueryRepository,
     PostsQueryRepository,
     PostsLikesQueryRepo,
-    PostsCommentsLikesQueryRepo,
+    PostsCommentsLikesQueryRepository,
   ],
 })
 export class BlogsModule {}

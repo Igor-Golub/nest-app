@@ -2,9 +2,10 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { LikeStatus } from '../../../../common/enums';
 import type { PostComment } from './postComment.entity';
 import type { User } from '../../../users/domain/user.entity';
+import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity()
-export class CommentLike {
+export class CommentLike extends BaseEntity {
   @ManyToOne('User', (user: User) => user.commentsLikes)
   public owner: User;
 

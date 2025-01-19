@@ -11,6 +11,12 @@ interface CreatePostDto {
   shortDescription: string;
 }
 
+interface UpdatePostDto {
+  title: string;
+  content: string;
+  shortDescription: string;
+}
+
 @Injectable()
 export class PostsRepository {
   constructor(
@@ -29,10 +35,7 @@ export class PostsRepository {
     return { id: identifiers[0].id as string };
   }
 
-  public async update(
-    id: string,
-    updatePostDto: Omit<Base.DTOFromEntity<Post>, 'blogName'>,
-  ) {
+  public async update(id: string, updatePostDto: UpdatePostDto) {
     const { affected } = await this.repository
       .createQueryBuilder()
       .update(Post)

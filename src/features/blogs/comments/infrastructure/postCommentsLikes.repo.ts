@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { PostCommentLikeModel } from '../domain/commentLike.entity';
-import { Model } from 'mongoose';
 import { LikeStatus } from '../../../../common/enums';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PostLike } from '../../posts/domain/postLikes.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostsCommentsLikesRepo {
   constructor(
-    @InjectModel(PostCommentLikeModel.name)
-    private readonly postCommentLikeModel: Model<PostCommentLikeModel>,
+    @InjectRepository(PostLike)
+    private readonly postCommentLikeModel: Repository<PostLike>,
   ) {}
 
   public async create(dto: {
@@ -21,7 +21,7 @@ export class PostsCommentsLikesRepo {
   }
 
   public async updateStatus(likeId: string, nextStatus: LikeStatus) {
-    return this.postCommentLikeModel.findByIdAndUpdate(likeId, {
+    return this.postCommentLikeModel.update(likeId, {
       status: nextStatus,
     });
   }
