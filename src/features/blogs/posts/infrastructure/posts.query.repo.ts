@@ -14,8 +14,10 @@ export class PostsQueryRepository {
 
   public async findById(id: string) {
     return this.repository
-      .createQueryBuilder()
-      .where('id = :id', { id })
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.blog', 'blog')
+      .leftJoinAndSelect('post.likes', 'likes')
+      .where('post.id = :id', { id })
       .getOne();
   }
 
@@ -28,6 +30,10 @@ export class PostsQueryRepository {
       },
       take: query.pageSize,
       skip: offset,
+      relations: {
+        blog: true,
+        likes: true,
+      },
     });
 
     return PaginatedViewDto.mapToView({

@@ -7,7 +7,7 @@ import type { User } from '../../../users/domain/user.entity';
 @Entity()
 export class PostLike extends BaseEntity {
   @ManyToOne('Post', (post: Post) => post.likes)
-  public post: string;
+  public post: Post;
 
   @Column()
   public postId: string;

@@ -39,7 +39,7 @@ export class PostsViewMapperManager {
       id: post.id,
       createdAt: post.createdAt.toISOString(),
       content: post.content,
-      blogName: post.blogName,
+      blogName: post.blog.name,
       blogId: post.blogId,
       title: post.title,
       shortDescription: post.shortDescription,

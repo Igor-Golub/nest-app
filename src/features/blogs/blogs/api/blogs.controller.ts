@@ -35,6 +35,7 @@ import { PostsViewMapperManager } from '../../posts/api/mappers';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../common/pipes';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query.repo';
+import { PostsQueryParams } from '../../posts/api/models/input';
 
 @Controller('sa/blogs')
 export class BlogsController {
@@ -82,7 +83,7 @@ export class BlogsController {
   public async getPostsOfBlog(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') blogId: string,
-    @Query() query: any,
+    @Query() query: PostsQueryParams,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
@@ -102,16 +103,15 @@ export class BlogsController {
   @Post(':id/posts')
   @UseGuards(BasicAuthGuard)
   public async createPostForBlog(
-    @UserIdFromAccessToken() userId: string | undefined,
     @Param() { id: blogId }: CreatePostForBlogParams,
     @Body() createCommentDto: CreatePostForBlogDto,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
-    if (!blog || !userId) throw new NotFoundException();
+    if (!blog) throw new NotFoundException();
 
     const command = new CreatePostForBlogCommand({
-      userId,
+      userId: '09c23e56-5bd8-400d-8fbb-5599f8fad4a5',
       blogId,
       blogName: blog.name,
       createData: createCommentDto,
