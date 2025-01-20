@@ -2,9 +2,10 @@ import {
   IsStringWithExpectedLength,
   Trim,
 } from '../../../../../../common/decorators';
+import { IsUUID } from 'class-validator';
 
 export class CreatePostForBlogParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 

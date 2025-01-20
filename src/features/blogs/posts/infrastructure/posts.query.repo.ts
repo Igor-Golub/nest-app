@@ -15,8 +15,7 @@ export class PostsQueryRepository {
   public async findById(id: string) {
     return this.repository
       .createQueryBuilder()
-      .from(Post, 'p')
-      .where('p.id = :id', { id })
+      .where('id = :id', { id })
       .getOne();
   }
 

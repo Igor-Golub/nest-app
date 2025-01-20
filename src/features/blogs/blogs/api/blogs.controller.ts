@@ -36,10 +36,10 @@ import { BasicAuthGuard } from '../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../common/pipes';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query.repo';
 
-@Controller('blogs')
+@Controller('sa/blogs')
 export class BlogsController {
   constructor(
-    private commandBus: CommandBus,
+    private readonly commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
@@ -61,7 +61,10 @@ export class BlogsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   public async create(@Body() createBlogDto: CreateBlogDto) {
-    const command = new CreateBlogCommand(createBlogDto);
+    const command = new CreateBlogCommand({
+      userId: '09c23e56-5bd8-400d-8fbb-5599f8fad4a5',
+      ...createBlogDto,
+    });
 
     const { id } = await this.commandBus.execute<
       CreateBlogCommand,

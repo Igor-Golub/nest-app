@@ -3,6 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../domain/blog.entity';
 
+interface CreateBlogDto {
+  name: string;
+  description: string;
+  websiteUrl: string;
+  isMembership: boolean;
+  ownerId: string;
+}
+
 @Injectable()
 export class BlogsRepository {
   constructor(
@@ -18,7 +26,7 @@ export class BlogsRepository {
       .getOne();
   }
 
-  public async create(createBlogDto: any) {
+  public async create(createBlogDto: CreateBlogDto) {
     const { identifiers } = await this.blogRepository
       .createQueryBuilder()
       .insert()

@@ -1,6 +1,6 @@
-import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
+import { IsUUID } from 'class-validator';
 
 export class DeleteBlogParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }

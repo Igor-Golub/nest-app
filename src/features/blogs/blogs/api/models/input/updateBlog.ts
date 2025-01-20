@@ -1,11 +1,11 @@
-import { IsUrl, Matches } from 'class-validator';
+import { IsUrl, IsUUID, Matches } from 'class-validator';
 import {
   IsStringWithExpectedLength,
   Trim,
 } from '../../../../../../common/decorators';
 
 export class UpdateBlogParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 

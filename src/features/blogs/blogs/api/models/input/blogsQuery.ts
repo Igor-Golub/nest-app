@@ -1,9 +1,8 @@
-import { IsOptional, IsString } from 'class-validator';
-import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { QueryParams } from '../../../../../../common/decorators/validate';
 
 export class BlogsQueryDtoParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 
