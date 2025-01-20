@@ -20,7 +20,10 @@ export class Blog extends BaseEntity {
   })
   public isMembership: boolean;
 
-  @ManyToOne('User', (user: User) => user.blogs)
+  @ManyToOne('User', (user: User) => user.blogs, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public owner: User;
 
   @Column()

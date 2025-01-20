@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/public/users.controller';
 import {
-  UsersRepository,
-  UsersQueryRepo,
-  ConfirmationRepo,
   ConfirmationQueryRepo,
+  ConfirmationRepo,
+  UsersQueryRepo,
+  UsersRepository,
 } from './infrastructure';
 import {
   CreateUserHandler,

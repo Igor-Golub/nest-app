@@ -12,7 +12,10 @@ export class PostComment extends BaseEntity {
   @Column()
   postId: string;
 
-  @ManyToOne('User', (user: User) => user.postsComments)
+  @ManyToOne('User', (user: User) => user.postsComments, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public author: User;
 
   @Column()

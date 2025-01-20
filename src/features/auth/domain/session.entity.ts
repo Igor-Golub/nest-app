@@ -4,7 +4,10 @@ import { User } from '../../users/domain/user.entity';
 
 @Entity()
 export class Session extends BaseEntity {
-  @ManyToOne(() => User, (user: User) => user.sessions)
+  @ManyToOne(() => User, (user: User) => user.sessions, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public owner: User;
 
   @Column()

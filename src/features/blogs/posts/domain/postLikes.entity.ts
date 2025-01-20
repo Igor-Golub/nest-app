@@ -12,7 +12,10 @@ export class PostLike extends BaseEntity {
   @Column()
   public postId: string;
 
-  @ManyToOne('User', (user: User) => user.postsLikes)
+  @ManyToOne('User', (user: User) => user.postsLikes, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public owner: User;
 
   @Column()

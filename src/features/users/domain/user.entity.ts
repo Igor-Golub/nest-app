@@ -26,22 +26,32 @@ export class User extends BaseEntity {
   })
   public isConfirmed: boolean;
 
-  @OneToOne('Confirmation', (confirmation: Confirmation) => confirmation.owner)
+  @OneToOne(
+    'Confirmation',
+    (confirmation: Confirmation) => confirmation.owner,
+    { cascade: true, onDelete: 'CASCADE' },
+  )
   public confirmation: Confirmation;
 
-  @OneToOne('Account', (account: Account) => account.owner)
+  @OneToOne('Account', (account: Account) => account.owner, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public account: Account;
 
-  @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
+  @OneToOne('Recovery', (recovery: Recovery) => recovery.owner, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public recovery: Recovery;
 
   @OneToMany('Session', (session: Session) => session.owner)
   public sessions: Session[];
 
-  @OneToMany('Blogs', (blog: Blog) => blog.owner)
+  @OneToMany('Blog', (blog: Blog) => blog.owner)
   public blogs: Blog[];
 
-  @OneToMany('Posts', (post: Post) => post.author)
+  @OneToMany('Post', (post: Post) => post.author)
   public posts: Post[];
 
   @OneToMany('PostLike', (postLike: PostLike) => postLike.owner)

@@ -6,7 +6,10 @@ import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity()
 export class CommentLike extends BaseEntity {
-  @ManyToOne('User', (user: User) => user.commentsLikes)
+  @ManyToOne('User', (user: User) => user.commentsLikes, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public owner: User;
 
   @Column()
