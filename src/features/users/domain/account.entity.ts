@@ -9,7 +9,10 @@ export class Account extends BaseEntity {
   })
   public bio: string;
 
-  @OneToOne(() => User, (user: User) => user.confirmation)
+  @OneToOne(() => User, (user: User) => user.account, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   public owner: User;
 }

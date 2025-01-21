@@ -13,7 +13,10 @@ export class Recovery extends BaseEntity {
   @Column({ nullable: true })
   code: string;
 
-  @OneToOne(() => User, (user: User) => user.recovery)
+  @OneToOne(() => User, (user: User) => user.recovery, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   owner: User;
 

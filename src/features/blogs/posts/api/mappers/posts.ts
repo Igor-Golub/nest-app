@@ -3,25 +3,15 @@ import { Post } from '../../domain/post.entity';
 import { PostViewModelWithLikes } from '../models/output';
 
 export class PostsViewMapperManager {
-  static addDefaultLikesData(post) {
-    const {
-      _id,
-      title,
-      blogId,
-      content,
-      blogName,
-      createdAt,
-      shortDescription,
-    } = post;
-
+  static addDefaultLikesData(post: Post) {
     return {
-      id: _id.toString(),
-      title,
-      blogId,
-      content,
-      blogName,
-      createdAt,
-      shortDescription,
+      id: post.id,
+      title: post.title,
+      blogId: post.blogId,
+      content: post.content,
+      blogName: post.blog.name,
+      createdAt: post.createdAt.toISOString(),
+      shortDescription: post.shortDescription,
       extendedLikesInfo: {
         myStatus: LikeStatus.None,
         likesCount: 0,

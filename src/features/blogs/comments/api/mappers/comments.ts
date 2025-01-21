@@ -3,15 +3,17 @@ import { PostComment } from '../../domain/postComment.entity';
 import { CommentViewModel } from '../models/output/comment';
 
 export class CommentsViewMapperManager {
-  static commentWithoutLikesToViewModel(dbModel) {
+  static commentWithoutLikesToViewModel(
+    comment: PostComment,
+  ): CommentViewModel {
     return {
-      id: dbModel._id.toString(),
-      content: dbModel.content,
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt.toISOString(),
       commentatorInfo: {
-        userId: dbModel.userId,
-        userLogin: dbModel.userLogin,
+        userId: comment.authorId,
+        userLogin: comment.author.login,
       },
-      createdAt: dbModel._id._id.getTimestamp(),
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
@@ -26,8 +28,8 @@ export class CommentsViewMapperManager {
   ): CommentViewModel {
     return {
       id: comment.id,
-      createdAt: comment.createdAt.toISOString(),
       content: comment.content,
+      createdAt: comment.createdAt.toISOString(),
       commentatorInfo: {
         userId: comment.authorId,
         userLogin: comment.author.login,

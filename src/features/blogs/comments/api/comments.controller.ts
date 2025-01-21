@@ -26,11 +26,10 @@ import {
   UpdateCommentParams,
 } from './models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQueryRepo } from '../infrastructure';
+import { CommentsQueryRepository } from '../infrastructure';
 import { CommentsViewMapperManager } from './mappers/comments';
 import { UsersQueryRepo } from '../../../users/infrastructure';
 import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
-
 import { JwtAuthGuard } from '../../../auth/guards';
 
 @Controller('comments')
@@ -38,7 +37,7 @@ export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly commentsQueryRepo: CommentsQueryRepo,
+    private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}
 
   @Get(':id')

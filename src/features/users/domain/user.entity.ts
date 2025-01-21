@@ -33,16 +33,10 @@ export class User extends BaseEntity {
   )
   public confirmation: Confirmation;
 
-  @OneToOne('Account', (account: Account) => account.owner, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
+  @OneToOne('Account', (account: Account) => account.owner)
   public account: Account;
 
-  @OneToOne('Recovery', (recovery: Recovery) => recovery.owner, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
+  @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
   public recovery: Recovery;
 
   @OneToMany('Session', (session: Session) => session.owner)

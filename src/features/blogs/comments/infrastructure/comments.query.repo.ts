@@ -5,7 +5,7 @@ import { PostComment } from '../domain/postComment.entity';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
-export class CommentsQueryRepo {
+export class CommentsQueryRepository {
   constructor(
     @InjectRepository(PostComment)
     private readonly postCommentRepository: Repository<PostComment>,

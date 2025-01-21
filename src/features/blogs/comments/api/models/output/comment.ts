@@ -1,16 +1,20 @@
 import { LikeStatus } from '../../../../../../common/enums';
 
+interface CommentatorInfo {
+  userId: string;
+  userLogin: string;
+}
+
+interface LikesInfo {
+  likesCount: number;
+  myStatus: LikeStatus;
+  dislikesCount: number;
+}
+
 export interface CommentViewModel {
   id: string;
   content: string;
-  commentatorInfo: {
-    userId: string;
-    userLogin: string;
-  };
   createdAt: string;
-  likesInfo: {
-    likesCount: number;
-    dislikesCount: number;
-    myStatus: LikeStatus;
-  };
+  likesInfo: LikesInfo;
+  commentatorInfo: CommentatorInfo;
 }

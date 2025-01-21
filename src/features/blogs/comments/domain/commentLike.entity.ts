@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { LikeStatus } from '../../../../common/enums';
+import { BaseEntity } from '../../../../core/entities/baseEntity';
 import type { PostComment } from './postComment.entity';
 import type { User } from '../../../users/domain/user.entity';
-import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity()
 export class CommentLike extends BaseEntity {
@@ -26,5 +26,5 @@ export class CommentLike extends BaseEntity {
     enum: LikeStatus,
     default: LikeStatus.None,
   })
-  status: LikeStatus;
+  public status: LikeStatus;
 }

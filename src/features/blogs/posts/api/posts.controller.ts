@@ -13,7 +13,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepo } from '../../comments/infrastructure';
+import { CommentsQueryRepository } from '../../comments/infrastructure';
 import {
   CreatePostDto,
   DeletePostParams,
@@ -48,7 +48,7 @@ export class PostsController {
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly blogsQueryRepo: BlogsQueryRepository,
-    private readonly commentsQueryRepo: CommentsQueryRepo,
+    private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}
 
   @Get()
@@ -118,6 +118,8 @@ export class PostsController {
     const createdPostId = await this.commandBus.execute(command);
 
     const newPost = await this.postsQueryRepository.findById(createdPostId);
+
+    if (!newPost) throw new NotFoundException();
 
     return PostsViewMapperManager.addDefaultLikesData(newPost);
   }

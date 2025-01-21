@@ -2,11 +2,14 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import type { Post } from '../../posts/domain/post.entity';
 import type { User } from '../../../users/domain/user.entity';
-import { CommentLike } from './commentLike.entity';
+import type { CommentLike } from './commentLike.entity';
 
 @Entity()
 export class PostComment extends BaseEntity {
-  @ManyToOne('Post', (post: Post) => post.comments)
+  @ManyToOne('Post', (post: Post) => post.comments, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public post: Post;
 
   @Column()
@@ -21,9 +24,12 @@ export class PostComment extends BaseEntity {
   @Column()
   public authorId: string;
 
-  @OneToMany('CommentLike', (commentLike: CommentLike) => commentLike.comment)
+  @OneToMany('CommentLike', (commentLike: CommentLike) => commentLike.comment, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   public likes: CommentLike[];
 
   @Column()
-  content: string;
+  public content: string;
 }

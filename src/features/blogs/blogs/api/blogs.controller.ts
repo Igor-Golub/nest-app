@@ -117,9 +117,14 @@ export class BlogsController {
       createData: createCommentDto,
     });
 
-    const createdPostId = await this.commandBus.execute(command);
+    const createdPostId = await this.commandBus.execute<
+      CreatePostForBlogCommand,
+      string
+    >(command);
 
     const newPost = await this.postsQueryRepository.findById(createdPostId);
+
+    if (!newPost) throw new NotFoundException();
 
     return PostsViewMapperManager.addDefaultLikesData(newPost);
   }

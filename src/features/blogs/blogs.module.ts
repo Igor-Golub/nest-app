@@ -23,7 +23,7 @@ import {
   UpdateCommentLikeStatusHandler,
 } from './comments/application';
 import {
-  CommentsQueryRepo,
+  CommentsQueryRepository,
   PostsCommentsLikesQueryRepository,
   PostsCommentsLikesRepo,
   PostsCommentsRepo,
@@ -67,7 +67,7 @@ const postsProviders = [
 const commentsProviders = [
   PostsCommentsRepo,
   PostsCommentsLikesQueryRepository,
-  CommentsQueryRepo,
+  CommentsQueryRepository,
   UpdateCommentLikeHandler,
   UpdateCommentLikeStatusHandler,
   DeleteCommentHandler,
