@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Confirmation } from '../domain/confirm.entity';
 
 @Injectable()
-export class ConfirmationRepo {
+export class ConfirmationRepository {
   constructor(
     @InjectRepository(Confirmation)
     private repository: Repository<Confirmation>,
@@ -43,5 +43,9 @@ export class ConfirmationRepo {
       .execute();
 
     return !!affected;
+  }
+
+  public async drop() {
+    return this.repository.delete({});
   }
 }

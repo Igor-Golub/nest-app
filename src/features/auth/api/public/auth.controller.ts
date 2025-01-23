@@ -22,7 +22,7 @@ import {
   RegistrationDto,
   ResendConfirmationDto,
 } from '../models/input';
-import { UsersQueryRepo } from '../../../users/infrastructure';
+import { UsersQueryRepository } from '../../../users/infrastructure';
 import {
   ConfirmPasswordRecoveryCommand,
   ConfirmRegistrationCommand,
@@ -60,7 +60,7 @@ enum AuthRoutes {
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly userQueryRepository: UsersQueryRepo,
+    private readonly userQueryRepository: UsersQueryRepository,
     private readonly cookiesService: CookiesService,
     private readonly sessionService: SessionService,
     private readonly usersService: UsersService,

@@ -7,8 +7,8 @@ import {
 import { add, formatISO, isAfter } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  ConfirmationRepo,
-  UsersQueryRepo,
+  ConfirmationRepository,
+  UsersQueryRepository,
   UsersRepository,
 } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
@@ -22,8 +22,8 @@ export class UsersService {
   constructor(
     private usersRepo: UsersRepository,
     private cryptoService: CryptoService,
-    private usersQueryRepo: UsersQueryRepo,
-    private confirmationRepo: ConfirmationRepo,
+    private usersQueryRepo: UsersQueryRepository,
+    private confirmationRepo: ConfirmationRepository,
   ) {}
 
   public async isUserExist(

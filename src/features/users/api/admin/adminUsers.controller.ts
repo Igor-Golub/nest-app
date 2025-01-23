@@ -17,7 +17,7 @@ import {
   DeleteUserParams,
   GetUsersQueryParams,
 } from '../models/input';
-import { UsersQueryRepo } from '../../infrastructure';
+import { UsersQueryRepository } from '../../infrastructure';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
 
@@ -26,7 +26,7 @@ import { CreateUserCommand, DeleteUserCommand } from '../../application';
 export class AdminUsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get()

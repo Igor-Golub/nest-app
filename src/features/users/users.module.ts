@@ -3,8 +3,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/public/users.controller';
 import {
   ConfirmationQueryRepo,
-  ConfirmationRepo,
-  UsersQueryRepo,
+  ConfirmationRepository,
+  UsersQueryRepository,
   UsersRepository,
 } from './infrastructure';
 import {
@@ -26,15 +26,15 @@ import { AdminUsersController } from './api/admin/adminUsers.controller';
   ],
   providers: [
     UsersRepository,
-    UsersQueryRepo,
+    UsersQueryRepository,
     UsersService,
     CryptoService,
     CreateUserHandler,
     DeleteUserHandler,
-    ConfirmationRepo,
+    ConfirmationRepository,
     ConfirmationQueryRepo,
   ],
   controllers: [UsersController, AdminUsersController],
-  exports: [UsersService, UsersQueryRepo],
+  exports: [UsersService, UsersQueryRepository, UsersRepository],
 })
 export class UsersModule {}

@@ -48,4 +48,8 @@ export class UsersRepository {
       where: options,
     });
   }
+
+  public async drop() {
+    return this.repository.delete({});
+  }
 }

@@ -7,7 +7,7 @@ import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 import { User } from '../domain/user.entity';
 
 @Injectable()
-export class UsersQueryRepo {
+export class UsersQueryRepository {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
   public async findWithPagination(query: GetUsersQueryParams) {

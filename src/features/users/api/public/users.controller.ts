@@ -15,7 +15,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UserViewModel } from '../models/output';
 import { DeleteUserParams } from '../models/input';
 import { BasicAuthGuard } from '../../../auth/guards';
-import { UsersQueryRepo } from '../../infrastructure';
+import { UsersQueryRepository } from '../../infrastructure';
 import { GetUsersQueryParams, CreateUserDto } from '../models/input';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
@@ -25,7 +25,7 @@ import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get()

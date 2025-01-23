@@ -36,7 +36,7 @@ import {
 } from '../application';
 import { PostsViewMapperManager } from './mappers';
 import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
-import { UsersQueryRepo } from '../../../users/infrastructure';
+import { UsersQueryRepository } from '../../../users/infrastructure';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
 import { PostsQueryRepository } from '../infrastructure/posts.query.repo';
@@ -46,7 +46,7 @@ export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepository,
     private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}

@@ -6,12 +6,12 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UsersQueryRepo } from '../../../features/users/infrastructure';
+import { UsersQueryRepository } from '../../../features/users/infrastructure';
 
 @ValidatorConstraint({ name: 'EmailIsExist', async: true })
 @Injectable()
 export class EmailIsExistConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly userQueryRepo: UsersQueryRepo) {}
+  constructor(private readonly userQueryRepo: UsersQueryRepository) {}
 
   public async validate(value: any): Promise<boolean> {
     if (typeof value !== 'string') return false;

@@ -15,11 +15,11 @@ interface CreateBlogDto {
 export class BlogsRepository {
   constructor(
     @InjectRepository(Blog)
-    private readonly blogRepository: Repository<Blog>,
+    private readonly repository: Repository<Blog>,
   ) {}
 
   public async findById(id: string) {
-    return this.blogRepository
+    return this.repository
       .createQueryBuilder()
       .select()
       .where('id = :id', { id })
@@ -27,7 +27,7 @@ export class BlogsRepository {
   }
 
   public async create(createBlogDto: CreateBlogDto) {
-    const { identifiers } = await this.blogRepository
+    const { identifiers } = await this.repository
       .createQueryBuilder()
       .insert()
       .values(createBlogDto)
@@ -38,7 +38,7 @@ export class BlogsRepository {
   }
 
   public async update(id: string, updateBlogDto: any) {
-    const { affected } = await this.blogRepository
+    const { affected } = await this.repository
       .createQueryBuilder()
       .update(Blog)
       .set(updateBlogDto)
@@ -49,7 +49,7 @@ export class BlogsRepository {
   }
 
   public async delete(id: string) {
-    const { affected } = await this.blogRepository.delete({
+    const { affected } = await this.repository.delete({
       id,
     });
 
