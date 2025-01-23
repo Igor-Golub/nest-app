@@ -84,10 +84,8 @@ export class AuthController {
     @Body() { loginOrEmail, password }: LoginDto,
     @CurrentDevice() { deviceIp, deviceName },
   ) {
-    const user = await this.userQueryRepository.findByFields({
-      login: loginOrEmail,
-      email: loginOrEmail,
-    });
+    const user =
+      await this.userQueryRepository.findByEmailOrLogin(loginOrEmail);
 
     if (!user) throw new UnauthorizedException();
 
@@ -154,7 +152,7 @@ export class AuthController {
   ) {
     const { email } = resendConfirmation;
 
-    const user = await this.userQueryRepository.findByFields({ email });
+    const user = await this.userQueryRepository.findByEmailOrLogin(email);
 
     if (!user)
       throw new BadRequestException([

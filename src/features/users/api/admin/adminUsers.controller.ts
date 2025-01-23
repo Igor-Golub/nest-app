@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -20,6 +21,7 @@ import {
 import { UsersQueryRepository } from '../../infrastructure';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
+import { UserViewMapperManager } from '../mappers';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/users')
@@ -38,9 +40,16 @@ export class AdminUsersController {
   public async create(@Body() createUserDto: CreateUserDto) {
     const command = new CreateUserCommand(createUserDto);
 
-    return this.commandBus.execute<CreateUserCommand, { userId: string }>(
-      command,
-    );
+    const { userId } = await this.commandBus.execute<
+      CreateUserCommand,
+      { userId: string }
+    >(command);
+
+    const createdUser = await this.usersQueryRepo.findById(userId);
+
+    if (!createdUser) return new BadRequestException();
+
+    return UserViewMapperManager.mapUsersToView(createdUser);
   }
 
   @Delete(':id')

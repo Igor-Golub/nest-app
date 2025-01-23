@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserViewMapperManager } from '../api/mappers';
 import { GetUsersQueryParams } from '../api/models/input';
@@ -39,13 +39,19 @@ export class UsersQueryRepository {
     });
   }
 
-  public async findByFields(options: FindOptionsWhere<User>) {
-    const conditions = Object.entries(options).map(([key, value]) => ({
-      [key]: value,
-    }));
+  public async findByUniqueField<key extends keyof User>(
+    field: key,
+    value: User[key],
+  ) {
+    return this.repository
+      .createQueryBuilder()
+      .where(`${field} = :value`, { value })
+      .getOne();
+  }
 
+  public async findByEmailOrLogin(value: string) {
     return this.repository.findOne({
-      where: conditions,
+      where: [{ login: value }, { email: value }],
     });
   }
 }
