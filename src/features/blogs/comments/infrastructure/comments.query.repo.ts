@@ -17,6 +17,7 @@ export class CommentsQueryRepository {
       .createQueryBuilder('pc')
       .where('pc.id = :id', { id })
       .leftJoinAndSelect('pc.author', 'author')
+      .leftJoinAndSelect('pc.likes', 'likes')
       .getOne();
   }
 

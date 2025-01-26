@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsCommentsRepo } from '../infrastructure/comments.repo';
+import { PostsCommentsRepo } from '../infrastructure';
 
 export class DeleteCommentCommand {
   constructor(
@@ -13,8 +13,8 @@ export class DeleteCommentCommand {
 export class DeleteCommentHandler
   implements ICommandHandler<DeleteCommentCommand>
 {
-  constructor(private readonly postsCommentRepo: PostsCommentsRepo) {}
+  constructor(private readonly repository: PostsCommentsRepo) {}
   public async execute({ payload: { id } }: DeleteCommentCommand) {
-    return this.postsCommentRepo.delete(id);
+    return this.repository.delete(id);
   }
 }

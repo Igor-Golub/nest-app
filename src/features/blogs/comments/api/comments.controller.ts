@@ -104,7 +104,7 @@ export class CommentsController {
 
     const command = new DeleteCommentCommand({ id });
 
-    await this.commandBus.execute(command);
+    await this.commandBus.execute<DeleteCommentCommand, boolean>(command);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -127,12 +127,12 @@ export class CommentsController {
 
     const command = new UpdateCommentLikeStatusCommand({
       commentId,
-      nextStatus: likeStatus,
-      userLogin: user.login,
       userId: currentUserId,
+      nextStatus: likeStatus,
     });
 
-    const result = await this.commandBus.execute(command);
+    const result =
+      await this.commandBus.execute<UpdateCommentLikeStatusCommand>(command);
 
     if (!result) throw new NotFoundException();
   }

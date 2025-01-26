@@ -11,9 +11,9 @@ export class PostsCommentsLikesQueryRepository {
 
   public async findLikeByUserIdAndCommentId(userId: string, commentId: string) {
     return this.repository
-      .createQueryBuilder()
-      .where('commentId = :id and ownerId = :ownerId', {
-        commentId,
+      .createQueryBuilder('cl')
+      .where('cl.id = :id AND cl.ownerId = :ownerId', {
+        id: commentId,
         ownerId: userId,
       })
       .getOne();

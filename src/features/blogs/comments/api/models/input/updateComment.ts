@@ -1,7 +1,8 @@
+import { IsUUID } from 'class-validator';
 import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
 
 export class UpdateCommentParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 

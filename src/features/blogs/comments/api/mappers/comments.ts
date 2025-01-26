@@ -34,24 +34,22 @@ export class CommentsViewMapperManager {
         userId: comment.authorId,
         userLogin: comment.author.login,
       },
-      likesInfo: comment.likes
-        .filter(({ commentId }) => commentId === comment.id)
-        .reduce<CommentViewModel['likesInfo']>(
-          (acc, like) => {
-            if (like.status === LikeStatus.Like) acc.likesCount += 1;
-            if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
-            if (reqUserId && reqUserId === like.ownerId) {
-              acc.myStatus = like.status;
-            }
+      likesInfo: comment.likes.reduce<CommentViewModel['likesInfo']>(
+        (acc, like) => {
+          if (like.status === LikeStatus.Like) acc.likesCount += 1;
+          if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
+          if (reqUserId && reqUserId === like.ownerId) {
+            acc.myStatus = like.status;
+          }
 
-            return acc;
-          },
-          {
-            likesCount: 0,
-            dislikesCount: 0,
-            myStatus: LikeStatus.None,
-          },
-        ),
+          return acc;
+        },
+        {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: LikeStatus.None,
+        },
+      ),
     };
   }
 }

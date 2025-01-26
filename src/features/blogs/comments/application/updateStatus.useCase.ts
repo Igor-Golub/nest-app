@@ -8,7 +8,6 @@ import { LikeStatus } from '../../../../common/enums';
 interface UpdatePostCommentLikeStatus {
   userId: string;
   commentId: string;
-  userLogin: string;
   nextStatus: LikeStatus;
 }
 
@@ -26,7 +25,7 @@ export class UpdateCommentLikeStatusHandler
   ) {}
 
   public async execute({ payload }: UpdateCommentLikeStatusCommand) {
-    const { commentId, nextStatus, userId, userLogin } = payload;
+    const { commentId, nextStatus, userId } = payload;
 
     const like =
       await this.postsCommentsLikesQueryRepo.findLikeByUserIdAndCommentId(
@@ -36,10 +35,9 @@ export class UpdateCommentLikeStatusHandler
 
     if (!like) {
       await this.postsCommentsLikesRepo.create({
-        status: nextStatus,
         commentId,
-        userId,
-        userLogin,
+        ownerId: userId,
+        status: nextStatus,
       });
     } else {
       await this.postsCommentsLikesRepo.updateStatus(like.id, nextStatus);
