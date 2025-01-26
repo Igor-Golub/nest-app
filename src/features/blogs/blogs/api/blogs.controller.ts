@@ -63,7 +63,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   public async create(@Body() createBlogDto: CreateBlogDto) {
     const command = new CreateBlogCommand({
-      userId: '09c23e56-5bd8-400d-8fbb-5599f8fad4a5',
+      userId: 'f7babc34-7d1e-4ce9-86d6-dc8ef2cfd527',
       ...createBlogDto,
     });
 
@@ -93,9 +93,8 @@ export class BlogsController {
 
     return {
       ...posts,
-      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
-        posts.items,
-        userId,
+      items: posts.items.map((post) =>
+        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
       ),
     };
   }
@@ -111,7 +110,7 @@ export class BlogsController {
     if (!blog) throw new NotFoundException();
 
     const command = new CreatePostForBlogCommand({
-      userId: '09c23e56-5bd8-400d-8fbb-5599f8fad4a5',
+      userId: 'f7babc34-7d1e-4ce9-86d6-dc8ef2cfd527',
       blogId,
       blogName: blog.name,
       createData: createCommentDto,

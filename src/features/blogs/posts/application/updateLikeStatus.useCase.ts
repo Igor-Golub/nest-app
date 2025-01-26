@@ -16,20 +16,24 @@ export class UpdatePostLikeStatusCommand {
 export class UpdatePostLikeStatusHandler
   implements ICommandHandler<UpdatePostLikeStatusCommand>
 {
-  constructor(private readonly postsLikesRepo: PostsLikesRepo) {}
+  constructor(private readonly repository: PostsLikesRepo) {}
 
   public async execute({
     payload: { postId, nextLikeStatus, userId },
   }: UpdatePostLikeStatusCommand) {
-    const like = await this.postsLikesRepo.findLikeByUserIdAndPostId(
+    const like = await this.repository.findLikeByUserIdAndPostId(
       userId,
       postId,
     );
 
     if (!like) {
-      await this.postsLikesRepo.create(userId, postId, nextLikeStatus);
+      await this.repository.create({
+        postId,
+        ownerId: userId,
+        status: nextLikeStatus,
+      });
     } else {
-      await this.postsLikesRepo.updateStatus(like.id, nextLikeStatus);
+      await this.repository.updateStatus(like.id, nextLikeStatus);
     }
 
     return true;

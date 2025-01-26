@@ -6,8 +6,7 @@ import { PostComment } from '../domain/postComment.entity';
 interface CreatePostCommentDto {
   postId: string;
   content: string;
-  userId: string;
-  userLogin: string;
+  authorId: string;
 }
 
 @Injectable()
@@ -18,7 +17,14 @@ export class PostsCommentsRepo {
   ) {}
 
   public async create(createPostCommentDto: CreatePostCommentDto) {
-    return this.postCommentRepository.create(createPostCommentDto);
+    const { identifiers } = await this.postCommentRepository
+      .createQueryBuilder()
+      .insert()
+      .into(PostComment)
+      .values(createPostCommentDto)
+      .execute();
+
+    return { commentId: identifiers[0].id as string };
   }
 
   public async updateField<Key extends keyof Base.DTOFromEntity<PostComment>>(

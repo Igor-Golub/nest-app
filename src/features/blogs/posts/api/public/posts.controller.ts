@@ -13,7 +13,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepository } from '../../comments/infrastructure';
+import { CommentsQueryRepository } from '../../../comments/infrastructure';
 import {
   CreatePostDto,
   DeletePostParams,
@@ -24,22 +24,25 @@ import {
   UpdatePostLikeStatusParams,
   CreatePostCommentParams,
   CreatePostComment,
-} from './models/input';
+} from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { BlogsQueryRepository } from '../../blogs/infrastructure';
+import { BlogsQueryRepository } from '../../../blogs/infrastructure';
 import {
   UpdatePostCommand,
   DeletePostCommand,
   CreatePostCommand,
   UpdatePostLikeStatusCommand,
   CreatePostCommentCommand,
-} from '../application';
-import { PostsViewMapperManager } from './mappers';
-import { CommentsViewMapperManager } from '../../comments/api/mappers/comments';
-import { UsersQueryRepository } from '../../../users/infrastructure';
-import { BasicAuthGuard, JwtAuthGuard } from '../../../auth/guards';
-import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
-import { PostsQueryRepository } from '../infrastructure/posts.query.repo';
+} from '../../application';
+import { PostsViewMapperManager } from '../mappers';
+import { CommentsViewMapperManager } from '../../../comments/api/mappers/comments';
+import { UsersQueryRepository } from '../../../../users/infrastructure';
+import { BasicAuthGuard, JwtAuthGuard } from '../../../../auth/guards';
+import {
+  CurrentUserId,
+  UserIdFromAccessToken,
+} from '../../../../../common/pipes';
+import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
 
 @Controller('posts')
 export class PostsController {
@@ -60,9 +63,8 @@ export class PostsController {
 
     return {
       ...posts,
-      items: PostsViewMapperManager.mapPostsToViewModelWithLikes(
-        posts.items,
-        userId,
+      items: posts.items.map((post) =>
+        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
       ),
     };
   }
@@ -76,19 +78,14 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    const [result] = PostsViewMapperManager.mapPostsToViewModelWithLikes(
-      [post],
-      userId,
-    );
-
-    return result;
+    return PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId);
   }
 
   @Get(':id/comments')
   public async getComments(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
-    @Query() query: any,
+    @Query() query: PostsQueryParams,
   ) {
     const post = await this.postsQueryRepository.findById(id);
 
@@ -168,14 +165,18 @@ export class PostsController {
       content,
       postId: id,
       userId: currentUserId,
-      userLogin: user.login,
     });
 
-    const result = await this.commandBus.execute(command);
+    const { commentId } = await this.commandBus.execute<
+      CreatePostCommentCommand,
+      { commentId: string }
+    >(command);
 
-    if (!result) throw new BadRequestException();
+    const comment = await this.commentsQueryRepo.findById(commentId);
 
-    return CommentsViewMapperManager.commentWithoutLikesToViewModel(result);
+    if (!comment) throw new BadRequestException();
+
+    return CommentsViewMapperManager.commentWithoutLikesToViewModel(comment);
   }
 
   @Put(':id/like-status')
@@ -196,6 +197,8 @@ export class PostsController {
       userId: currentUserId,
     });
 
-    return await this.commandBus.execute(command);
+    return await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(
+      command,
+    );
   }
 }

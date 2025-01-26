@@ -1,11 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsCommentsRepo } from '../../comments/infrastructure/comments.repo';
+import { PostsCommentsRepo } from '../../comments/infrastructure';
 
 interface CreatePostCommentPayload {
   postId: string;
   userId: string;
   content: string;
-  userLogin: string;
 }
 
 export class CreatePostCommentCommand {
@@ -16,9 +15,13 @@ export class CreatePostCommentCommand {
 export class CreatePostCommentHandler
   implements ICommandHandler<CreatePostCommentCommand>
 {
-  constructor(private readonly postsCommentsRepo: PostsCommentsRepo) {}
+  constructor(private readonly repository: PostsCommentsRepo) {}
 
   public async execute({ payload }: CreatePostCommentCommand) {
-    return this.postsCommentsRepo.create(payload);
+    return this.repository.create({
+      postId: payload.postId,
+      content: payload.content,
+      authorId: payload.userId,
+    });
   }
 }

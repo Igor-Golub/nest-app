@@ -1,6 +1,7 @@
 import { LikeStatus } from '../../../../../common/enums';
 import { Post } from '../../domain/post.entity';
 import { PostViewModelWithLikes } from '../models/output';
+import { getLogger } from 'nodemailer/lib/shared';
 
 export class PostsViewMapperManager {
   static addDefaultLikesData(post: Post) {
@@ -22,10 +23,10 @@ export class PostsViewMapperManager {
   }
 
   static mapPostsToViewModelWithLikes(
-    posts: Post[],
+    post: Post,
     reqUserId: string | undefined,
-  ): PostViewModelWithLikes[] {
-    return posts.map((post) => ({
+  ): PostViewModelWithLikes {
+    return {
       id: post.id,
       createdAt: post.createdAt.toISOString(),
       content: post.content,
@@ -37,8 +38,6 @@ export class PostsViewMapperManager {
         PostViewModelWithLikes['extendedLikesInfo']
       >(
         (acc, like) => {
-          if (like.id !== like.postId) return acc;
-
           if (like.status === LikeStatus.Like) acc.likesCount += 1;
           if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
           if (reqUserId && reqUserId === like.ownerId) {
@@ -62,6 +61,6 @@ export class PostsViewMapperManager {
           myStatus: LikeStatus.None,
         },
       ),
-    }));
+    };
   }
 }

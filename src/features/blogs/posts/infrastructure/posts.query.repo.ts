@@ -14,10 +14,11 @@ export class PostsQueryRepository {
 
   public async findById(id: string) {
     return this.repository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.blog', 'blog')
-      .leftJoinAndSelect('post.likes', 'likes')
-      .where('post.id = :id', { id })
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.blog', 'blog')
+      .leftJoinAndSelect('p.likes', 'likes')
+      .leftJoinAndSelect('likes.owner', 'owner')
+      .where('p.id = :id', { id })
       .getOne();
   }
 

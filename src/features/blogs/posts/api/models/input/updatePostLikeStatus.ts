@@ -1,9 +1,8 @@
-import { IsEnum } from 'class-validator';
-import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
+import { IsEnum, IsUUID } from 'class-validator';
 import { LikeStatus } from '../../../../../../common/enums';
 
 export class UpdatePostLikeStatusParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 

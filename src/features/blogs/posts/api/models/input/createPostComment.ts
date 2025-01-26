@@ -1,12 +1,12 @@
+import { IsUUID } from 'class-validator';
 import { IsStringWithExpectedLength } from '../../../../../../common/decorators';
-import { LikeStatus } from '../../../../../../common/enums';
 
 export class CreatePostCommentParams {
-  @IsStringWithExpectedLength(24, 24)
+  @IsUUID()
   id: string;
 }
 
 export class CreatePostComment {
   @IsStringWithExpectedLength(20, 300)
-  content: LikeStatus;
+  content: string;
 }
