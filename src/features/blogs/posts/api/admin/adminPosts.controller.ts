@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,30 +15,37 @@ import {
 } from '@nestjs/common';
 import { CommentsQueryRepository } from '../../../comments/infrastructure';
 import {
-  CreatePostComment,
-  CreatePostCommentParams,
+  CreatePostDto,
+  DeletePostParams,
   PostsQueryParams,
+  UpdatePostDto,
+  UpdatePostParams,
   UpdatePostLikeStatus,
   UpdatePostLikeStatusParams,
+  CreatePostCommentParams,
+  CreatePostComment,
 } from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
 import { BlogsQueryRepository } from '../../../blogs/infrastructure';
 import {
-  CreatePostCommentCommand,
+  UpdatePostCommand,
+  DeletePostCommand,
+  CreatePostCommand,
   UpdatePostLikeStatusCommand,
+  CreatePostCommentCommand,
 } from '../../application';
 import { PostsViewMapperManager } from '../mappers';
 import { CommentsViewMapperManager } from '../../../comments/api/mappers/comments';
 import { UsersQueryRepository } from '../../../../users/infrastructure';
-import { JwtAuthGuard } from '../../../../auth/guards';
+import { BasicAuthGuard, JwtAuthGuard } from '../../../../auth/guards';
 import {
   CurrentUserId,
   UserIdFromAccessToken,
 } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
 
-@Controller('posts')
-export class PostsController {
+@Controller('sa/posts')
+export class AdminPostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepository: PostsQueryRepository,
@@ -91,6 +99,51 @@ export class PostsController {
         CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
       ),
     };
+  }
+
+  @Post()
+  @UseGuards(BasicAuthGuard)
+  public async create(@Body() createPostDto: CreatePostDto) {
+    const blog = await this.blogsQueryRepo.findById(createPostDto.blogId);
+
+    if (!blog) throw new NotFoundException();
+
+    const command = new CreatePostCommand({
+      data: { ...createPostDto, userId: 'userId' },
+    });
+
+    const createdPostId = await this.commandBus.execute(command);
+
+    const newPost = await this.postsQueryRepository.findById(createdPostId);
+
+    if (!newPost) throw new NotFoundException();
+
+    return PostsViewMapperManager.addDefaultLikesData(newPost);
+  }
+
+  @Put(':id')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async update(
+    @Param() { id }: UpdatePostParams,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    const command = new UpdatePostCommand({ postId: id, data: updatePostDto });
+
+    const result = await this.commandBus.execute(command);
+
+    if (!result) throw new NotFoundException();
+
+    return true;
+  }
+
+  @Delete(':id')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public delete(@Param() { id }: DeletePostParams) {
+    const command = new DeletePostCommand({ id });
+
+    return this.commandBus.execute(command);
   }
 
   @UseGuards(JwtAuthGuard)

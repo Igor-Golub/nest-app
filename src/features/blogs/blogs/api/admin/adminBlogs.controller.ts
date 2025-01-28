@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure';
+import { BlogsQueryRepository } from '../../infrastructure';
 import {
   BlogsQueryDtoParams,
   UpdateBlogParams,
@@ -22,23 +22,23 @@ import {
   CreatePostForBlogDto,
   DeleteBlogParams,
   CreatePostForBlogParams,
-} from './models/input';
+} from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
 import {
   CreateBlogCommand,
   DeleteBlogCommand,
   UpdateBlogCommand,
   CreatePostForBlogCommand,
-} from '../application';
-import { BlogsViewMapperManager } from './mappers';
-import { PostsViewMapperManager } from '../../posts/api/mappers';
-import { BasicAuthGuard } from '../../../auth/guards';
-import { UserIdFromAccessToken } from '../../../../common/pipes';
-import { PostsQueryRepository } from '../../posts/infrastructure/posts.query.repo';
-import { PostsQueryParams } from '../../posts/api/models/input';
+} from '../../application';
+import { BlogsViewMapperManager } from '../mappers';
+import { PostsViewMapperManager } from '../../../posts/api/mappers';
+import { BasicAuthGuard } from '../../../../auth/guards';
+import { UserIdFromAccessToken } from '../../../../../common/pipes';
+import { PostsQueryRepository } from '../../../posts/infrastructure/posts.query.repo';
+import { PostsQueryParams } from '../../../posts/api/models/input';
 
 @Controller('sa/blogs')
-export class BlogsController {
+export class AdminBlogsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepository,

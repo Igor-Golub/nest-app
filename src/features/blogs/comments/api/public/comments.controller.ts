@@ -16,7 +16,7 @@ import {
   DeleteCommentCommand,
   UpdateCommentLikeCommand,
   UpdateCommentLikeStatusCommand,
-} from '../application';
+} from '../../application';
 import {
   CommentsQuery,
   DeleteCommentParams,
@@ -24,13 +24,16 @@ import {
   UpdateCommentLikeStatus,
   UpdateCommentLikeStatusParams,
   UpdateCommentParams,
-} from './models/input';
+} from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQueryRepository } from '../infrastructure';
-import { CommentsViewMapperManager } from './mappers/comments';
-import { UsersQueryRepository } from '../../../users/infrastructure';
-import { CurrentUserId, UserIdFromAccessToken } from '../../../../common/pipes';
-import { JwtAuthGuard } from '../../../auth/guards';
+import { CommentsQueryRepository } from '../../infrastructure';
+import { CommentsViewMapperManager } from '../mappers/comments';
+import { UsersQueryRepository } from '../../../../users/infrastructure';
+import {
+  CurrentUserId,
+  UserIdFromAccessToken,
+} from '../../../../../common/pipes';
+import { JwtAuthGuard } from '../../../../auth/guards';
 
 @Controller('comments')
 export class CommentsController {

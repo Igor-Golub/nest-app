@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PostsController } from './posts/api/public/posts.controller';
-import { BlogsController } from './blogs/api/blogs.controller';
-import { CommentsController } from './comments/api/comments.controller';
+import { BlogsController } from './blogs/api/public/blogs.controller';
+import { CommentsController } from './comments/api/public/comments.controller';
 import {
   CreateBlogHandler,
   CreatePostForBlogHandler,
@@ -40,6 +40,8 @@ import { PostsQueryRepository } from './posts/infrastructure/posts.query.repo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './posts/domain/post.entity';
 import { PostLike } from './posts/domain/postLikes.entity';
+import { AdminBlogsController } from './blogs/api/admin/adminBlogs.controller';
+import { AdminPostsController } from './posts/api/admin/adminPosts.controller';
 
 const blogsProviders = [
   BlogsRepository,
@@ -80,7 +82,13 @@ const commentsProviders = [
     UsersModule,
     TypeOrmModule.forFeature([Blog, Post, PostLike, PostComment, CommentLike]),
   ],
-  controllers: [PostsController, BlogsController, CommentsController],
+  controllers: [
+    BlogsController,
+    AdminBlogsController,
+    PostsController,
+    AdminPostsController,
+    CommentsController,
+  ],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [
     BlogsQueryRepository,
