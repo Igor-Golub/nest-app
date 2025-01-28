@@ -25,11 +25,7 @@ export class User extends BaseEntity {
   })
   public isConfirmed: boolean;
 
-  @OneToOne(
-    'Confirmation',
-    (confirmation: Confirmation) => confirmation.owner,
-    { cascade: true, onDelete: 'CASCADE' },
-  )
+  @OneToOne('Confirmation', (confirmation: Confirmation) => confirmation.owner)
   public confirmation: Confirmation;
 
   @OneToOne('Account', (account: Account) => account.owner)

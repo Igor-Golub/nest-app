@@ -17,7 +17,10 @@ export class Confirmation extends BaseEntity {
   @Column({ nullable: true })
   public code: string;
 
-  @OneToOne(() => User, (user: User) => user.confirmation)
+  @OneToOne(() => User, (user: User) => user.confirmation, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   public owner: User;
 

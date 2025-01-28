@@ -46,4 +46,8 @@ export class BlogsRepository {
 
     return !!affected;
   }
+
+  public async drop() {
+    await this.repository.delete({});
+  }
 }

@@ -91,6 +91,7 @@ const commentsProviders = [
   ],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [
+    BlogsRepository,
     BlogsQueryRepository,
     PostsQueryRepository,
     PostsLikesQueryRepo,
