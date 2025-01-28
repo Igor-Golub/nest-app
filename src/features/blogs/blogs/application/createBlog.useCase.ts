@@ -4,7 +4,6 @@ import { BlogsRepository } from '../infrastructure';
 export class CreateBlogCommand {
   constructor(
     readonly payload: {
-      userId: string;
       name: string;
       websiteUrl: string;
       description: string;
@@ -14,15 +13,14 @@ export class CreateBlogCommand {
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
-  constructor(private readonly blogsRepository: BlogsRepository) {}
+  constructor(private readonly repository: BlogsRepository) {}
 
   public async execute({ payload }: CreateBlogCommand) {
-    return this.blogsRepository.create({
+    return this.repository.create({
       name: payload.name,
       websiteUrl: payload.websiteUrl,
       description: payload.description,
       isMembership: false,
-      ownerId: payload.userId,
     });
   }
 }

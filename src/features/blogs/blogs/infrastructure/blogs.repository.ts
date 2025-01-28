@@ -8,7 +8,6 @@ interface CreateBlogDto {
   description: string;
   websiteUrl: string;
   isMembership: boolean;
-  ownerId: string;
 }
 
 @Injectable()
@@ -17,14 +16,6 @@ export class BlogsRepository {
     @InjectRepository(Blog)
     private readonly repository: Repository<Blog>,
   ) {}
-
-  public async findById(id: string) {
-    return this.repository
-      .createQueryBuilder()
-      .select()
-      .where('id = :id', { id })
-      .getOne();
-  }
 
   public async create(createBlogDto: CreateBlogDto) {
     const { identifiers } = await this.repository

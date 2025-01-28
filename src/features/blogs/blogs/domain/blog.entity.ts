@@ -1,6 +1,5 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
-import type { User } from '../../../users/domain/user.entity';
 import type { Post } from '../../posts/domain/post.entity';
 
 @Entity()
@@ -19,15 +18,6 @@ export class Blog extends BaseEntity {
     default: false,
   })
   public isMembership: boolean;
-
-  @ManyToOne('User', (user: User) => user.blogs, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  public owner: User;
-
-  @Column()
-  public ownerId: string;
 
   @OneToMany('Post', (post: Post) => post.blog)
   public posts: Post[];

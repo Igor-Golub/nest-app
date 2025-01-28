@@ -62,10 +62,7 @@ export class BlogsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   public async create(@Body() createBlogDto: CreateBlogDto) {
-    const command = new CreateBlogCommand({
-      userId: 'f7babc34-7d1e-4ce9-86d6-dc8ef2cfd527',
-      ...createBlogDto,
-    });
+    const command = new CreateBlogCommand(createBlogDto);
 
     const { id } = await this.commandBus.execute<
       CreateBlogCommand,
