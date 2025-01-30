@@ -24,7 +24,6 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
       content: data.content,
       blogId: data.blogId,
       title: data.title,
-      authorId: data.userId,
       shortDescription: data.shortDescription,
     });
 

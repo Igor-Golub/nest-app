@@ -107,7 +107,6 @@ export class AdminBlogsController {
     if (!blog) throw new NotFoundException();
 
     const command = new CreatePostForBlogCommand({
-      userId: 'f7babc34-7d1e-4ce9-86d6-dc8ef2cfd527',
       blogId,
       blogName: blog.name,
       createData: createCommentDto,

@@ -33,7 +33,9 @@ export class PostsQueryRepository {
       skip: offset,
       relations: {
         blog: true,
-        likes: true,
+        likes: {
+          owner: true,
+        },
       },
     });
 

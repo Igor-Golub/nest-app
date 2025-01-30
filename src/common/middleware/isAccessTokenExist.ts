@@ -10,8 +10,7 @@ export class AccessTokenExistMiddleware implements NestMiddleware {
 
     if (authHeader) {
       const payload = this.jwtService.decode(authHeader.split(' ')[1]);
-
-      req.user = { userId: payload?.sub };
+      req.user = { id: payload?.userId };
     }
 
     next();

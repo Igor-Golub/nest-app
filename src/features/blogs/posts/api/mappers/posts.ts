@@ -1,7 +1,6 @@
 import { LikeStatus } from '../../../../../common/enums';
 import { Post } from '../../domain/post.entity';
 import { PostViewModelWithLikes } from '../models/output';
-import { getLogger } from 'nodemailer/lib/shared';
 
 export class PostsViewMapperManager {
   static addDefaultLikesData(post: Post) {

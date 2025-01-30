@@ -7,7 +7,6 @@ interface CreatePostDto {
   title: string;
   blogId: string;
   content: string;
-  authorId: string;
   shortDescription: string;
 }
 

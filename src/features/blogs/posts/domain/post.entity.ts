@@ -16,15 +16,6 @@ export class Post extends BaseEntity {
   @Column()
   public content: string;
 
-  @ManyToOne('User', (user: User) => user.posts, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  public author: User;
-
-  @Column()
-  public authorId: string;
-
   @ManyToOne('Blog', (blog: Blog) => blog.posts, {
     cascade: true,
     onDelete: 'CASCADE',
