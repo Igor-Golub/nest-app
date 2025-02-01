@@ -7,9 +7,7 @@ import {
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../../infrastructure';
 import { BlogsQueryDto, BlogsQueryDtoParams } from '../models/input';
-import { CommandBus } from '@nestjs/cqrs';
 import { BlogsViewMapperManager } from '../mappers';
-import { PostsViewMapperManager } from '../../../posts/api/mappers';
 import { UserIdFromAccessToken } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../../posts/infrastructure/posts.query.repo';
 import { PostsQueryParams } from '../../../posts/api/models/input';
@@ -17,7 +15,6 @@ import { PostsQueryParams } from '../../../posts/api/models/input';
 @Controller('/blogs')
 export class BlogsController {
   constructor(
-    private readonly commandBus: CommandBus,
     private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
@@ -46,13 +43,6 @@ export class BlogsController {
 
     if (!blog) throw new NotFoundException();
 
-    const posts = await this.postsQueryRepository.getWithPagination(query);
-
-    return {
-      ...posts,
-      items: posts.items.map((post) =>
-        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
-      ),
-    };
+    return this.postsQueryRepository.getWithPagination(query, userId);
   }
 }

@@ -43,6 +43,7 @@ import {
   UserIdFromAccessToken,
 } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
+import { QueryParams } from '../../../../../common/decorators/validate';
 
 @Controller('sa/posts')
 export class AdminPostsController {
@@ -59,14 +60,7 @@ export class AdminPostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
-    const posts = await this.postsQueryRepository.getWithPagination(query);
-
-    return {
-      ...posts,
-      items: posts.items.map((post) =>
-        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
-      ),
-    };
+    return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
   @Get(':id')
@@ -85,20 +79,13 @@ export class AdminPostsController {
   public async getComments(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') id: string,
-    @Query() query: PostsQueryParams,
+    @Query() query: QueryParams,
   ) {
     const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
 
-    const data = await this.commentsQueryRepo.getWithPagination(query);
-
-    return {
-      ...data,
-      items: data.items.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
-      ),
-    };
+    return this.commentsQueryRepo.getWithPagination(query, userId);
   }
 
   @Post()

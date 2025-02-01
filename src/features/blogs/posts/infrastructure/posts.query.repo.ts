@@ -1,8 +1,9 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../domain/post.entity';
-import { Repository } from 'typeorm';
 import { PostsQueryParams } from '../api/models/input';
+import { PostsViewMapperManager } from '../api/mappers';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
@@ -22,26 +23,27 @@ export class PostsQueryRepository {
       .getOne();
   }
 
-  public async getWithPagination(query: PostsQueryParams) {
+  public async getWithPagination(
+    query: PostsQueryParams,
+    userId: string | undefined,
+  ) {
     const offset = (query.pageNumber - 1) * query.pageSize;
 
-    const [posts, totalCount] = await this.repository.findAndCount({
-      order: {
-        [query.sortBy]: query.sortDirection,
-      },
-      take: query.pageSize,
-      skip: offset,
-      relations: {
-        blog: true,
-        likes: {
-          owner: true,
-        },
-      },
-    });
+    const [posts, totalCount] = await this.repository
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.blog', 'blog')
+      .leftJoinAndSelect('p.likes', 'likes')
+      .leftJoinAndSelect('likes.owner', 'owner')
+      .orderBy(`p.${query.sortBy}`, query.sortDirection)
+      .take(query.pageSize)
+      .skip(offset)
+      .getManyAndCount();
 
     return PaginatedViewDto.mapToView({
       totalCount,
-      items: posts,
+      items: posts.map((post) =>
+        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
+      ),
       size: query.pageSize,
       page: query.pageNumber,
     });

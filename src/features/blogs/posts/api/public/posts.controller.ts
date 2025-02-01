@@ -21,7 +21,6 @@ import {
   UpdatePostLikeStatusParams,
 } from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import { BlogsQueryRepository } from '../../../blogs/infrastructure';
 import {
   CreatePostCommentCommand,
   UpdatePostLikeStatusCommand,
@@ -42,7 +41,6 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly usersQueryRepo: UsersQueryRepository,
-    private readonly blogsQueryRepo: BlogsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}
 
@@ -51,14 +49,7 @@ export class PostsController {
     @UserIdFromAccessToken() userId: string | undefined,
     @Query() query: PostsQueryParams,
   ) {
-    const posts = await this.postsQueryRepository.getWithPagination(query);
-
-    return {
-      ...posts,
-      items: posts.items.map((post) =>
-        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
-      ),
-    };
+    return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
   @Get(':id')
@@ -83,14 +74,7 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    const data = await this.commentsQueryRepo.getWithPagination(query);
-
-    return {
-      ...data,
-      items: data.items.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
-      ),
-    };
+    return this.commentsQueryRepo.getWithPagination(query, userId);
   }
 
   @UseGuards(JwtAuthGuard)

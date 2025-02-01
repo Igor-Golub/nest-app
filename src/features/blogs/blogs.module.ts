@@ -35,7 +35,6 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { UsersModule } from '../users/users.module';
 import { PostsRepository } from './posts/infrastructure/posts.repo';
 import { PostsLikesRepo } from './posts/infrastructure/postsLikes.repo';
-import { PostsLikesQueryRepo } from './posts/infrastructure/postsLikes.query.repo';
 import { PostsQueryRepository } from './posts/infrastructure/posts.query.repo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './posts/domain/post.entity';
@@ -58,7 +57,6 @@ const postsProviders = [
   PostsLikesRepo,
   PostsLikesRepo,
   PostsQueryRepository,
-  PostsLikesQueryRepo,
   CreatePostHandler,
   UpdatePostHandler,
   DeletePostHandler,
@@ -94,7 +92,6 @@ const commentsProviders = [
     BlogsRepository,
     BlogsQueryRepository,
     PostsQueryRepository,
-    PostsLikesQueryRepo,
     PostsCommentsLikesQueryRepository,
   ],
 })

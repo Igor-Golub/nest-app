@@ -86,14 +86,7 @@ export class AdminBlogsController {
 
     if (!blog) throw new NotFoundException();
 
-    const posts = await this.postsQueryRepository.getWithPagination(query);
-
-    return {
-      ...posts,
-      items: posts.items.map((post) =>
-        PostsViewMapperManager.mapPostsToViewModelWithLikes(post, userId),
-      ),
-    };
+    return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
   @Post(':id/posts')

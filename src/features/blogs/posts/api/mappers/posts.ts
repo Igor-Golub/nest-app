@@ -25,6 +25,8 @@ export class PostsViewMapperManager {
     post: Post,
     reqUserId: string | undefined,
   ): PostViewModelWithLikes {
+    post.likes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
     return {
       id: post.id,
       createdAt: post.createdAt.toISOString(),

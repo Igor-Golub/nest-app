@@ -1,7 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import type { Blog } from '../../blogs/domain/blog.entity';
-import type { User } from '../../../users/domain/user.entity';
 import type { PostLike } from './postLikes.entity';
 import type { PostComment } from '../../comments/domain/postComment.entity';
 

@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PostComment } from '../domain/postComment.entity';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 import { PostsQueryParams } from '../../posts/api/models/input';
+import { CommentsViewMapperManager } from '../api/mappers/comments';
+import { QueryParams } from '../../../../common/decorators/validate';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -27,16 +29,17 @@ export class CommentsQueryRepository {
     });
   }
 
-  public async getWithPagination(query: PostsQueryParams) {
-    const offset = (query.pageNumber - 1) * query.pageSize;
-
+  public async getWithPagination(
+    query: QueryParams,
+    userId: string | undefined,
+  ) {
     const [comments, totalCount] =
       await this.postCommentRepository.findAndCount({
         order: {
           [query.sortBy]: query.sortDirection,
         },
         take: query.pageSize,
-        skip: offset,
+        skip: (query.pageNumber - 1) * query.pageSize,
         relations: {
           author: true,
           likes: true,
@@ -45,7 +48,9 @@ export class CommentsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       totalCount,
-      items: comments,
+      items: comments.map((comment) =>
+        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
+      ),
       size: query.pageSize,
       page: query.pageNumber,
     });
