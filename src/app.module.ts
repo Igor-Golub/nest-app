@@ -9,7 +9,10 @@ import {
   EmailIsExistConstraint,
   LoginIsExistConstraint,
 } from './common/decorators';
-import { AccessTokenExistMiddleware } from './common/middleware';
+import {
+  AccessTokenExistMiddleware,
+  LoggingMiddleware,
+} from './common/middleware';
 import { UsersModule } from './features/users/users.module';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
@@ -60,6 +63,8 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AccessTokenExistMiddleware)
-      .forRoutes('blogs/*', 'posts/*', 'comments/*');
+      .forRoutes('blogs/*', 'posts/*', 'comments/*')
+      .apply(LoggingMiddleware)
+      .forRoutes('*');
   }
 }
