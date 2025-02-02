@@ -1,17 +1,19 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostComment } from '../domain/postComment.entity';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
-import { PostsQueryParams } from '../../posts/api/models/input';
 import { CommentsViewMapperManager } from '../api/mappers/comments';
 import { QueryParams } from '../../../../common/decorators/validate';
+import { CommentLike } from '../domain/commentLike.entity';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectRepository(PostComment)
     private readonly postCommentRepository: Repository<PostComment>,
+    @InjectRepository(CommentLike)
+    private readonly likeRepository: Repository<CommentLike>,
   ) {}
 
   public async findById(id: string) {
@@ -42,17 +44,30 @@ export class CommentsQueryRepository {
         skip: (query.pageNumber - 1) * query.pageSize,
         relations: {
           author: true,
-          likes: true,
         },
       });
+
+    const likes = await this.likeRepository.find({
+      where: { commentId: In(comments.map(({ id }) => id)) },
+    });
 
     return PaginatedViewDto.mapToView({
       totalCount,
       items: comments.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
+        CommentsViewMapperManager.commentWithLikeToViewModel(
+          comment,
+          likes,
+          userId,
+        ),
       ),
       size: query.pageSize,
       page: query.pageNumber,
+    });
+  }
+
+  public async findLikes(commentId: string) {
+    return this.likeRepository.find({
+      where: { commentId },
     });
   }
 }

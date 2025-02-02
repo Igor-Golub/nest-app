@@ -1,6 +1,7 @@
 import { LikeStatus } from '../../../../../common/enums';
 import { Post } from '../../domain/post.entity';
 import { PostViewModelWithLikes } from '../models/output';
+import { PostLike } from '../../domain/postLikes.entity';
 
 export class PostsViewMapperManager {
   static addDefaultLikesData(post: Post) {
@@ -23,10 +24,9 @@ export class PostsViewMapperManager {
 
   static mapPostsToViewModelWithLikes(
     post: Post,
+    likes: PostLike[],
     reqUserId: string | undefined,
   ): PostViewModelWithLikes {
-    post.likes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
     return {
       id: post.id,
       createdAt: post.createdAt.toISOString(),
@@ -35,7 +35,7 @@ export class PostsViewMapperManager {
       blogId: post.blogId,
       title: post.title,
       shortDescription: post.shortDescription,
-      extendedLikesInfo: post.likes.reduce<
+      extendedLikesInfo: likes.reduce<
         PostViewModelWithLikes['extendedLikesInfo']
       >(
         (acc, like) => {

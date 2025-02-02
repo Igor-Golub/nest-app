@@ -43,6 +43,6 @@ export class BlogsController {
 
     if (!blog) throw new NotFoundException();
 
-    return this.postsQueryRepository.getWithPagination(query, userId);
+    return this.postsQueryRepository.getWithPagination(query, userId, blogId);
   }
 }
