@@ -34,18 +34,21 @@ export class CommentsQueryRepository {
   public async getWithPagination(
     query: QueryParams,
     userId: string | undefined,
+    postId: string | undefined = undefined,
   ) {
-    const [comments, totalCount] =
-      await this.postCommentRepository.findAndCount({
-        order: {
-          [query.sortBy]: query.sortDirection,
-        },
-        take: query.pageSize,
-        skip: (query.pageNumber - 1) * query.pageSize,
-        relations: {
-          author: true,
-        },
-      });
+    const builder = this.postCommentRepository
+      .createQueryBuilder('pc')
+      .leftJoinAndSelect('pc.author', 'author');
+
+    if (postId) {
+      builder.where('pc.postId = :postId', { postId });
+    }
+
+    const [comments, totalCount] = await builder
+      .orderBy(`pc.${query.sortBy}`, query.sortDirection)
+      .take(query.pageSize)
+      .skip((query.pageNumber - 1) * query.pageSize)
+      .getManyAndCount();
 
     const likes = await this.likeRepository.find({
       where: { commentId: In(comments.map(({ id }) => id)) },

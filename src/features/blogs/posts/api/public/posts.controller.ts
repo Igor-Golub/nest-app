@@ -80,7 +80,7 @@ export class PostsController {
 
     if (!post) throw new NotFoundException();
 
-    return this.commentsQueryRepo.getWithPagination(query, userId);
+    return this.commentsQueryRepo.getWithPagination(query, userId, id);
   }
 
   @UseGuards(JwtAuthGuard)
