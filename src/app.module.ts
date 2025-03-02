@@ -63,7 +63,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AccessTokenExistMiddleware)
-      .forRoutes('blogs/*', 'posts/*', 'comments/*')
+      .forRoutes('*')
       .apply(LoggingMiddleware)
       .forRoutes('*');
   }

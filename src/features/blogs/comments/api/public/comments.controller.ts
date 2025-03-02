@@ -52,11 +52,8 @@ export class CommentsController {
 
     if (!comment) throw new NotFoundException();
 
-    const likes = await this.commentsQueryRepo.findLikes(commentId);
-
     return CommentsViewMapperManager.commentWithLikeToViewModel(
       comment,
-      likes,
       userId,
     );
   }

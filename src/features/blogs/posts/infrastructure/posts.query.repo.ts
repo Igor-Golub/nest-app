@@ -45,6 +45,7 @@ export class PostsQueryRepository {
     userId: string | undefined,
     blogId: string | undefined = undefined,
   ) {
+    console.log('userId', userId);
     const offset = (query.pageNumber - 1) * query.pageSize;
 
     const builder = this.repository

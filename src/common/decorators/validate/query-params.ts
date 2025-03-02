@@ -5,7 +5,7 @@ import { SortDirection } from '../../enums';
 export class QueryParams {
   @IsString()
   @IsOptional()
-  sortBy: string = 'id';
+  sortBy: string = 'createdAt';
 
   @ToNumber(10)
   @IsNumber()

@@ -1,4 +1,4 @@
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostComment } from '../domain/postComment.entity';
@@ -6,6 +6,7 @@ import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto
 import { CommentsViewMapperManager } from '../api/mappers/comments';
 import { QueryParams } from '../../../../common/decorators/validate';
 import { CommentLike } from '../domain/commentLike.entity';
+import { getLogger } from 'nodemailer/lib/shared';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -36,41 +37,32 @@ export class CommentsQueryRepository {
     userId: string | undefined,
     postId: string | undefined = undefined,
   ) {
-    const builder = this.postCommentRepository
-      .createQueryBuilder('pc')
-      .leftJoinAndSelect('pc.author', 'author');
-
-    if (postId) {
-      builder.where('pc.postId = :postId', { postId });
-    }
-
-    const [comments, totalCount] = await builder
-      .orderBy(`pc.${query.sortBy}`, query.sortDirection)
-      .take(query.pageSize)
-      .skip((query.pageNumber - 1) * query.pageSize)
-      .getManyAndCount();
-
-    const likes = await this.likeRepository.find({
-      where: { commentId: In(comments.map(({ id }) => id)) },
+    console.log({
+      order: {
+        [query.sortBy]: query.sortDirection,
+      },
     });
+    const [comments, totalCount] =
+      await this.postCommentRepository.findAndCount({
+        where: postId ? { postId } : {},
+        relations: {
+          author: true,
+          likes: true,
+        },
+        order: {
+          [query.sortBy]: query.sortDirection,
+        },
+        take: query.pageSize,
+        skip: (query.pageNumber - 1) * query.pageSize,
+      });
 
     return PaginatedViewDto.mapToView({
       totalCount,
       items: comments.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(
-          comment,
-          likes,
-          userId,
-        ),
+        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
       ),
       size: query.pageSize,
       page: query.pageNumber,
-    });
-  }
-
-  public async findLikes(commentId: string) {
-    return this.likeRepository.find({
-      where: { commentId },
     });
   }
 }
