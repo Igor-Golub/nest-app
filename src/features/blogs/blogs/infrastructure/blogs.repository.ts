@@ -10,6 +10,12 @@ interface CreateBlogDto {
   isMembership: boolean;
 }
 
+interface UpdateBlogDto {
+  name: string;
+  description: string;
+  websiteUrl: string;
+}
+
 @Injectable()
 export class BlogsRepository {
   constructor(
@@ -18,31 +24,17 @@ export class BlogsRepository {
   ) {}
 
   public async create(createBlogDto: CreateBlogDto) {
-    const { identifiers } = await this.repository
-      .createQueryBuilder()
-      .insert()
-      .values(createBlogDto)
-      .into(Blog)
-      .execute();
-
-    return { id: identifiers[0].id as string };
+    const newBlog = this.repository.create(createBlogDto);
+    return this.repository.save(newBlog);
   }
 
-  public async update(id: string, updateBlogDto: any) {
-    const { affected } = await this.repository
-      .createQueryBuilder()
-      .update(Blog)
-      .set(updateBlogDto)
-      .where('id = :id', { id })
-      .execute();
-
-    return !!affected;
+  public async update(id: string, updateBlogDto: UpdateBlogDto) {
+    await this.repository.update(id, updateBlogDto);
+    return await this.repository.findOneBy({ id });
   }
 
   public async delete(id: string) {
-    const { affected } = await this.repository.delete({
-      id,
-    });
+    const { affected } = await this.repository.delete({ id });
 
     return !!affected;
   }

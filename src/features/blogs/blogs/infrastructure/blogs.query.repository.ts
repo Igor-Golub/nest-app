@@ -34,10 +34,6 @@ export class BlogsQueryRepository {
   }
 
   public async findById(id: string) {
-    return this.blogRepository
-      .createQueryBuilder()
-      .select()
-      .where('id = :id', { id })
-      .getOne();
+    return this.blogRepository.findOneBy({ id });
   }
 }

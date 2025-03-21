@@ -44,6 +44,7 @@ import {
 } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
 import { QueryParams } from '../../../../../common/decorators/validate';
+import { Post as PostEntity } from '../../domain/post.entity';
 
 @Controller('sa/posts')
 export class AdminPostsController {
@@ -123,11 +124,14 @@ export class AdminPostsController {
   ) {
     const command = new UpdatePostCommand({ postId: id, data: updatePostDto });
 
-    const result = await this.commandBus.execute(command);
+    const updatedPost = await this.commandBus.execute<
+      UpdatePostCommand,
+      PostEntity
+    >(command);
 
-    if (!result) throw new NotFoundException();
+    if (!updatedPost) throw new NotFoundException();
 
-    return true;
+    return updatedPost;
   }
 
   @Delete(':id')

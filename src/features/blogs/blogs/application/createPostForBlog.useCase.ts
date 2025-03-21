@@ -22,13 +22,11 @@ export class CreatePostForBlogHandler
   constructor(private readonly repository: PostsRepository) {}
 
   public async execute({ payload }: CreatePostForBlogCommand) {
-    const { id } = await this.repository.create({
+    return this.repository.create({
       blogId: payload.blogId,
       title: payload.createData.title,
       content: payload.createData.content,
       shortDescription: payload.createData.shortDescription,
     });
-
-    return id;
   }
 }

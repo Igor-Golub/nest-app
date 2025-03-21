@@ -24,34 +24,17 @@ export class PostsRepository {
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
-    const { identifiers } = await this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(Post)
-      .values(createPostDto)
-      .execute();
-
-    return { id: identifiers[0].id as string };
+    const post = this.repository.create(createPostDto);
+    return await this.repository.save(post);
   }
 
   public async update(id: string, updatePostDto: UpdatePostDto) {
-    const { affected } = await this.repository
-      .createQueryBuilder()
-      .update(Post)
-      .where('p.id = :id', { id })
-      .set(updatePostDto)
-      .execute();
-
-    return !!affected;
+    await this.repository.update({ id }, updatePostDto);
+    return await this.repository.findOneBy({ id });
   }
 
   public async delete(id: string) {
-    const { affected } = await this.repository
-      .createQueryBuilder()
-      .delete()
-      .from(Post, 'p')
-      .where('p.id = :id', { id })
-      .execute();
+    const { affected } = await this.repository.delete({ id });
 
     return !!affected;
   }

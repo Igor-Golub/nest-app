@@ -36,6 +36,8 @@ import { BasicAuthGuard } from '../../../../auth/guards';
 import { UserIdFromAccessToken } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../../posts/infrastructure/posts.query.repo';
 import { PostsQueryParams } from '../../../posts/api/models/input';
+import { Blog } from '../../domain/blog.entity';
+import { Post as PostEntity } from '../../../posts/domain/post.entity';
 
 @Controller('sa/blogs')
 export class AdminBlogsController {
@@ -64,12 +66,9 @@ export class AdminBlogsController {
   public async create(@Body() createBlogDto: CreateBlogDto) {
     const command = new CreateBlogCommand(createBlogDto);
 
-    const { id } = await this.commandBus.execute<
-      CreateBlogCommand,
-      { id: string }
-    >(command);
-
-    const blog = await this.blogsQueryRepo.findById(id);
+    const blog = await this.commandBus.execute<CreateBlogCommand, Blog>(
+      command,
+    );
 
     if (!blog) throw new NotFoundException();
 
@@ -93,7 +92,7 @@ export class AdminBlogsController {
   @UseGuards(BasicAuthGuard)
   public async createPostForBlog(
     @Param() { id: blogId }: CreatePostForBlogParams,
-    @Body() createCommentDto: CreatePostForBlogDto,
+    @Body() createData: CreatePostForBlogDto,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
@@ -102,19 +101,17 @@ export class AdminBlogsController {
     const command = new CreatePostForBlogCommand({
       blogId,
       blogName: blog.name,
-      createData: createCommentDto,
+      createData,
     });
 
-    const createdPostId = await this.commandBus.execute<
+    const createdPost = await this.commandBus.execute<
       CreatePostForBlogCommand,
-      string
+      PostEntity
     >(command);
 
-    const newPost = await this.postsQueryRepository.findById(createdPostId);
+    if (!createdPost) throw new NotFoundException();
 
-    if (!newPost) throw new NotFoundException();
-
-    return PostsViewMapperManager.addDefaultLikesData(newPost);
+    return PostsViewMapperManager.addDefaultLikesData(createdPost);
   }
 
   @Put(':id')
@@ -122,15 +119,21 @@ export class AdminBlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async update(
     @Param() { id }: UpdateBlogParams,
-    @Body() updateBlogDto: UpdateBlogDto,
+    @Body() updateData: UpdateBlogDto,
   ) {
     const blog = await this.blogsQueryRepo.findById(id);
 
     if (!blog) throw new NotFoundException();
 
-    const command = new UpdateBlogCommand({ id, updateData: updateBlogDto });
+    const command = new UpdateBlogCommand({ id, updateData });
 
-    return this.commandBus.execute<UpdateBlogCommand, boolean>(command);
+    const updatedBlog = this.commandBus.execute<UpdateBlogCommand, Blog | null>(
+      command,
+    );
+
+    if (!updatedBlog) throw new NotFoundException();
+
+    return updatedBlog;
   }
 
   @Delete(':id')
