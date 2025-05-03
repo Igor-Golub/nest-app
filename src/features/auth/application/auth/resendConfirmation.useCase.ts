@@ -3,8 +3,12 @@ import { BadRequestException } from '@nestjs/common';
 import { NotifyManager } from '../../../../infrastructure/managers/notify.manager';
 import { UsersService } from '../../../users/application';
 
+interface ResendConfirmationPayload {
+  email: string;
+}
+
 export class ResendConfirmationCommand {
-  constructor(readonly payload: any) {}
+  constructor(readonly payload: ResendConfirmationPayload) {}
 }
 
 @CommandHandler(ResendConfirmationCommand)
@@ -17,9 +21,7 @@ export class ResendConfirmationHandler
   ) {}
 
   public async execute({ payload }: ResendConfirmationCommand) {
-    const { email } = payload;
-
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmail(payload.email);
 
     if (!user) throw new BadRequestException('User not found');
 

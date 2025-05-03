@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Confirmation } from '../domain/confirm.entity';
+import { Confirmation, ConfirmationStatuses } from '../domain/confirm.entity';
 
 @Injectable()
 export class ConfirmationRepository {
@@ -19,30 +19,23 @@ export class ConfirmationRepository {
       .execute();
   }
 
-  public async findByField<key extends keyof Confirmation>(
-    field: key,
-    value: Confirmation[key],
-  ) {
-    return this.repository
-      .createQueryBuilder()
-      .from(Confirmation, 'c')
-      .where(`c.${field} = :value`, { value })
-      .getOne();
+  public async findByCode(code: string) {
+    return this.repository.findOne({ where: { code } });
   }
 
-  public async updateField<key extends keyof Base.DTOFromEntity<Confirmation>>(
-    id: string,
-    field: key,
-    value: Base.DTOFromEntity<Confirmation>[key],
-  ) {
-    const { affected } = await this.repository
-      .createQueryBuilder()
-      .update(Confirmation)
-      .set({ [field]: value })
-      .where('c.id = :id', { id })
-      .execute();
+  public async findByOwnerId(ownerId: string) {
+    return this.repository.findOne({ where: { ownerId } });
+  }
 
-    return !!affected;
+  public async updateConfirmationStatus(
+    id: string,
+    status: ConfirmationStatuses,
+  ) {
+    return this.repository.update(id, { status });
+  }
+
+  public async updateConfirmationCode(id: string, code: string) {
+    return this.repository.update(id, { code });
   }
 
   public async drop() {

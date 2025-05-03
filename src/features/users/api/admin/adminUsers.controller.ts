@@ -22,6 +22,7 @@ import { UsersQueryRepository } from '../../infrastructure';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
 import { UserViewMapperManager } from '../mappers';
+import { GetQueryDtoParams } from '../models/input/usersQuery';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/users')
@@ -34,6 +35,11 @@ export class AdminUsersController {
   @Get()
   public async getAll(@Query() query: GetUsersQueryParams) {
     return this.usersQueryRepo.findWithPagination(query);
+  }
+
+  @Get(':id')
+  public async getById(@Param() { id }: GetQueryDtoParams) {
+    return this.usersQueryRepo.findById(id);
   }
 
   @Post()

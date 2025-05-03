@@ -25,7 +25,8 @@ export class PostsRepository {
 
   public async create(createPostDto: CreatePostDto) {
     const post = this.repository.create(createPostDto);
-    return await this.repository.save(post);
+    await this.repository.save(post);
+    return post.id;
   }
 
   public async update(id: string, updatePostDto: UpdatePostDto) {

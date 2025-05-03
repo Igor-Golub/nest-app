@@ -20,13 +20,11 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
   constructor(private readonly postsRepository: PostsRepository) {}
 
   public async execute({ payload: { data } }: CreatePostCommand) {
-    const { id } = await this.postsRepository.create({
+    return this.postsRepository.create({
       content: data.content,
       blogId: data.blogId,
       title: data.title,
       shortDescription: data.shortDescription,
     });
-
-    return id;
   }
 }

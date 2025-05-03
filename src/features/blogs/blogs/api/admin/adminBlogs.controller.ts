@@ -99,19 +99,21 @@ export class AdminBlogsController {
     if (!blog) throw new NotFoundException();
 
     const command = new CreatePostForBlogCommand({
-      blogId,
+      blogId: blog.id,
       blogName: blog.name,
       createData,
     });
 
-    const createdPost = await this.commandBus.execute<
+    const postId = await this.commandBus.execute<
       CreatePostForBlogCommand,
-      PostEntity
+      string
     >(command);
 
-    if (!createdPost) throw new NotFoundException();
+    const post = await this.postsQueryRepository.findById(postId);
 
-    return PostsViewMapperManager.addDefaultLikesData(createdPost);
+    if (!post) throw new NotFoundException();
+
+    return PostsViewMapperManager.addDefaultLikesData(post);
   }
 
   @Put(':id')

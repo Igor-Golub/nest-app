@@ -32,11 +32,7 @@ export class UsersQueryRepository {
   }
 
   public async findById(id: string) {
-    return this.repository.findOne({
-      where: {
-        id,
-      },
-    });
+    return this.repository.findOneBy({ id });
   }
 
   public async findByUniqueField<key extends keyof User>(

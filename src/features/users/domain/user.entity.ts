@@ -1,7 +1,6 @@
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Confirmation } from './confirm.entity';
-import type { Account } from './account.entity';
 import type { Recovery } from '../../auth/domain/recovery.entity';
 import type { Session } from '../../auth/domain/session.entity';
 import type { PostComment } from '../../blogs/comments/domain/postComment.entity';
@@ -19,16 +18,11 @@ export class User extends BaseEntity {
   @Column()
   public hash: string;
 
-  @Column({
-    default: false,
-  })
+  @Column({ default: false })
   public isConfirmed: boolean;
 
   @OneToOne('Confirmation', (confirmation: Confirmation) => confirmation.owner)
   public confirmation: Confirmation;
-
-  @OneToOne('Account', (account: Account) => account.owner)
-  public account: Account;
 
   @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
   public recovery: Recovery;

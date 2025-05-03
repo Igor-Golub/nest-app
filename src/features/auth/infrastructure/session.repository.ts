@@ -10,11 +10,7 @@ export class SessionRepository {
   ) {}
 
   public async findById(id: string) {
-    return this.repository
-      .createQueryBuilder()
-      .from(Session, 's')
-      .where('s.id = :id', { id })
-      .getOne();
+    return this.repository.findOneBy({ id });
   }
 
   public async findByField<key extends keyof Session>(
@@ -25,22 +21,6 @@ export class SessionRepository {
       .createQueryBuilder('s')
       .where(`s.${field} = :value`, { value })
       .getMany();
-  }
-
-  public async findByFields<key extends keyof Session>(
-    fields: key[],
-    value: Session[key],
-  ) {
-    const queryBuilder = this.repository.createQueryBuilder();
-
-    fields.forEach((field, index) => {
-      const paramKey = `value${index}`;
-      queryBuilder[!index ? 'where' : 'orWhere'](`${field} = :${paramKey}`, {
-        [paramKey]: value,
-      });
-    });
-
-    return queryBuilder.getMany();
   }
 
   async updateField<key extends keyof Base.DTOFromEntity<Session>>(
@@ -59,38 +39,17 @@ export class SessionRepository {
   }
 
   public async create(createSessionDto: Base.DTOFromEntity<Session>) {
-    await this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(Session)
-      .values(createSessionDto)
-      .execute();
+    return this.repository.create(createSessionDto);
   }
 
   public async delete(id: string) {
-    const { affected } = await this.repository
-      .createQueryBuilder()
-      .delete()
-      .from(Session)
-      .where('id = :id', { id })
-      .execute();
+    const { affected } = await this.repository.delete(id);
 
     return !!affected;
   }
 
-  public async deleteByFields(conditions: Record<string, any>) {
-    const queryBuilder = this.repository
-      .createQueryBuilder()
-      .delete()
-      .from(Session);
-
-    Object.entries(conditions).forEach(([field, value], index) => {
-      queryBuilder[!index ? 'where' : 'andWhere'](`"${field}" = :${field}`, {
-        [field]: value,
-      });
-    });
-
-    const { affected } = await queryBuilder.execute();
+  public async deleteByDeviceIdAndOwnerId(deviceId: string, ownerId: string) {
+    const { affected } = await this.repository.delete({ deviceId, ownerId });
 
     return !!affected;
   }

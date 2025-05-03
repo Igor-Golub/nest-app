@@ -19,9 +19,9 @@ export class DeleteSessionCommandHandler
   public async execute({ payload }: DeleteSessionCommand) {
     const { ownerId, deviceId } = payload;
 
-    return await this.sessionRepository.deleteByFields({
+    return await this.sessionRepository.deleteByDeviceIdAndOwnerId(
       deviceId,
       ownerId,
-    });
+    );
   }
 }

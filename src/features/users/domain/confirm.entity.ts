@@ -14,9 +14,6 @@ export enum ConfirmationTypes {
 
 @Entity()
 export class Confirmation extends BaseEntity {
-  @Column({ nullable: true })
-  public code: string;
-
   @OneToOne(() => User, (user: User) => user.confirmation, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -27,15 +24,13 @@ export class Confirmation extends BaseEntity {
   @Column()
   public ownerId: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
+  public code: string;
+
+  @Column()
   public expirationAt: string;
 
-  @Column({
-    nullable: true,
-    default: null,
-    type: 'enum',
-    enum: ConfirmationTypes,
-  })
+  @Column({ type: 'enum', enum: ConfirmationTypes })
   public type: ConfirmationTypes;
 
   @Column({

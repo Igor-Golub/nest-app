@@ -100,61 +100,51 @@ export class UsersService {
   }
 
   public async confirmUser(code: string) {
-    const confirmation = await this.confirmationRepo.findByField('code', code);
+    const confirmation = await this.confirmationRepo.findByCode(code);
 
     if (!confirmation) {
       throw new BadRequestException([
-        {
-          message: 'User not found',
-          field: 'code',
-        },
+        { message: 'User not found', field: 'code' },
       ]);
     }
 
     if (confirmation.status === ConfirmationStatuses.Success) {
       throw new BadRequestException([
-        {
-          message: 'User already confirmed',
-          field: 'code',
-        },
+        { message: 'User already confirmed', field: 'code' },
       ]);
     }
 
     if (isAfter(new Date(), confirmation.expirationAt)) {
       throw new BadRequestException([
-        {
-          message: 'Confirmation code expired',
-          field: 'code',
-        },
+        { message: 'Confirmation code expired', field: 'code' },
       ]);
     }
 
-    return await this.confirmationRepo.updateField(
+    await this.usersRepo.confirmUser(confirmation.ownerId);
+
+    await this.confirmationRepo.updateConfirmationStatus(
       confirmation.id,
-      'status',
       ConfirmationStatuses.Success,
     );
+
+    return true;
   }
 
   public async updateConfirmationCode(id: string) {
-    const confirmation = await this.confirmationRepo.findByField('ownerId', id);
+    const confirmation = await this.confirmationRepo.findByOwnerId(id);
 
     if (!confirmation) throw new BadRequestException();
 
-    if (confirmation?.status === ConfirmationStatuses.Success) {
+    if (confirmation.status === ConfirmationStatuses.Success) {
       throw new BadRequestException([
-        {
-          message: 'User already confirmed',
-          field: 'email',
-        },
+        { message: 'User already confirmed', field: 'email' },
       ]);
     }
 
     const confirmationCode = `${uuidv4()}_${id}`;
 
-    await this.confirmationRepo.updateField(
+    await this.confirmationRepo.updateConfirmationCode(
       confirmation.id,
-      'code',
       confirmationCode,
     );
 

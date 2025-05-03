@@ -154,13 +154,11 @@ export class AuthController {
 
     const user = await this.userQueryRepository.findByEmailOrLogin(email);
 
-    if (!user)
+    if (!user) {
       throw new BadRequestException([
-        {
-          field: 'email',
-          message: 'Email not found',
-        },
+        { field: 'email', message: 'Email not found' },
       ]);
+    }
 
     const command = new ResendConfirmationCommand(resendConfirmation);
 

@@ -16,14 +16,10 @@ import { CryptoService } from '../../infrastructure/services/crypto.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/user.entity';
 import { Confirmation } from './domain/confirm.entity';
-import { Account } from './domain/account.entity';
 import { AdminUsersController } from './api/admin/adminUsers.controller';
 
 @Module({
-  imports: [
-    CqrsModule,
-    TypeOrmModule.forFeature([User, Confirmation, Account]),
-  ],
+  imports: [CqrsModule, TypeOrmModule.forFeature([User, Confirmation])],
   providers: [
     UsersRepository,
     UsersQueryRepository,

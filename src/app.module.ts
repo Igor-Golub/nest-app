@@ -1,9 +1,16 @@
 // import of this config module must be on the top of imports
 import { configModule } from './config';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { CryptoService } from './infrastructure/services/crypto.service';
+import { AuthModule } from './features/auth';
+import { UsersModule } from './features/users';
+import { BlogsModule } from './features/blogs';
+import { TestingModule } from './features/testing';
+import { CoreConfig } from './core/core.config';
+import { CoreModule } from './core/core.module';
 import {
   BlogIsExistConstraint,
   EmailIsExistConstraint,
@@ -13,13 +20,6 @@ import {
   AccessTokenExistMiddleware,
   LoggingMiddleware,
 } from './common/middleware';
-import { UsersModule } from './features/users/users.module';
-import { AuthModule } from './features/auth/auth.module';
-import { TestingModule } from './features/testing/testing.module';
-import { BlogsModule } from './features/blogs/blogs.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CoreConfig } from './core/core.config';
-import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
