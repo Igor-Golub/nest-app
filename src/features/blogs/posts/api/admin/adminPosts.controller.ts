@@ -73,11 +73,9 @@ export class AdminPostsController {
 
     if (!post) throw new NotFoundException();
 
-    const likes = await this.postsQueryRepository.findPostLikes(id);
-
     return PostsViewMapperManager.mapPostsToViewModelWithLikes(
       post,
-      likes,
+      post.likes,
       userId,
     );
   }

@@ -29,11 +29,11 @@ export class PostsViewMapperManager {
   ): PostViewModelWithLikes {
     return {
       id: post.id,
-      createdAt: post.createdAt.toISOString(),
+      title: post.title,
+      blogId: post.blogId,
       content: post.content,
       blogName: post.blog.name,
-      blogId: post.blogId,
-      title: post.title,
+      createdAt: post.createdAt.toISOString(),
       shortDescription: post.shortDescription,
       extendedLikesInfo: likes.reduce<
         PostViewModelWithLikes['extendedLikesInfo']
@@ -41,15 +41,16 @@ export class PostsViewMapperManager {
         (acc, like) => {
           if (like.status === LikeStatus.Like) acc.likesCount += 1;
           if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
+
           if (reqUserId && reqUserId === like.ownerId) {
             acc.myStatus = like.status;
           }
 
           if (like.status === LikeStatus.Like && acc.newestLikes.length < 3) {
             acc.newestLikes.push({
-              addedAt: like.createdAt.toISOString(),
               userId: like.ownerId,
               login: like.owner.login,
+              addedAt: like.createdAt.toISOString(),
             });
           }
 
