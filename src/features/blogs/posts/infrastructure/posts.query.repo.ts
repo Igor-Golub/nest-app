@@ -15,6 +15,11 @@ export class PostsQueryRepository {
     private readonly likeRepository: Repository<PostLike>,
   ) {}
 
+  public async isPostExist(postId: string): Promise<boolean> {
+    const amount = await this.repository.count({ where: { id: postId } });
+    return Boolean(amount);
+  }
+
   public async findById(id: string) {
     return this.repository
       .createQueryBuilder('p')

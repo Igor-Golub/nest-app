@@ -6,7 +6,7 @@ import {
 
 export class UpdateBlogParams {
   @IsUUID()
-  id: string;
+  blogId: string;
 }
 
 export class UpdateBlogDto {

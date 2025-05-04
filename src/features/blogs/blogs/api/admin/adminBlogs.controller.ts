@@ -19,16 +19,21 @@ import {
   UpdateBlogDto,
   BlogsQueryDto,
   CreateBlogDto,
-  CreatePostForBlogDto,
   DeleteBlogParams,
-  CreatePostForBlogParams,
+  CreateBlogPostDto,
+  UpdateBlogPostDto,
+  CreateBlogPostParams,
+  DeleteBlogPostParams,
+  UpdateBlogPostParams,
 } from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
 import {
   CreateBlogCommand,
   DeleteBlogCommand,
   UpdateBlogCommand,
-  CreatePostForBlogCommand,
+  CreateBlogPostCommand,
+  UpdateBlogPostCommand,
+  DeleteBlogPostCommand,
 } from '../../application';
 import { BlogsViewMapperManager } from '../mappers';
 import { PostsViewMapperManager } from '../../../posts/api/mappers';
@@ -38,6 +43,7 @@ import { PostsQueryRepository } from '../../../posts/infrastructure/posts.query.
 import { PostsQueryParams } from '../../../posts/api/models/input';
 import { Blog } from '../../domain/blog.entity';
 
+@UseGuards(BasicAuthGuard)
 @Controller('sa/blogs')
 export class AdminBlogsController {
   constructor(
@@ -47,13 +53,13 @@ export class AdminBlogsController {
   ) {}
 
   @Get()
-  public async getAll(@Query() query: BlogsQueryDto) {
+  public async getAllBlogs(@Query() query: BlogsQueryDto) {
     return this.blogsQueryRepo.getWithPagination(query);
   }
 
-  @Get(':id')
-  public async getById(@Param() { id }: BlogsQueryDtoParams) {
-    const blog = await this.blogsQueryRepo.findById(id);
+  @Get(':blogId')
+  public async getBlogById(@Param() { blogId }: BlogsQueryDtoParams) {
+    const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
 
@@ -61,8 +67,7 @@ export class AdminBlogsController {
   }
 
   @Post()
-  @UseGuards(BasicAuthGuard)
-  public async create(@Body() createBlogDto: CreateBlogDto) {
+  public async createBlog(@Body() createBlogDto: CreateBlogDto) {
     const command = new CreateBlogCommand(createBlogDto);
 
     const blog = await this.commandBus.execute<CreateBlogCommand, Blog>(
@@ -74,8 +79,44 @@ export class AdminBlogsController {
     return BlogsViewMapperManager.mapBlogsToViewModel(blog);
   }
 
-  @Get(':id/posts')
-  public async getPostsOfBlog(
+  @Put(':blogId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async updateBlog(
+    @Param() { blogId }: UpdateBlogParams,
+    @Body() updateData: UpdateBlogDto,
+  ) {
+    const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
+
+    if (!isBlogExist) throw new NotFoundException();
+
+    const command = new UpdateBlogCommand({ id: blogId, updateData });
+
+    const updatedBlog = this.commandBus.execute<UpdateBlogCommand, Blog | null>(
+      command,
+    );
+
+    if (!updatedBlog) throw new NotFoundException();
+
+    return updatedBlog;
+  }
+
+  @Delete(':blogId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async deleteBlog(
+    @Param()
+    { blogId }: DeleteBlogParams,
+  ) {
+    const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
+
+    if (!isBlogExist) throw new NotFoundException();
+
+    const command = new DeleteBlogCommand({ id: blogId });
+
+    return this.commandBus.execute<DeleteBlogCommand, boolean>(command);
+  }
+
+  @Get(':blogId/posts')
+  public async getPosts(
     @UserIdFromAccessToken() userId: string | undefined,
     @Param('id') blogId: string,
     @Query() query: PostsQueryParams,
@@ -87,26 +128,24 @@ export class AdminBlogsController {
     return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
-  @Post(':id/posts')
-  @UseGuards(BasicAuthGuard)
-  public async createPostForBlog(
-    @Param() { id: blogId }: CreatePostForBlogParams,
-    @Body() createData: CreatePostForBlogDto,
+  @Post(':blogId/posts')
+  public async createPost(
+    @Param() { blogId }: CreateBlogPostParams,
+    @Body() createDTO: CreateBlogPostDto,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
 
-    const command = new CreatePostForBlogCommand({
+    const command = new CreateBlogPostCommand({
       blogId: blog.id,
       blogName: blog.name,
-      createData,
+      createData: createDTO,
     });
 
-    const postId = await this.commandBus.execute<
-      CreatePostForBlogCommand,
-      string
-    >(command);
+    const postId = await this.commandBus.execute<CreateBlogPostCommand, string>(
+      command,
+    );
 
     const post = await this.postsQueryRepository.findById(postId);
 
@@ -115,41 +154,41 @@ export class AdminBlogsController {
     return PostsViewMapperManager.addDefaultLikesData(post);
   }
 
-  @Put(':id')
-  @UseGuards(BasicAuthGuard)
+  @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async update(
-    @Param() { id }: UpdateBlogParams,
-    @Body() updateData: UpdateBlogDto,
+  public async updatePost(
+    @Param() { blogId, postId }: UpdateBlogPostParams,
+    @Body() updateDTO: UpdateBlogPostDto,
   ) {
-    const blog = await this.blogsQueryRepo.findById(id);
+    const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
+    const isPostExist = await this.postsQueryRepository.isPostExist(postId);
 
-    if (!blog) throw new NotFoundException();
+    if (!isBlogExist || !isPostExist) throw new NotFoundException();
 
-    const command = new UpdateBlogCommand({ id, updateData });
+    const updateCommand = new UpdateBlogPostCommand({
+      blogId,
+      postId,
+      updateData: updateDTO,
+    });
 
-    const updatedBlog = this.commandBus.execute<UpdateBlogCommand, Blog | null>(
-      command,
-    );
+    await this.commandBus.execute<UpdateBlogPostCommand, string>(updateCommand);
+    const post = await this.postsQueryRepository.findById(postId);
 
-    if (!updatedBlog) throw new NotFoundException();
+    if (!post) throw new NotFoundException();
 
-    return updatedBlog;
+    return PostsViewMapperManager.addDefaultLikesData(post);
   }
 
-  @Delete(':id')
-  @UseGuards(BasicAuthGuard)
+  @Delete(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(
-    @Param()
-    { id }: DeleteBlogParams,
-  ) {
-    const blog = await this.blogsQueryRepo.findById(id);
+  public async deletePost(@Param() { blogId, postId }: DeleteBlogPostParams) {
+    const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
+    const isPostExist = await this.postsQueryRepository.isPostExist(postId);
 
-    if (!blog) throw new NotFoundException();
+    if (!isBlogExist || !isPostExist) throw new NotFoundException();
 
-    const command = new DeleteBlogCommand({ id });
+    const deleteCommand = new DeleteBlogPostCommand({ postId, blogId });
 
-    return this.commandBus.execute<DeleteBlogCommand, boolean>(command);
+    return this.commandBus.execute<DeleteBlogPostCommand>(deleteCommand);
   }
 }

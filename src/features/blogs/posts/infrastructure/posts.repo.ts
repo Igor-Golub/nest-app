@@ -39,8 +39,23 @@ export class PostsRepository {
     return await this.repository.findOneBy({ id });
   }
 
+  public async updateBlogPost(
+    blogId: string,
+    postId: string,
+    updatePostDto: UpdatePostDto,
+  ) {
+    await this.repository.update({ id: postId, blogId }, updatePostDto);
+    return postId;
+  }
+
   public async delete(id: string) {
     const { affected } = await this.repository.delete({ id });
+
+    return !!affected;
+  }
+
+  public async deleteBlogPost(blogId: string, postId: string) {
+    const { affected } = await this.repository.delete({ blogId, id: postId });
 
     return !!affected;
   }

@@ -24,19 +24,19 @@ export class BlogsController {
     return this.blogsQueryRepo.getWithPagination(query);
   }
 
-  @Get(':id')
-  public async getById(@Param() { id }: BlogsQueryDtoParams) {
-    const blog = await this.blogsQueryRepo.findById(id);
+  @Get(':blogId')
+  public async getById(@Param() { blogId }: BlogsQueryDtoParams) {
+    const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
 
     return BlogsViewMapperManager.mapBlogsToViewModel(blog);
   }
 
-  @Get(':id/posts')
+  @Get(':blogId/posts')
   public async getPostsOfBlog(
     @UserIdFromAccessToken() userId: string | undefined,
-    @Param('id') blogId: string,
+    @Param('blogId') blogId: string,
     @Query() query: PostsQueryParams,
   ) {
     const blog = await this.blogsQueryRepo.findById(blogId);

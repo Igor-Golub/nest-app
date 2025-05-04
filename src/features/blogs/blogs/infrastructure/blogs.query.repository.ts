@@ -13,6 +13,11 @@ export class BlogsQueryRepository {
     private readonly blogRepository: Repository<Blog>,
   ) {}
 
+  public async isBlogExist(postId: string): Promise<boolean> {
+    const amount = await this.blogRepository.count({ where: { id: postId } });
+    return Boolean(amount);
+  }
+
   public async getWithPagination(query: BlogsQueryDto) {
     const [blogs, totalCount] = await this.blogRepository.findAndCount({
       order: {

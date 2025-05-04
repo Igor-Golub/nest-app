@@ -3,7 +3,7 @@ import { QueryParams } from '../../../../../../common/decorators/validate';
 
 export class BlogsQueryDtoParams {
   @IsUUID()
-  id: string;
+  blogId: string;
 }
 
 export class BlogsQueryDto extends QueryParams {

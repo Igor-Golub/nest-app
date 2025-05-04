@@ -3,6 +3,9 @@ export { CreateBlogDto } from './createBlog';
 export { UpdateBlogParams, UpdateBlogDto } from './updateBlog';
 export { DeleteBlogParams } from './deleteBlog';
 export {
-  CreatePostForBlogParams,
-  CreatePostForBlogDto,
-} from './createPostForBlog';
+  CreateBlogPostDto,
+  UpdateBlogPostDto,
+  CreateBlogPostParams,
+  DeleteBlogPostParams,
+  UpdateBlogPostParams,
+} from './blogPostMutations';
