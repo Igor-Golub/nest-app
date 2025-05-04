@@ -47,7 +47,10 @@ export class PostsQueryRepository {
     }
 
     const [posts, totalCount] = await builder
-      .orderBy(`p.${query.sortBy}`, query.sortDirection)
+      .orderBy(
+        query.sortBy === 'blogName' ? 'blog.name' : `p.${query.sortBy}`,
+        query.sortDirection,
+      )
       .take(query.pageSize)
       .skip(offset)
       .getManyAndCount();

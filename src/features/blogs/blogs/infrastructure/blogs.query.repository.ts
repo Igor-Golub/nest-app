@@ -1,4 +1,4 @@
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../domain/blog.entity';
@@ -26,7 +26,7 @@ export class BlogsQueryRepository {
       take: query.pageSize,
       skip: (query.pageNumber - 1) * query.pageSize,
       where: {
-        name: Like(`%${query.searchNameTerm ?? ''}%`),
+        name: ILike(`%${query.searchNameTerm ?? ''}%`),
       },
     });
 
