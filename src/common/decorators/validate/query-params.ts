@@ -1,6 +1,7 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ToNumber } from '../transform';
 import { SortDirection } from '../../enums';
+import { Transform } from 'class-transformer';
 
 export class QueryParams {
   @IsString()
@@ -17,6 +18,9 @@ export class QueryParams {
   @IsOptional()
   pageNumber: number = 1;
 
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
   @IsEnum(SortDirection)
   @IsOptional()
   sortDirection: SortDirection = SortDirection.Desc;

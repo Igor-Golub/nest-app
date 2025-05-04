@@ -37,7 +37,6 @@ import { UserIdFromAccessToken } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../../posts/infrastructure/posts.query.repo';
 import { PostsQueryParams } from '../../../posts/api/models/input';
 import { Blog } from '../../domain/blog.entity';
-import { Post as PostEntity } from '../../../posts/domain/post.entity';
 
 @Controller('sa/blogs')
 export class AdminBlogsController {

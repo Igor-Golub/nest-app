@@ -25,11 +25,6 @@ export class AuthConfig {
   })
   public basicPassword = this.configService.get('HTTP_BASIC_PASS') as string;
 
-  @IsNotEmpty({
-    message: 'Set correct HTTP_BASIC_UUID value, ex.: 89u967',
-  })
-  public basicUUID = this.configService.get('HTTP_BASIC_UUID') as string;
-
   @IsNumber(
     {},
     {

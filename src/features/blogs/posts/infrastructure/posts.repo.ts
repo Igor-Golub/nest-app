@@ -24,9 +24,14 @@ export class PostsRepository {
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
-    const post = this.repository.create(createPostDto);
-    await this.repository.save(post);
-    return post.id;
+    const { identifiers } = await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Post)
+      .values(createPostDto)
+      .execute();
+
+    return identifiers[0].id as string;
   }
 
   public async update(id: string, updatePostDto: UpdatePostDto) {

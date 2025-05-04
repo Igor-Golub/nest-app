@@ -26,6 +26,17 @@ export class CommentsViewMapperManager {
     comment: PostComment,
     reqUserId: string | undefined,
   ): CommentViewModel {
+    const likesCount = comment.likes.filter(
+      ({ status }) => status === LikeStatus.Like,
+    ).length;
+
+    const dislikesCount = comment.likes.filter(
+      ({ status }) => status === LikeStatus.Dislike,
+    ).length;
+
+    const myLike = comment.likes.find(({ ownerId }) => ownerId === reqUserId);
+    const myStatus = myLike?.status ?? LikeStatus.None;
+
     return {
       id: comment.id,
       content: comment.content,
@@ -34,22 +45,11 @@ export class CommentsViewMapperManager {
         userId: comment.authorId,
         userLogin: comment.author.login,
       },
-      likesInfo: comment.likes.reduce<CommentViewModel['likesInfo']>(
-        (acc, like) => {
-          if (like.status === LikeStatus.Like) acc.likesCount += 1;
-          if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;
-          if (reqUserId && reqUserId === like.ownerId) {
-            acc.myStatus = like.status;
-          }
-
-          return acc;
-        },
-        {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatus.None,
-        },
-      ),
+      likesInfo: {
+        likesCount,
+        dislikesCount,
+        myStatus,
+      },
     };
   }
 }

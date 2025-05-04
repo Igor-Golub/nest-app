@@ -5,25 +5,19 @@ import { PostComment } from '../domain/postComment.entity';
 import { PaginatedViewDto } from '../../../../common/dto/base.paginated.view-dto';
 import { CommentsViewMapperManager } from '../api/mappers/comments';
 import { QueryParams } from '../../../../common/decorators/validate';
-import { CommentLike } from '../domain/commentLike.entity';
-import { getLogger } from 'nodemailer/lib/shared';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectRepository(PostComment)
     private readonly postCommentRepository: Repository<PostComment>,
-    @InjectRepository(CommentLike)
-    private readonly likeRepository: Repository<CommentLike>,
   ) {}
 
   public async findById(id: string) {
-    return this.postCommentRepository
-      .createQueryBuilder('pc')
-      .where('pc.id = :id', { id })
-      .leftJoinAndSelect('pc.author', 'author')
-      .leftJoinAndSelect('pc.likes', 'likes')
-      .getOne();
+    return this.postCommentRepository.findOne({
+      where: { id },
+      relations: { author: true, likes: true },
+    });
   }
 
   public async isOwnerComment(id: string, ownerId: string) {
@@ -34,33 +28,36 @@ export class CommentsQueryRepository {
 
   public async getWithPagination(
     query: QueryParams,
-    userId: string | undefined,
-    postId: string | undefined = undefined,
+    userId?: string,
+    postId?: string,
   ) {
-    console.log({
-      order: {
-        [query.sortBy]: query.sortDirection,
-      },
-    });
+    const where: any = {};
+
+    if (postId) {
+      where.postId = postId;
+    }
+
     const [comments, totalCount] =
       await this.postCommentRepository.findAndCount({
-        where: postId ? { postId } : {},
+        where,
         relations: {
           author: true,
           likes: true,
         },
         order: {
-          [query.sortBy]: query.sortDirection,
+          [query.sortBy]: query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
         },
         take: query.pageSize,
         skip: (query.pageNumber - 1) * query.pageSize,
       });
 
+    const items = comments.map((comment) =>
+      CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
+    );
+
     return PaginatedViewDto.mapToView({
+      items,
       totalCount,
-      items: comments.map((comment) =>
-        CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
-      ),
       size: query.pageSize,
       page: query.pageNumber,
     });
