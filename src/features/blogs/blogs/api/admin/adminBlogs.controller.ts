@@ -171,12 +171,9 @@ export class AdminBlogsController {
       updateData: updateDTO,
     });
 
-    await this.commandBus.execute<UpdateBlogPostCommand, string>(updateCommand);
-    const post = await this.postsQueryRepository.findById(postId);
-
-    if (!post) throw new NotFoundException();
-
-    return PostsViewMapperManager.addDefaultLikesData(post);
+    return this.commandBus.execute<UpdateBlogPostCommand, string>(
+      updateCommand,
+    );
   }
 
   @Delete(':blogId/posts/:postId')

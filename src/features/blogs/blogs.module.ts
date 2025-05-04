@@ -4,9 +4,11 @@ import { BlogsController } from './blogs/api/public/blogs.controller';
 import { CommentsController } from './comments/api/public/comments.controller';
 import {
   CreateBlogHandler,
-  CreatePostForBlogHandler,
   DeleteBlogHandler,
   UpdateBlogHandler,
+  CreateBlogPostHandler,
+  UpdateBlogPostHandler,
+  DeleteBlogPostHandler,
 } from './blogs/application';
 import { BlogsQueryRepository, BlogsRepository } from './blogs/infrastructure';
 import {
@@ -32,7 +34,7 @@ import { Blog } from './blogs/domain/blog.entity';
 import { PostComment } from './comments/domain/postComment.entity';
 import { CommentLike } from './comments/domain/commentLike.entity';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from '../users';
 import { PostsRepository } from './posts/infrastructure/posts.repo';
 import { PostsLikesRepo } from './posts/infrastructure/postsLikes.repo';
 import { PostsQueryRepository } from './posts/infrastructure/posts.query.repo';
@@ -48,7 +50,9 @@ const blogsProviders = [
   CreateBlogHandler,
   UpdateBlogHandler,
   DeleteBlogHandler,
-  CreatePostForBlogHandler,
+  CreateBlogPostHandler,
+  UpdateBlogPostHandler,
+  DeleteBlogPostHandler,
 ];
 
 const postsProviders = [
