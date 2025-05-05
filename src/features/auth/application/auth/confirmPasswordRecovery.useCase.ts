@@ -6,8 +6,13 @@ import { RecoveryStatuses } from '../../domain/recovery.entity';
 import { CryptoService } from '../../../../infrastructure/services/crypto.service';
 import { RecoveryRepository } from '../../infrastructure/recovery.repository';
 
+interface ConfirmPasswordRecoveryPayload {
+  newPassword: string;
+  recoveryCode: string;
+}
+
 export class ConfirmPasswordRecoveryCommand {
-  constructor(readonly payload: any) {}
+  constructor(readonly payload: ConfirmPasswordRecoveryPayload) {}
 }
 
 @CommandHandler(ConfirmPasswordRecoveryCommand)

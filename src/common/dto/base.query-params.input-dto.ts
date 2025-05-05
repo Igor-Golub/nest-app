@@ -16,6 +16,6 @@ class PaginationParams {
 export abstract class BaseSortablePaginationParams<
   SortByField,
 > extends PaginationParams {
-  sortDirection: SortDirection.Desc;
+  sortDirection: SortDirection.Desc = SortDirection.Desc;
   abstract sortBy: SortByField;
 }

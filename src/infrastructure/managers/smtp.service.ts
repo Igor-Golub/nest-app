@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { CoreConfig } from '../../core/core.config';
 
 interface NotifyOptions {
   from: string;
@@ -13,7 +13,7 @@ interface NotifyOptions {
 export class SmtpService {
   private transport;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly coreConfig: CoreConfig) {
     this.transport = this.createTransport();
   }
 
@@ -21,8 +21,8 @@ export class SmtpService {
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: this.configService.get<string>('smtp.email'),
-        pass: this.configService.get<string>('smtp.password'),
+        user: this.coreConfig.smtpEmail,
+        pass: this.coreConfig.smtpPassword,
       },
     });
   }

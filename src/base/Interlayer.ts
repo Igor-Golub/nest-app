@@ -1,6 +1,8 @@
 export class InterlayerNotice<D = null> {
   public data: D | null = null;
+
   public extensions: InterlayerNoticeExtension[];
+
   public code = 0;
 
   constructor(data: D | null = null) {
@@ -11,6 +13,7 @@ export class InterlayerNotice<D = null> {
   public addData(data: D): void {
     this.data = data;
   }
+
   public addError(
     message: string,
     key: string | null = null,
@@ -19,6 +22,7 @@ export class InterlayerNotice<D = null> {
     this.code = code ?? 1;
     this.extensions.push(new InterlayerNoticeExtension(message, key));
   }
+
   public hasError(): boolean {
     return this.code !== 0;
   }
@@ -26,7 +30,9 @@ export class InterlayerNotice<D = null> {
 
 export class InterlayerNoticeExtension {
   public readonly message: string;
+
   public readonly key: string | null;
+
   constructor(message: string, key: string | null = null) {
     this.message = message;
     this.key = key;
