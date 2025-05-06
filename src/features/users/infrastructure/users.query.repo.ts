@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Like, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserViewMapperManager } from '../api/mappers';
 import { GetUsersQueryParams } from '../api/models/input';
@@ -11,16 +11,23 @@ export class UsersQueryRepository {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
   public async findWithPagination(query: GetUsersQueryParams) {
+    const where: FindOptionsWhere<User>[] = [];
+
+    if (query.searchLoginTerm) {
+      where.push({ login: ILike(`%${query.searchLoginTerm}%`) });
+    }
+
+    if (query.searchEmailTerm) {
+      where.push({ email: ILike(`%${query.searchEmailTerm}%`) });
+    }
+
     const [users, totalCount] = await this.repository.findAndCount({
       order: {
         [query.sortBy]: query.sortDirection,
       },
       take: query.pageSize,
       skip: (query.pageNumber - 1) * query.pageSize,
-      where: {
-        login: Like(`%${query.searchLoginTerm ?? ''}%`),
-        email: Like(`%${query.searchEmailTerm ?? ''}%`),
-      },
+      where,
     });
 
     return PaginatedViewDto.mapToView({

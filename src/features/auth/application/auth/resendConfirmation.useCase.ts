@@ -27,7 +27,7 @@ export class ResendConfirmationHandler
 
     const { newCode } = await this.usersService.updateConfirmationCode(user.id);
 
-    await this.notifyManager.sendRegistrationEmail({
+    await this.notifyManager.resendConfirmationCodeEmail({
       data: newCode,
       login: user!.login,
       email: payload.email,

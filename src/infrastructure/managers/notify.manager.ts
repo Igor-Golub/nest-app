@@ -10,8 +10,13 @@ interface SendParams {
 @Injectable()
 export class NotifyManager {
   constructor(private readonly emailService: EmailService) {}
+
   public async sendRegistrationEmail(parameters: SendParams) {
     return this.emailService.sendRegistration(parameters);
+  }
+
+  public async resendConfirmationCodeEmail(parameters: SendParams) {
+    return this.emailService.resendConfirmationCodeEmail(parameters);
   }
 
   public async sendRecoveryEmail(parameters: SendParams) {

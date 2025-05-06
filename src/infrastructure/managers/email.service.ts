@@ -17,9 +17,9 @@ export class EmailService {
 
   public async sendRegistration(parameters: SendEmailParams) {
     return this.smtpService.send({
-      from: '<MEGA service>',
+      from: '<Bloggers platform>',
       address: parameters.email,
-      subject: 'Registration on MEGA service',
+      subject: 'Registration on Bloggers platform',
       template: this.emailTemplatesCreatorService.getRegistrationTemplate(
         parameters.login,
         parameters.data,
@@ -27,9 +27,22 @@ export class EmailService {
     });
   }
 
+  public async resendConfirmationCodeEmail(parameters: SendEmailParams) {
+    return this.smtpService.send({
+      from: '<Bloggers platform>',
+      address: parameters.email,
+      subject: 'Registration on MEGA service',
+      template:
+        this.emailTemplatesCreatorService.getRegistrationEmailResendingTemplate(
+          parameters.login,
+          parameters.data,
+        ),
+    });
+  }
+
   public async sendRecovery(parameters: SendEmailParams) {
     return this.smtpService.send({
-      from: '<MEGA service>',
+      from: '<Bloggers platform>',
       address: parameters.email,
       subject: 'Recovery password',
       template: this.emailTemplatesCreatorService.getRecoveryTemplate(
