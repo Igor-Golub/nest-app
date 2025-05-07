@@ -13,6 +13,10 @@ export class SessionRepository {
     return this.repository.findOneBy({ id });
   }
 
+  public async findByVersion(version: string) {
+    return this.repository.findOneBy({ version });
+  }
+
   public async findByField<key extends keyof Session>(
     field: key,
     value: Session[key],
@@ -39,7 +43,12 @@ export class SessionRepository {
   }
 
   public async create(createSessionDto: Base.DTOFromEntity<Session>) {
-    return this.repository.create(createSessionDto);
+    return this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(Session)
+      .values(createSessionDto)
+      .execute();
   }
 
   public async delete(id: string) {

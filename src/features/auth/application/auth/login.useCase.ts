@@ -40,7 +40,6 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       userData.hash,
     );
 
-    // TODO should use interlayer manager
     if (!compareResult) throw new UnauthorizedException();
 
     const deviceId = uuidv4();

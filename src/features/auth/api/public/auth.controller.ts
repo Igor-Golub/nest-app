@@ -84,6 +84,8 @@ export class AuthController {
     @Body() { loginOrEmail, password }: LoginDto,
     @CurrentDevice() { deviceIp, deviceName },
   ) {
+    await this.sleep();
+
     const user =
       await this.userQueryRepository.findByEmailOrLogin(loginOrEmail);
 
@@ -207,5 +209,9 @@ export class AuthController {
     const command = new LogoutCommand({ deviceId, ownerId: userId });
 
     await this.commandBus.execute<LogoutCommand, boolean>(command);
+  }
+
+  private async sleep(ms: number = 1000) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

@@ -27,12 +27,11 @@ export class CookieRefreshTokenStrategy extends PassportStrategy(
   }
 
   public async validate(payload: SessionPayload) {
-    const sessions = await this.sessionRepository.findByField(
-      'version',
+    const session = await this.sessionRepository.findByVersion(
       new Date(payload.iat * 1000).toISOString(),
     );
 
-    if (!sessions.length) throw new UnauthorizedException();
+    if (!session) throw new UnauthorizedException();
 
     return {
       id: payload.userId,
