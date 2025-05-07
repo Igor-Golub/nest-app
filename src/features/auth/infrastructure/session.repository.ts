@@ -13,6 +13,18 @@ export class SessionRepository {
     return this.repository.findOneBy({ id });
   }
 
+  public async findByOwnerId(ownerId: string) {
+    return this.repository.findOneBy({ ownerId });
+  }
+
+  public async findByDeviceId(deviceId: string) {
+    return this.repository.findOneBy({ deviceId });
+  }
+
+  public async findByDeviceIdAndOwnerId(deviceId: string, ownerId: string) {
+    return this.repository.findOneBy({ deviceId, ownerId });
+  }
+
   public async findByVersion(version: string) {
     return this.repository.findOneBy({ version });
   }

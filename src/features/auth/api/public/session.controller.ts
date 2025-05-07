@@ -47,7 +47,7 @@ export class SessionController {
   public async closeAllSessions(
     @CurrentSession() { id: userId, refreshToken }: Base.Session,
   ) {
-    const { session } = await this.sessionService.isSessionExist(refreshToken);
+    const session = await this.sessionService.isSessionExist(refreshToken);
 
     const command = new DeleteAllSessionsCommand({
       currentSessionVersion: session.version,

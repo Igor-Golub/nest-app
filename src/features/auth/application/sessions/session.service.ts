@@ -18,35 +18,29 @@ export class SessionService {
     const { version } =
       this.authService.getSessionVersionAndExpirationDate(refreshToken);
 
-    const session = await this.sessionRepository.findByField(
-      'version',
-      version,
-    );
+    const session = await this.sessionRepository.findByVersion(version);
 
-    if (!session.length) throw new UnauthorizedException();
+    if (!session) throw new UnauthorizedException();
 
-    return { session: session[0] };
+    return session;
   }
 
   public async isSessionExistForDevice(deviceId: string) {
-    const session = await this.sessionRepository.findByField(
-      'deviceId',
-      deviceId,
-    );
+    const session = await this.sessionRepository.findByDeviceId(deviceId);
 
     if (!session) throw new NotFoundException();
 
-    return { session };
+    return session;
   }
 
   public async isSessionOfCurrentUser(userId: string, deviceId: string) {
-    const session = await this.sessionRepository.findByField(
-      'deviceId',
+    const session = await this.sessionRepository.findByDeviceIdAndOwnerId(
       deviceId,
+      userId,
     );
 
     if (!session) throw new ForbiddenException();
 
-    return { session };
+    return session;
   }
 }

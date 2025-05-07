@@ -175,7 +175,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @CurrentSession() { refreshToken }: Base.Session,
   ) {
-    const { session } = await this.sessionService.isSessionExist(refreshToken);
+    const session = await this.sessionService.isSessionExist(refreshToken);
 
     await this.usersService.isUserExist(session.ownerId, 'unauthorized');
 
