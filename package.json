@@ -17,7 +17,10 @@
     "test:watch": "cross-env NODE_ENV=testing jest --watch",
     "test:cov": "cross-env NODE_ENV=testing jest --coverage",
     "test:debug": "cross-env NODE_ENV=testing node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d typeorm.config.ts",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d typeorm.config.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d typeorm.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

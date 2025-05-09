@@ -40,9 +40,9 @@ import {
       useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
         url: coreConfig.postgresURL,
-        // logging: [coreConfig.postgresLoggingLevel],
+        logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     UsersModule,
