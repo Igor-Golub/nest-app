@@ -1,11 +1,12 @@
-import { config } from 'dotenv';
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { dbOptions } from './src/core/dbOptions';
 
-config();
+console.log(dbOptions);
 
-export default new DataSource({
-  url: process.env.POSTGRES_DB_URL,
-  type: 'postgres',
+const migrationsOptions: DataSourceOptions = {
   migrations: ['migrations/*.ts'],
   entities: ['src/**/*.entity.ts'],
-});
+  ...dbOptions,
+};
+
+export default new DataSource(migrationsOptions);

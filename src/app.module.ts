@@ -4,13 +4,14 @@ import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { CryptoService } from './infrastructure/services/crypto.service';
+import { dbOptions } from './core/dbOptions';
 import { AuthModule } from './features/auth';
 import { UsersModule } from './features/users';
 import { BlogsModule } from './features/blogs';
-import { TestingModule } from './features/testing';
 import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
+import { TestingModule } from './features/testing';
+import { CryptoService } from './infrastructure/services/crypto.service';
 import {
   BlogIsExistConstraint,
   EmailIsExistConstraint,
@@ -38,11 +39,9 @@ import {
       imports: [CoreModule],
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => ({
-        type: 'postgres',
-        url: coreConfig.postgresURL,
         logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
-        synchronize: false,
+        ...dbOptions,
       }),
     }),
     UsersModule,
