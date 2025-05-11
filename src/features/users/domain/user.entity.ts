@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Confirmation } from './confirm.entity';
 import type { Recovery } from '../../auth/domain/recovery.entity';
@@ -12,6 +12,7 @@ export class User extends BaseEntity {
   @Column()
   public login: string;
 
+  @Index({ unique: true })
   @Column()
   public email: string;
 
