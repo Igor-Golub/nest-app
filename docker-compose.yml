@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     environment:
-      - POSTGRES_DB_URL=postgresql://postgres:postgres@db:5432/postgres-bloggers-dev
+      - POSTGRES_DB_URL=postgresql://postgres:postgres@db:3334/postgres-bloggers-dev
     networks:
       - app-network
 

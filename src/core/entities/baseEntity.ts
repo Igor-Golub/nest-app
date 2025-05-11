@@ -4,9 +4,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export abstract class BaseEntity {
+export abstract class BaseEntity<Id extends string | number = string> {
   @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  public id: Id;
 
   // https://typeorm.io/entities#special-columns
   @CreateDateColumn()
