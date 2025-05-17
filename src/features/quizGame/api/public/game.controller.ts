@@ -1,9 +1,15 @@
-import { Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "src/features/auth/guards";
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/features/auth/guards';
+import { AnswerCommand, ConnectCommand } from '../../application';
 
 @UseGuards(JwtAuthGuard)
 @Controller('game')
 export class GameController {
+  constructor(
+    private readonly answerCommand: AnswerCommand,
+    private readonly connectCommand: ConnectCommand,
+  ) {}
+
   @Get('pairs/my-current')
   async getGame() {
     return 'Hello World';
