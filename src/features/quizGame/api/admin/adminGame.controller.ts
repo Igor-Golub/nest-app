@@ -12,11 +12,10 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { BasicAuthGuard } from '../../../auth/guards';
 import {
-  CreateQuestionModel,
   PublishQuestionModel,
   QuestionParam,
   QuestionsQuery,
-  UpdateQuestionModel,
+  CreateUpdateQuestionModel,
 } from '../models/input';
 
 @UseGuards(BasicAuthGuard)
@@ -37,7 +36,7 @@ export class AdminBlogsController {
   @Post('/questions')
   public async createQuestion(
     @Param() { id }: QuestionParam,
-    @Body() createQuestionDto: CreateQuestionModel,
+    @Body() createQuestionDto: CreateUpdateQuestionModel,
   ) {
     return '';
   }
@@ -45,7 +44,7 @@ export class AdminBlogsController {
   @Put('/questions/:id')
   public async updateQuestion(
     @Param() { id }: QuestionParam,
-    @Body() updateQuestionDto: UpdateQuestionModel,
+    @Body() updateQuestionDto: CreateUpdateQuestionModel,
   ) {
     return '';
   }

@@ -30,7 +30,7 @@ export class QuestionsQuery extends QueryParams {
   publishedStatus: PublishedStatus = PublishedStatus.All;
 }
 
-export class CreateQuestionModel {
+export class CreateUpdateQuestionModel {
   @Trim()
   @IsStringWithExpectedLength(10, 500)
   body: string;
@@ -39,16 +39,6 @@ export class CreateQuestionModel {
   @ArrayNotEmpty()
   @ArrayUnique()
   @IsString({ each: true })
-  correctAnswers: string[];
-}
-
-export class UpdateQuestionModel {
-  @Trim()
-  @IsStringWithExpectedLength(10, 500)
-  body: string;
-
-  @ArrayUnique()
-  @ArrayNotEmpty()
   correctAnswers: string[];
 }
 
