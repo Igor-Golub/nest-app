@@ -11,7 +11,7 @@ export class AnswerCommand {
 }
 
 @CommandHandler(AnswerCommand)
-export class AnswerCommandHandler implements ICommandHandler {
+export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { gameId, answer } }: AnswerCommand) {

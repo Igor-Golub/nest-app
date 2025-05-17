@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/applyAppSettings';
 
@@ -9,7 +9,7 @@ describe('e2e quiz game', () => {
   let httpServer;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
@@ -29,7 +29,7 @@ describe('e2e quiz game', () => {
   describe('user current game', () => {
     it('should receive user current game', async () => {
       await request(httpServer)
-        .post('/game/pairs/my-current')
+        .get('/game/pairs/my-current')
         .expect(HttpStatus.OK);
     });
   });

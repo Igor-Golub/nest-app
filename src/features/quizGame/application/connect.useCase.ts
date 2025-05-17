@@ -10,7 +10,7 @@ export class ConnectCommand {
 }
 
 @CommandHandler(ConnectCommand)
-export class ConnectCommandHandler implements ICommandHandler {
+export class ConnectCommandHandler implements ICommandHandler<ConnectCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { gameId } }: ConnectCommand) {

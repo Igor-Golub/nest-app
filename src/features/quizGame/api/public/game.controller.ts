@@ -1,14 +1,9 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/features/auth/guards';
-import { AnswerCommand, ConnectCommand } from '../../application';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('game')
 export class GameController {
-  constructor(
-    private readonly answerCommand: AnswerCommand,
-    private readonly connectCommand: ConnectCommand,
-  ) {}
+  constructor() {}
 
   @Get('pairs/my-current')
   async getGame() {

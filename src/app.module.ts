@@ -8,6 +8,7 @@ import { dbOptions } from './core/dbOptions';
 import { AuthModule } from './features/auth';
 import { UsersModule } from './features/users';
 import { BlogsModule } from './features/blogs';
+import { QuizGameModule } from './features/quizGame';
 import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
 import { TestingModule } from './features/testing';
@@ -48,6 +49,7 @@ import {
     AuthModule,
     TestingModule,
     BlogsModule,
+    QuizGameModule,
     configModule,
   ],
   providers: [

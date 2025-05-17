@@ -1,23 +1,23 @@
-import { Module } from "@nestjs/common";
-import { CqrsModule } from "@nestjs/cqrs";
-import { GameController } from "./api/public/game.controller";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { UsersModule } from "../users/users.module";
+import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { GameQueryRepo } from './infrastructure';
+import { GameController, AdminBlogsController } from './api';
+import {
+  ConnectCommandHandler,
+  AnswerCommandHandler,
+  GameService,
+} from './application';
 
 @Module({
-  imports: [
-    CqrsModule,
-    UsersModule,
-    // TypeOrmModule.forFeature([]), // Will add entities when they are created
-  ],
+  imports: [CqrsModule, TypeOrmModule.forFeature([])],
   providers: [
-    // Will add services and handlers when they are created
+    GameQueryRepo,
+    GameService,
+    AnswerCommandHandler,
+    ConnectCommandHandler,
   ],
-  controllers: [
-    GameController
-  ],
-  exports: [
-    // Will add exports when needed
-  ]
+  controllers: [GameController, AdminBlogsController],
+  exports: [],
 })
 export class QuizGameModule {}
