@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/applyAppSettings';
 
-describe('e2e users feature', () => {
+describe('e2e quiz game', () => {
   let app: INestApplication;
   let httpServer;
 
@@ -26,9 +26,11 @@ describe('e2e users feature', () => {
     await app.close();
   });
 
-  describe('Should create user', () => {
-    it('user should created', function () {
-      request(httpServer).post('/users').expect(HttpStatus.CREATED);
+  describe('user current game', () => {
+    it('should receive user current game', async () => {
+      await request(httpServer)
+        .post('/game/pairs/my-current')
+        .expect(HttpStatus.OK);
     });
   });
 });
