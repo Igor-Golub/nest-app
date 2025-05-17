@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameQueryRepo } from './infrastructure';
-import { GameController, AdminBlogsController } from './api';
+import { GameController, AdminQuizController } from './api';
 import { Game, Answer, Stats, Question, Participant } from './domain';
 import {
   GameService,
@@ -29,7 +29,7 @@ import {
     AnswerCommandHandler,
     ConnectCommandHandler,
   ],
-  controllers: [GameController, AdminBlogsController],
+  controllers: [GameController, AdminQuizController],
   exports: [],
 })
 export class QuizGameModule {}

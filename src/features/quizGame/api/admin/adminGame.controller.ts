@@ -20,7 +20,7 @@ import {
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/quiz')
-export class AdminBlogsController {
+export class AdminQuizController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Get('/questions')

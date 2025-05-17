@@ -1,2 +1,2 @@
 export { GameController } from './public/game.controller';
-export { AdminBlogsController } from './admin/adminGame.controller';
+export { AdminQuizController } from './admin/adminGame.controller';
