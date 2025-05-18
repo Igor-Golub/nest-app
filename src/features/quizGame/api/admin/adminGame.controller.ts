@@ -4,21 +4,21 @@ import {
   Post,
   Delete,
   Put,
-  UseGuards,
   Body,
   Param,
   Query,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { BasicAuthGuard } from '../../../auth/guards';
 import {
   PublishQuestionModel,
   QuestionParam,
   QuestionsQuery,
   CreateUpdateQuestionModel,
 } from '../models/input';
+import { DeleteQuestionCommand } from '../../application/deleteQuestion.useCase';
 
-@UseGuards(BasicAuthGuard)
 @Controller('sa/quiz')
 export class AdminQuizController {
   constructor(private readonly commandBus: CommandBus) {}
@@ -58,7 +58,10 @@ export class AdminQuizController {
   }
 
   @Delete('/questions/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteQuestion(@Param() { id }: QuestionParam) {
-    return '';
+    const command = new DeleteQuestionCommand({ questionId: id });
+
+    await this.commandBus.execute(command);
   }
 }

@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToMany } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
+import type { Game } from './game.entity';
 
 @Entity()
 export class Question extends BaseEntity {
@@ -12,6 +13,6 @@ export class Question extends BaseEntity {
   @Column({ type: 'boolean' })
   public published: boolean;
 
-  @Column({ type: 'uuid', nullable: false })
-  public createdBy: string;
+  @ManyToMany('Game')
+  public games: Game[];
 }

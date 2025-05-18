@@ -3,3 +3,9 @@ export enum PublishedStatus {
   Published = 'published',
   NotPublished = 'notPublished',
 }
+
+export enum GameStatus {
+  Pending = 'pending',
+  Active = 'active',
+  Finished = 'finished',
+}
