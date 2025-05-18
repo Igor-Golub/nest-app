@@ -6,7 +6,7 @@ import { GameStatus } from '../infrastructure';
 
 @Entity()
 export class Game extends BaseEntity {
-  @Column({ type: 'enum', default: GameStatus.Pending })
+  @Column({ type: 'enum', default: GameStatus.Pending, enum: GameStatus })
   public status: GameStatus;
 
   @Column()
