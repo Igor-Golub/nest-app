@@ -12,14 +12,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { QuestionQueryRepo } from '../../infrastructure';
 import {
   PublishQuestionModel,
   QuestionParam,
   QuestionsQuery,
   CreateUpdateQuestionModel,
 } from '../models/input';
-import { DeleteQuestionCommand } from '../../application';
-import { QuestionQueryRepo } from '../../infrastructure';
+import { QuestionMapManager } from '../models/mappers';
+import {
+  DeleteQuestionCommand,
+  CreateQuestionCommand,
+  PublishQuestionCommand,
+  UpdateQuestionCommand,
+} from '../../application';
 
 @Controller('sa/quiz')
 export class AdminQuizController {
@@ -35,7 +41,11 @@ export class AdminQuizController {
 
   @Get('/questions/:id')
   public async getQuestion(@Param() { id }: QuestionParam) {
-    return this.questionQueryRepo.findById(id);
+    const question = await this.questionQueryRepo.findById(id);
+
+    await this.checkQuestionExisting(question?.id);
+
+    return QuestionMapManager.mapToView(question!);
   }
 
   @Post('/questions')
@@ -44,6 +54,8 @@ export class AdminQuizController {
     @Body() createQuestionDto: CreateUpdateQuestionModel,
   ) {
     await this.checkQuestionExisting(id);
+
+    const command = new CreateQuestionCommand();
 
     return '';
   }
@@ -55,6 +67,8 @@ export class AdminQuizController {
   ) {
     await this.checkQuestionExisting(id);
 
+    const command = new UpdateQuestionCommand();
+
     return '';
   }
 
@@ -64,6 +78,8 @@ export class AdminQuizController {
     @Body() publishQuestionDto: PublishQuestionModel,
   ) {
     await this.checkQuestionExisting(id);
+
+    const command = new PublishQuestionCommand();
 
     return '';
   }
@@ -78,7 +94,9 @@ export class AdminQuizController {
     await this.commandBus.execute(command);
   }
 
-  private async checkQuestionExisting(id: string) {
+  private async checkQuestionExisting(id: string | undefined) {
+    if (!id) throw new NotFoundException();
+
     const question = await this.questionQueryRepo.findById(id);
 
     if (!question) throw new NotFoundException();

@@ -13,6 +13,9 @@ import {
   AnswerCommandHandler,
   ConnectCommandHandler,
   DeleteQuestionHandler,
+  CreateQuestionHandler,
+  UpdateQuestionHandler,
+  PublishQuestionHandler,
 } from './application';
 
 @Module({
@@ -31,6 +34,9 @@ import {
     AnswerCommandHandler,
     ConnectCommandHandler,
     DeleteQuestionHandler,
+    CreateQuestionHandler,
+    UpdateQuestionHandler,
+    PublishQuestionHandler,
   ],
   controllers: [GameController, AdminQuizController],
   exports: [],
