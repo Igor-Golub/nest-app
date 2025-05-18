@@ -1,12 +1,9 @@
 import {
-  IsUUID,
-  ArrayUnique,
-  ArrayNotEmpty,
   IsBoolean,
-  IsArray,
-  IsString,
-  IsOptional,
   IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
 } from 'class-validator';
 import {
   IsStringWithExpectedLength,
@@ -35,11 +32,9 @@ export class CreateUpdateQuestionModel {
   @IsStringWithExpectedLength(10, 500)
   body: string;
 
-  @IsArray()
-  @ArrayNotEmpty()
-  @ArrayUnique()
-  @IsString({ each: true })
-  correctAnswers: string[];
+  @Trim()
+  @IsString()
+  correctAnswers: string;
 }
 
 export class PublishQuestionModel {

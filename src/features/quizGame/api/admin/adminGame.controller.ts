@@ -49,15 +49,21 @@ export class AdminQuizController {
   }
 
   @Post('/questions')
+  @HttpCode(HttpStatus.CREATED)
   public async createQuestion(
-    @Param() { id }: QuestionParam,
     @Body() createQuestionDto: CreateUpdateQuestionModel,
   ) {
-    await this.checkQuestionExisting(id);
+    const command = new CreateQuestionCommand({
+      body: createQuestionDto.body,
+      correctAnswers: JSON.parse(createQuestionDto.correctAnswers),
+    });
 
-    const command = new CreateQuestionCommand();
+    const questionId = await this.commandBus.execute<
+      CreateQuestionCommand,
+      string
+    >(command);
 
-    return '';
+    return this.questionQueryRepo.findById(questionId);
   }
 
   @Put('/questions/:id')

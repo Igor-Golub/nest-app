@@ -43,10 +43,11 @@ describe('e2e admin quiz game', () => {
   });
 
   describe.skip('create question', () => {
-    it('should receive user current game', async () => {
+    it('should return 400 if DTO incorrect', async () => {
       await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+        .post('/sa/quiz/questions')
+        .send({ body: '1', correctAnswers: ['012345678'] })
+        .expect(HttpStatus.BAD_REQUEST);
     });
   });
 
