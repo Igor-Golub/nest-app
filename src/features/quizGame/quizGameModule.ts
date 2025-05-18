@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GameQueryRepo } from './infrastructure';
 import { GameController, AdminQuizController } from './api';
+import { GameQueryRepo, QuestionQueryRepo } from './infrastructure';
 import { Game, Answer, Stats, Question, Participant } from './domain';
 import {
   GameService,
@@ -12,6 +12,7 @@ import {
   MatchmakingService,
   AnswerCommandHandler,
   ConnectCommandHandler,
+  DeleteQuestionHandler,
 } from './application';
 
 @Module({
@@ -21,6 +22,7 @@ import {
   ],
   providers: [
     GameQueryRepo,
+    QuestionQueryRepo,
     GameService,
     StatsService,
     TimerService,
@@ -28,6 +30,7 @@ import {
     MatchmakingService,
     AnswerCommandHandler,
     ConnectCommandHandler,
+    DeleteQuestionHandler,
   ],
   controllers: [GameController, AdminQuizController],
   exports: [],

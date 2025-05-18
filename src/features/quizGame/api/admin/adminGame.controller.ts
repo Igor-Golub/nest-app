@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import {
@@ -17,20 +18,24 @@ import {
   QuestionsQuery,
   CreateUpdateQuestionModel,
 } from '../models/input';
-import { DeleteQuestionCommand } from '../../application/deleteQuestion.useCase';
+import { DeleteQuestionCommand } from '../../application';
+import { QuestionQueryRepo } from '../../infrastructure';
 
 @Controller('sa/quiz')
 export class AdminQuizController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly questionQueryRepo: QuestionQueryRepo,
+  ) {}
 
   @Get('/questions')
   public async getQuestions(@Query() params: QuestionsQuery) {
-    return '';
+    return this.questionQueryRepo.findWithPagination(params);
   }
 
   @Get('/questions/:id')
   public async getQuestion(@Param() { id }: QuestionParam) {
-    return '';
+    return this.questionQueryRepo.findById(id);
   }
 
   @Post('/questions')
@@ -38,6 +43,8 @@ export class AdminQuizController {
     @Param() { id }: QuestionParam,
     @Body() createQuestionDto: CreateUpdateQuestionModel,
   ) {
+    await this.checkQuestionExisting(id);
+
     return '';
   }
 
@@ -46,6 +53,8 @@ export class AdminQuizController {
     @Param() { id }: QuestionParam,
     @Body() updateQuestionDto: CreateUpdateQuestionModel,
   ) {
+    await this.checkQuestionExisting(id);
+
     return '';
   }
 
@@ -54,14 +63,26 @@ export class AdminQuizController {
     @Param() { id }: QuestionParam,
     @Body() publishQuestionDto: PublishQuestionModel,
   ) {
+    await this.checkQuestionExisting(id);
+
     return '';
   }
 
   @Delete('/questions/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteQuestion(@Param() { id }: QuestionParam) {
+    await this.checkQuestionExisting(id);
+
     const command = new DeleteQuestionCommand({ questionId: id });
 
     await this.commandBus.execute(command);
+  }
+
+  private async checkQuestionExisting(id: string) {
+    const question = await this.questionQueryRepo.findById(id);
+
+    if (!question) throw new NotFoundException();
+
+    return question;
   }
 }

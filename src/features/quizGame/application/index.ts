@@ -6,3 +6,7 @@ export { StatsService } from './stats.service';
 
 export { ConnectCommand, ConnectCommandHandler } from './connect.useCase';
 export { AnswerCommand, AnswerCommandHandler } from './answer.useCase';
+export {
+  DeleteQuestionCommand,
+  DeleteQuestionHandler,
+} from './deleteQuestion.useCase';
