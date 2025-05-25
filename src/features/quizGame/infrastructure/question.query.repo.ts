@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../domain';
 import { QuestionsQuery } from '../api/models/input';
@@ -16,6 +16,12 @@ export class QuestionQueryRepo {
   }
 
   public async findById(id: string) {
-    return this.questionRepository.findOneBy({ id });
+    const question = await this.questionRepository.findOneBy({ id });
+
+    if (!question) {
+      throw new NotFoundException(`Question with id ${id} not found`);
+    }
+
+    return question;
   }
 }

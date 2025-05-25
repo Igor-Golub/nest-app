@@ -5,7 +5,7 @@ export class QuestionMapManager {
   static mapToView(question: Question): QuestionViewModel {
     return {
       body: question.text,
-      correctAnswers: [],
+      correctAnswers: question.answers,
     };
   }
 

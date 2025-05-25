@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { GameService } from './game.service';
+import { QuestionRepo } from '../infrastructure';
 
 interface DeleteQuestionPayload {
   questionId: string;
@@ -13,9 +13,9 @@ export class DeleteQuestionCommand {
 export class DeleteQuestionHandler
   implements ICommandHandler<DeleteQuestionCommand>
 {
-  constructor(private gameService: GameService) {}
+  constructor(private questionRepo: QuestionRepo) {}
 
   public async execute({ payload: { questionId } }: DeleteQuestionCommand) {
-    return null;
+    return this.questionRepo.delete(questionId);
   }
 }

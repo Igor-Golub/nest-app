@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { GameService } from './game.service';
+import { QuestionRepo } from '../infrastructure';
 
 interface PublishQuestionPayload {
   questionId: string;
+  publishStatus: boolean;
 }
 
 export class PublishQuestionCommand {
@@ -13,9 +14,11 @@ export class PublishQuestionCommand {
 export class PublishQuestionHandler
   implements ICommandHandler<PublishQuestionCommand>
 {
-  constructor(private gameService: GameService) {}
+  constructor(private questionRepo: QuestionRepo) {}
 
-  public async execute({ payload: { questionId } }: PublishQuestionCommand) {
-    return null;
+  public async execute({
+    payload: { questionId, publishStatus },
+  }: PublishQuestionCommand) {
+    return this.questionRepo.updatedPublishStatus(questionId, publishStatus);
   }
 }

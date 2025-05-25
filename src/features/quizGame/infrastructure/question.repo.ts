@@ -21,4 +21,22 @@ export class QuestionRepo {
 
     return id;
   }
+
+  public async updateQuestion(id: string, text: string, answers: string[]) {
+    await this.questionRepository.update(id, { text, answers });
+
+    return id;
+  }
+
+  public async updatedPublishStatus(id: string, status: boolean) {
+    await this.questionRepository.update(id, { published: status });
+
+    return id;
+  }
+
+  public async delete(id: string) {
+    await this.questionRepository.delete(id);
+
+    return id;
+  }
 }

@@ -23,8 +23,8 @@ import { QuestionMapManager } from '../models/mappers';
 import {
   DeleteQuestionCommand,
   CreateQuestionCommand,
-  PublishQuestionCommand,
   UpdateQuestionCommand,
+  PublishQuestionCommand,
 } from '../../application';
 
 @Controller('sa/quiz')
@@ -42,8 +42,6 @@ export class AdminQuizController {
   @Get('/questions/:id')
   public async getQuestion(@Param() { id }: QuestionParam) {
     const question = await this.questionQueryRepo.findById(id);
-
-    await this.checkQuestionExisting(question?.id);
 
     return QuestionMapManager.mapToView(question!);
   }
@@ -73,21 +71,37 @@ export class AdminQuizController {
   ) {
     await this.checkQuestionExisting(id);
 
-    // const command = new UpdateQuestionCommand();
+    const command = new UpdateQuestionCommand({
+      questionId: id,
+      ...updateQuestionDto,
+    });
 
-    return '';
+    const questionId = await this.commandBus.execute<
+      UpdateQuestionCommand,
+      string
+    >(command);
+
+    return this.questionQueryRepo.findById(questionId);
   }
 
-  @Put('/questions/:id')
+  @Put('/questions/:id/publish')
   public async publishQuestion(
     @Param() { id }: QuestionParam,
     @Body() publishQuestionDto: PublishQuestionModel,
   ) {
     await this.checkQuestionExisting(id);
 
-    // const command = new PublishQuestionCommand();
+    const command = new PublishQuestionCommand({
+      questionId: id,
+      publishStatus: publishQuestionDto.published,
+    });
 
-    return '';
+    const questionId = await this.commandBus.execute<
+      PublishQuestionCommand,
+      string
+    >(command);
+
+    return this.questionQueryRepo.findById(questionId);
   }
 
   @Delete('/questions/:id')
