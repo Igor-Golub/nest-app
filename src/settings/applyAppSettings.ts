@@ -4,11 +4,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
-import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 import { useContainer } from 'class-validator';
-import { AppModule } from '../app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from '../app.module';
 import { CoreConfig } from '../core/core.config';
+import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
+import { RepositoryErrorFilter } from '../common/exceptionFilters/repository-error.filter';
 
 export function applyAppSettings(app: INestApplication) {
   const coreConfig = app.get(CoreConfig);
@@ -59,4 +60,5 @@ export function applyAppSettings(app: INestApplication) {
   );
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new RepositoryErrorFilter());
 }

@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../domain';
+import { RepositoryError } from '../../../core/errors/RepositoryError';
 
 @Injectable()
 export class QuestionRepo {
@@ -23,19 +24,30 @@ export class QuestionRepo {
   }
 
   public async updateQuestion(id: string, text: string, answers: string[]) {
-    await this.questionRepository.update(id, { text, answers });
+    const { affected } = await this.questionRepository.update(id, {
+      text,
+      answers,
+    });
+
+    if (!affected) throw new RepositoryError(`Question with ${id} not found`);
 
     return id;
   }
 
   public async updatedPublishStatus(id: string, status: boolean) {
-    await this.questionRepository.update(id, { published: status });
+    const { affected } = await this.questionRepository.update(id, {
+      published: status,
+    });
+
+    if (!affected) throw new RepositoryError(`Question with ${id} not found`);
 
     return id;
   }
 
   public async delete(id: string) {
-    await this.questionRepository.delete(id);
+    const { affected } = await this.questionRepository.delete(id);
+
+    if (!affected) throw new RepositoryError(`Question with ${id} not found`);
 
     return id;
   }

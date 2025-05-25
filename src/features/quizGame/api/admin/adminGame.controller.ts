@@ -9,7 +9,6 @@ import {
   Query,
   HttpStatus,
   HttpCode,
-  NotFoundException,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { QuestionQueryRepo } from '../../infrastructure';
@@ -69,8 +68,6 @@ export class AdminQuizController {
     @Param() { id }: QuestionParam,
     @Body() updateQuestionDto: CreateUpdateQuestionModel,
   ) {
-    await this.checkQuestionExisting(id);
-
     const command = new UpdateQuestionCommand({
       questionId: id,
       ...updateQuestionDto,
@@ -89,8 +86,6 @@ export class AdminQuizController {
     @Param() { id }: QuestionParam,
     @Body() publishQuestionDto: PublishQuestionModel,
   ) {
-    await this.checkQuestionExisting(id);
-
     const command = new PublishQuestionCommand({
       questionId: id,
       publishStatus: publishQuestionDto.published,
@@ -107,20 +102,8 @@ export class AdminQuizController {
   @Delete('/questions/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteQuestion(@Param() { id }: QuestionParam) {
-    await this.checkQuestionExisting(id);
-
     const command = new DeleteQuestionCommand({ questionId: id });
 
     await this.commandBus.execute(command);
-  }
-
-  private async checkQuestionExisting(id: string | undefined) {
-    if (!id) throw new NotFoundException();
-
-    const question = await this.questionQueryRepo.findById(id);
-
-    if (!question) throw new NotFoundException();
-
-    return question;
   }
 }
