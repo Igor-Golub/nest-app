@@ -1,14 +1,4 @@
-import {
-  ArrayMinSize,
-  ArrayNotEmpty,
-  ArrayUnique,
-  IsArray,
-  IsBoolean,
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PublishedStatus } from '../../../infrastructure/enums';
 import { QueryParams } from '../../../../../common/decorators/validate';
 import { IsStringWithExpectedLength, Trim } from '../../../../../common/decorators';
