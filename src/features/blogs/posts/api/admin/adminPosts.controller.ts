@@ -38,10 +38,7 @@ import { PostsViewMapperManager } from '../mappers';
 import { CommentsViewMapperManager } from '../../../comments/api/mappers/comments';
 import { UsersQueryRepository } from '../../../../users/infrastructure';
 import { BasicAuthGuard, JwtAuthGuard } from '../../../../auth/guards';
-import {
-  CurrentUserId,
-  UserIdFromAccessToken,
-} from '../../../../../common/pipes';
+import { CurrentUserId, UserIdFromAccessToken } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
 import { QueryParams } from '../../../../../common/decorators/validate';
 import { Post as PostEntity } from '../../domain/post.entity';
@@ -57,27 +54,17 @@ export class AdminPostsController {
   ) {}
 
   @Get()
-  public async getAll(
-    @UserIdFromAccessToken() userId: string | undefined,
-    @Query() query: PostsQueryParams,
-  ) {
+  public async getAll(@UserIdFromAccessToken() userId: string | undefined, @Query() query: PostsQueryParams) {
     return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
   @Get(':id')
-  public async getById(
-    @UserIdFromAccessToken() userId: string | undefined,
-    @Param('id') id: string,
-  ) {
+  public async getById(@UserIdFromAccessToken() userId: string | undefined, @Param('id') id: string) {
     const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
 
-    return PostsViewMapperManager.mapPostsToViewModelWithLikes(
-      post,
-      post.likes,
-      userId,
-    );
+    return PostsViewMapperManager.mapPostsToViewModelWithLikes(post, post.likes, userId);
   }
 
   @Get(':id/comments')
@@ -116,16 +103,10 @@ export class AdminPostsController {
   @Put(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async update(
-    @Param() { id }: UpdatePostParams,
-    @Body() updatePostDto: UpdatePostDto,
-  ) {
+  public async update(@Param() { id }: UpdatePostParams, @Body() updatePostDto: UpdatePostDto) {
     const command = new UpdatePostCommand({ postId: id, data: updatePostDto });
 
-    const updatedPost = await this.commandBus.execute<
-      UpdatePostCommand,
-      PostEntity
-    >(command);
+    const updatedPost = await this.commandBus.execute<UpdatePostCommand, PostEntity>(command);
 
     if (!updatedPost) throw new NotFoundException();
 
@@ -162,10 +143,7 @@ export class AdminPostsController {
       userId: currentUserId,
     });
 
-    const { commentId } = await this.commandBus.execute<
-      CreatePostCommentCommand,
-      { commentId: string }
-    >(command);
+    const { commentId } = await this.commandBus.execute<CreatePostCommentCommand, { commentId: string }>(command);
 
     const comment = await this.commentsQueryRepo.findById(commentId);
 
@@ -192,8 +170,6 @@ export class AdminPostsController {
       userId: currentUserId,
     });
 
-    return await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(
-      command,
-    );
+    return await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(command);
   }
 }

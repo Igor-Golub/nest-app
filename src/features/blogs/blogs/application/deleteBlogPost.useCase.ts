@@ -11,9 +11,7 @@ export class DeleteBlogPostCommand {
 }
 
 @CommandHandler(DeleteBlogPostCommand)
-export class DeleteBlogPostHandler
-  implements ICommandHandler<DeleteBlogPostCommand>
-{
+export class DeleteBlogPostHandler implements ICommandHandler<DeleteBlogPostCommand> {
   constructor(private readonly repository: PostsRepository) {}
 
   public async execute({ payload: { postId, blogId } }: DeleteBlogPostCommand) {

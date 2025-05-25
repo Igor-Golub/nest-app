@@ -11,10 +11,7 @@ import {
 } from 'class-validator';
 import { PublishedStatus } from '../../../infrastructure/enums';
 import { QueryParams } from '../../../../../common/decorators/validate';
-import {
-  IsStringWithExpectedLength,
-  Trim,
-} from '../../../../../common/decorators';
+import { IsStringWithExpectedLength, Trim } from '../../../../../common/decorators';
 
 export class QuestionParam {
   @IsUUID()

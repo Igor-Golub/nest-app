@@ -30,10 +30,7 @@ export class LoginIsExistConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export const LoginIsExist = (
-  property?: string,
-  validationOptions?: ValidationOptions,
-) => {
+export const LoginIsExist = (property?: string, validationOptions?: ValidationOptions) => {
   return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,

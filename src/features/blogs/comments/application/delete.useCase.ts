@@ -10,9 +10,7 @@ export class DeleteCommentCommand {
 }
 
 @CommandHandler(DeleteCommentCommand)
-export class DeleteCommentHandler
-  implements ICommandHandler<DeleteCommentCommand>
-{
+export class DeleteCommentHandler implements ICommandHandler<DeleteCommentCommand> {
   constructor(private readonly repository: PostsCommentsRepo) {}
   public async execute({ payload: { id } }: DeleteCommentCommand) {
     return this.repository.delete(id);

@@ -20,10 +20,7 @@ export class EmailService {
       from: '<Bloggers platform>',
       address: parameters.email,
       subject: 'Registration on Bloggers platform',
-      template: this.emailTemplatesCreatorService.getRegistrationTemplate(
-        parameters.login,
-        parameters.data,
-      ),
+      template: this.emailTemplatesCreatorService.getRegistrationTemplate(parameters.login, parameters.data),
     });
   }
 
@@ -32,11 +29,10 @@ export class EmailService {
       from: '<Bloggers platform>',
       address: parameters.email,
       subject: 'Registration on MEGA service',
-      template:
-        this.emailTemplatesCreatorService.getRegistrationEmailResendingTemplate(
-          parameters.login,
-          parameters.data,
-        ),
+      template: this.emailTemplatesCreatorService.getRegistrationEmailResendingTemplate(
+        parameters.login,
+        parameters.data,
+      ),
     });
   }
 
@@ -45,10 +41,7 @@ export class EmailService {
       from: '<Bloggers platform>',
       address: parameters.email,
       subject: 'Recovery password',
-      template: this.emailTemplatesCreatorService.getRecoveryTemplate(
-        parameters.login,
-        parameters.data,
-      ),
+      template: this.emailTemplatesCreatorService.getRecoveryTemplate(parameters.login, parameters.data),
     });
   }
 }

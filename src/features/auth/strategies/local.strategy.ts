@@ -20,10 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     if (!user) throw new UnauthorizedException();
 
-    const compareResult = this.cryptoService.compareCredential(
-      password,
-      user.hash,
-    );
+    const compareResult = this.cryptoService.compareCredential(password, user.hash);
 
     if (!compareResult) {
       throw new UnauthorizedException();

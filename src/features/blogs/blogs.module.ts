@@ -19,11 +19,7 @@ import {
   UpdatePostLikeStatusHandler,
 } from './posts/application';
 import { PostsService } from './posts/application/posts.service';
-import {
-  DeleteCommentHandler,
-  UpdateCommentLikeHandler,
-  UpdateCommentLikeStatusHandler,
-} from './comments/application';
+import { DeleteCommentHandler, UpdateCommentLikeHandler, UpdateCommentLikeStatusHandler } from './comments/application';
 import {
   CommentsQueryRepository,
   PostsCommentsLikesQueryRepository,
@@ -79,24 +75,9 @@ const commentsProviders = [
 ];
 
 @Module({
-  imports: [
-    CqrsModule,
-    UsersModule,
-    TypeOrmModule.forFeature([Blog, Post, PostLike, PostComment, CommentLike]),
-  ],
-  controllers: [
-    BlogsController,
-    AdminBlogsController,
-    PostsController,
-    AdminPostsController,
-    CommentsController,
-  ],
+  imports: [CqrsModule, UsersModule, TypeOrmModule.forFeature([Blog, Post, PostLike, PostComment, CommentLike])],
+  controllers: [BlogsController, AdminBlogsController, PostsController, AdminPostsController, CommentsController],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
-  exports: [
-    BlogsRepository,
-    BlogsQueryRepository,
-    PostsQueryRepository,
-    PostsCommentsLikesQueryRepository,
-  ],
+  exports: [BlogsRepository, BlogsQueryRepository, PostsQueryRepository, PostsCommentsLikesQueryRepository],
 })
 export class BlogsModule {}

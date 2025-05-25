@@ -26,34 +26,27 @@ export class CommentsQueryRepository {
     });
   }
 
-  public async getWithPagination(
-    query: QueryParams,
-    userId?: string,
-    postId?: string,
-  ) {
+  public async getWithPagination(query: QueryParams, userId?: string, postId?: string) {
     const where: any = {};
 
     if (postId) {
       where.postId = postId;
     }
 
-    const [comments, totalCount] =
-      await this.postCommentRepository.findAndCount({
-        where,
-        relations: {
-          author: true,
-          likes: true,
-        },
-        order: {
-          [query.sortBy]: query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
-        },
-        take: query.pageSize,
-        skip: (query.pageNumber - 1) * query.pageSize,
-      });
+    const [comments, totalCount] = await this.postCommentRepository.findAndCount({
+      where,
+      relations: {
+        author: true,
+        likes: true,
+      },
+      order: {
+        [query.sortBy]: query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      },
+      take: query.pageSize,
+      skip: (query.pageNumber - 1) * query.pageSize,
+    });
 
-    const items = comments.map((comment) =>
-      CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId),
-    );
+    const items = comments.map((comment) => CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId));
 
     return PaginatedViewDto.mapToView({
       items,

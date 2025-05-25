@@ -12,9 +12,7 @@ export class PasswordRecoveryCommand {
 }
 
 @CommandHandler(PasswordRecoveryCommand)
-export class PasswordRecoveryHandler
-  implements ICommandHandler<PasswordRecoveryCommand>
-{
+export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
     private readonly usersService: UsersService,
     private readonly notifyManager: NotifyManager,

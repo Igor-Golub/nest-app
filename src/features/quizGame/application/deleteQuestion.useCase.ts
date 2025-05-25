@@ -10,9 +10,7 @@ export class DeleteQuestionCommand {
 }
 
 @CommandHandler(DeleteQuestionCommand)
-export class DeleteQuestionHandler
-  implements ICommandHandler<DeleteQuestionCommand>
-{
+export class DeleteQuestionHandler implements ICommandHandler<DeleteQuestionCommand> {
   constructor(private questionRepo: QuestionRepo) {}
 
   public async execute({ payload: { questionId } }: DeleteQuestionCommand) {

@@ -5,9 +5,7 @@ import { Session } from '../domain/session.entity';
 
 @Injectable()
 export class SessionRepository {
-  constructor(
-    @InjectRepository(Session) private repository: Repository<Session>,
-  ) {}
+  constructor(@InjectRepository(Session) private repository: Repository<Session>) {}
 
   public async findById(id: string) {
     return this.repository.findOneBy({ id });
@@ -29,14 +27,8 @@ export class SessionRepository {
     return this.repository.findOneBy({ version });
   }
 
-  public async findByField<key extends keyof Session>(
-    field: key,
-    value: Session[key],
-  ) {
-    return this.repository
-      .createQueryBuilder('s')
-      .where(`s.${field} = :value`, { value })
-      .getMany();
+  public async findByField<key extends keyof Session>(field: key, value: Session[key]) {
+    return this.repository.createQueryBuilder('s').where(`s.${field} = :value`, { value }).getMany();
   }
 
   async updateField<key extends keyof Base.DTOFromEntity<Session>>(
@@ -55,12 +47,7 @@ export class SessionRepository {
   }
 
   public async create(createSessionDto: Base.DTOFromEntity<Session>) {
-    return this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(Session)
-      .values(createSessionDto)
-      .execute();
+    return this.repository.createQueryBuilder().insert().into(Session).values(createSessionDto).execute();
   }
 
   public async delete(id: string) {

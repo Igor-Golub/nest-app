@@ -11,12 +11,7 @@ export class ConfirmationRepository {
   ) {}
 
   public async create(createConfirmationDto: Base.DTOFromEntity<Confirmation>) {
-    return this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(Confirmation)
-      .values(createConfirmationDto)
-      .execute();
+    return this.repository.createQueryBuilder().insert().into(Confirmation).values(createConfirmationDto).execute();
   }
 
   public async findByCode(code: string) {
@@ -27,10 +22,7 @@ export class ConfirmationRepository {
     return this.repository.findOne({ where: { ownerId } });
   }
 
-  public async updateConfirmationStatus(
-    id: string,
-    status: ConfirmationStatuses,
-  ) {
+  public async updateConfirmationStatus(id: string, status: ConfirmationStatuses) {
     return this.repository.update(id, { status });
   }
 

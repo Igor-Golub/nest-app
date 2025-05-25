@@ -24,9 +24,7 @@ export class CoreConfig {
   @IsBoolean({
     message: 'Set correct IS_SWAGGER_ENABLED value, ex.: false',
   })
-  public isSwaggerEnabled = CoreEnvUtils.convertToBoolean(
-    this.configService.get('IS_SWAGGER_ENABLED'),
-  );
+  public isSwaggerEnabled = CoreEnvUtils.convertToBoolean(this.configService.get('IS_SWAGGER_ENABLED'));
 
   @IsNumber(
     {},
@@ -72,9 +70,7 @@ export class CoreConfig {
   @IsEnum(PostgresLoggingLevels, {
     message: 'Set correct POSTGRES_LOGGER value, ex.: query',
   })
-  public postgresLoggingLevel = this.configService.get(
-    'POSTGRES_LOGGER',
-  ) as LogLevel;
+  public postgresLoggingLevel = this.configService.get('POSTGRES_LOGGER') as LogLevel;
 
   constructor(private configService: ConfigService) {
     CoreEnvUtils.validateConfig(this);

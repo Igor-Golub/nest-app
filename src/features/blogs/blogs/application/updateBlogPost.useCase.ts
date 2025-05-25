@@ -16,14 +16,10 @@ export class UpdateBlogPostCommand {
 }
 
 @CommandHandler(UpdateBlogPostCommand)
-export class UpdateBlogPostHandler
-  implements ICommandHandler<UpdateBlogPostCommand>
-{
+export class UpdateBlogPostHandler implements ICommandHandler<UpdateBlogPostCommand> {
   constructor(private readonly repository: PostsRepository) {}
 
-  public async execute({
-    payload: { blogId, postId, updateData },
-  }: UpdateBlogPostCommand) {
+  public async execute({ payload: { blogId, postId, updateData } }: UpdateBlogPostCommand) {
     return this.repository.updateBlogPost(blogId, postId, updateData);
   }
 }

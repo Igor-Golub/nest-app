@@ -12,9 +12,7 @@ export class CreatePostCommentCommand {
 }
 
 @CommandHandler(CreatePostCommentCommand)
-export class CreatePostCommentHandler
-  implements ICommandHandler<CreatePostCommentCommand>
-{
+export class CreatePostCommentHandler implements ICommandHandler<CreatePostCommentCommand> {
   constructor(private readonly repository: PostsCommentsRepo) {}
 
   public async execute({ payload }: CreatePostCommentCommand) {

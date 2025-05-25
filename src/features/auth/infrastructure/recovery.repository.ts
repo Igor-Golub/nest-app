@@ -5,36 +5,18 @@ import { Recovery } from '../domain/recovery.entity';
 
 @Injectable()
 export class RecoveryRepository {
-  constructor(
-    @InjectRepository(Recovery) private repository: Repository<Recovery>,
-  ) {}
+  constructor(@InjectRepository(Recovery) private repository: Repository<Recovery>) {}
 
   public async findById(id: string) {
-    return this.repository
-      .createQueryBuilder()
-      .from(Recovery, 'r')
-      .where('r.id = :id', { id })
-      .getOne();
+    return this.repository.createQueryBuilder().from(Recovery, 'r').where('r.id = :id', { id }).getOne();
   }
 
-  public async findByField<key extends keyof Recovery>(
-    field: key,
-    value: Recovery[key],
-  ) {
-    return this.repository
-      .createQueryBuilder()
-      .from(Recovery, 'r')
-      .where(`r.${field} = :value`, { value })
-      .getOne();
+  public async findByField<key extends keyof Recovery>(field: key, value: Recovery[key]) {
+    return this.repository.createQueryBuilder().from(Recovery, 'r').where(`r.${field} = :value`, { value }).getOne();
   }
 
-  public async findByFields<key extends keyof Recovery>(
-    fields: key[],
-    value: Recovery[key],
-  ) {
-    const queryBuilder = this.repository
-      .createQueryBuilder()
-      .from(Recovery, 'r');
+  public async findByFields<key extends keyof Recovery>(fields: key[], value: Recovery[key]) {
+    const queryBuilder = this.repository.createQueryBuilder().from(Recovery, 'r');
 
     fields.forEach((field, index) => {
       const paramKey = `value${index}`;
@@ -62,12 +44,7 @@ export class RecoveryRepository {
   }
 
   public async create(createRecoveryDto: Base.DTOFromEntity<Recovery>) {
-    return this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(Recovery)
-      .values(createRecoveryDto)
-      .execute();
+    return this.repository.createQueryBuilder().insert().into(Recovery).values(createRecoveryDto).execute();
   }
 
   public async delete(id: string) {

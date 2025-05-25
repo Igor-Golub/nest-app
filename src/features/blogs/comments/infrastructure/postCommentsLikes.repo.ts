@@ -18,12 +18,7 @@ export class PostsCommentsLikesRepo {
   ) {}
 
   public async create(createDto: CreateDto) {
-    return this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(CommentLike)
-      .values(createDto)
-      .execute();
+    return this.repository.createQueryBuilder().insert().into(CommentLike).values(createDto).execute();
   }
 
   public async updateStatus(likeId: string, nextStatus: LikeStatus) {

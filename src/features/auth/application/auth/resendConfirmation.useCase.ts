@@ -12,9 +12,7 @@ export class ResendConfirmationCommand {
 }
 
 @CommandHandler(ResendConfirmationCommand)
-export class ResendConfirmationHandler
-  implements ICommandHandler<ResendConfirmationCommand>
-{
+export class ResendConfirmationHandler implements ICommandHandler<ResendConfirmationCommand> {
   constructor(
     private readonly usersService: UsersService,
     private readonly notifyManager: NotifyManager,

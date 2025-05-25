@@ -35,9 +35,7 @@ export class PostsViewMapperManager {
       blogName: post.blog.name,
       createdAt: post.createdAt.toISOString(),
       shortDescription: post.shortDescription,
-      extendedLikesInfo: likes.reduce<
-        PostViewModelWithLikes['extendedLikesInfo']
-      >(
+      extendedLikesInfo: likes.reduce<PostViewModelWithLikes['extendedLikesInfo']>(
         (acc, like) => {
           if (like.status === LikeStatus.Like) acc.likesCount += 1;
           if (like.status === LikeStatus.Dislike) acc.dislikesCount += 1;

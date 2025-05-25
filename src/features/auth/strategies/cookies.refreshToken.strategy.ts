@@ -12,24 +12,17 @@ interface SessionPayload {
 }
 
 @Injectable()
-export class CookieRefreshTokenStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-cookie',
-) {
+export class CookieRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-cookie') {
   constructor(private sessionRepository: SessionRepository) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => request?.cookies?.['refreshToken'],
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => request?.cookies?.['refreshToken']]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_REFRESH_SECRET,
     });
   }
 
   public async validate(payload: SessionPayload) {
-    const session = await this.sessionRepository.findByVersion(
-      new Date(payload.iat * 1000).toISOString(),
-    );
+    const session = await this.sessionRepository.findByVersion(new Date(payload.iat * 1000).toISOString());
 
     if (!session) throw new UnauthorizedException();
 

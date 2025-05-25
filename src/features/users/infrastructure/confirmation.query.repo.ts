@@ -11,17 +11,10 @@ export class ConfirmationQueryRepo {
   ) {}
 
   public async findById(id: string) {
-    return this.repository
-      .createQueryBuilder()
-      .from(Confirmation, 'c')
-      .where('c.id = :id', { id })
-      .getOne();
+    return this.repository.createQueryBuilder().from(Confirmation, 'c').where('c.id = :id', { id }).getOne();
   }
 
-  public async findByField<key extends keyof Confirmation>(
-    field: key,
-    value: Confirmation[key],
-  ) {
+  public async findByField<key extends keyof Confirmation>(field: key, value: Confirmation[key]) {
     return this.repository
       .createQueryBuilder()
       .from(Confirmation, 'c')

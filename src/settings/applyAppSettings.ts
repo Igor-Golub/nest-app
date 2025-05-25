@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -23,10 +19,7 @@ export function applyAppSettings(app: INestApplication) {
   // app.setGlobalPrefix(APP_PREFIX);
 
   if (coreConfig.isSwaggerEnabled) {
-    const config = new DocumentBuilder()
-      .setTitle('API for bloggers platform')
-      .setVersion('1.0')
-      .build();
+    const config = new DocumentBuilder().setTitle('API for bloggers platform').setVersion('1.0').build();
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
 
@@ -38,21 +31,18 @@ export function applyAppSettings(app: INestApplication) {
       stopAtFirstError: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const errorsData = errors.reduce<Base.HttpError[]>(
-          (acc, { property, constraints }) => {
-            if (!constraints) return acc;
+        const errorsData = errors.reduce<Base.HttpError[]>((acc, { property, constraints }) => {
+          if (!constraints) return acc;
 
-            const firstConstraintKey = Object.keys(constraints)[0];
+          const firstConstraintKey = Object.keys(constraints)[0];
 
-            acc.push({
-              field: property,
-              message: constraints[firstConstraintKey],
-            });
+          acc.push({
+            field: property,
+            message: constraints[firstConstraintKey],
+          });
 
-            return acc;
-          },
-          [],
-        );
+          return acc;
+        }, []);
 
         throw new BadRequestException(errorsData);
       },

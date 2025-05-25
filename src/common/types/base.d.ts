@@ -15,9 +15,6 @@ export declare global {
       refreshToken: string;
     }
 
-    type DTOFromEntity<Entity> = Omit<
-      Entity,
-      'id' | 'owner' | 'createdAt' | 'updatedAt'
-    >;
+    type DTOFromEntity<Entity> = Omit<Entity, 'id' | 'owner' | 'createdAt' | 'updatedAt'>;
   }
 }

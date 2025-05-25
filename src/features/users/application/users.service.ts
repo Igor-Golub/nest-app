@@ -1,21 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { add, formatISO, isAfter } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ConfirmationRepository,
-  UsersQueryRepository,
-  UsersRepository,
-} from '../infrastructure';
+import { ConfirmationRepository, UsersQueryRepository, UsersRepository } from '../infrastructure';
 import { CryptoService } from '../../../infrastructure/services/crypto.service';
-import {
-  ConfirmationStatuses,
-  ConfirmationTypes,
-} from '../domain/confirm.entity';
+import { ConfirmationStatuses, ConfirmationTypes } from '../domain/confirm.entity';
 
 @Injectable()
 export class UsersService {
@@ -26,10 +14,7 @@ export class UsersService {
     private confirmationRepo: ConfirmationRepository,
   ) {}
 
-  public async isUserExist(
-    id: string,
-    exception: 'notFound' | 'unauthorized' = 'notFound',
-  ) {
+  public async isUserExist(id: string, exception: 'notFound' | 'unauthorized' = 'notFound') {
     const user = await this.usersQueryRepo.findById(id);
 
     // TODO add interlayer
@@ -43,12 +28,7 @@ export class UsersService {
     return user;
   }
 
-  public async create(data: {
-    login: string;
-    email: string;
-    password: string;
-    isConfirmed: boolean;
-  }) {
+  public async create(data: { login: string; email: string; password: string; isConfirmed: boolean }) {
     const { email, isConfirmed, password, login } = data;
 
     const { hash } = await this.cryptoService.createSaltAndHash(password);
@@ -103,29 +83,20 @@ export class UsersService {
     const confirmation = await this.confirmationRepo.findByCode(code);
 
     if (!confirmation) {
-      throw new BadRequestException([
-        { message: 'User not found', field: 'code' },
-      ]);
+      throw new BadRequestException([{ message: 'User not found', field: 'code' }]);
     }
 
     if (confirmation.status === ConfirmationStatuses.Success) {
-      throw new BadRequestException([
-        { message: 'User already confirmed', field: 'code' },
-      ]);
+      throw new BadRequestException([{ message: 'User already confirmed', field: 'code' }]);
     }
 
     if (isAfter(new Date(), confirmation.expirationAt)) {
-      throw new BadRequestException([
-        { message: 'Confirmation code expired', field: 'code' },
-      ]);
+      throw new BadRequestException([{ message: 'Confirmation code expired', field: 'code' }]);
     }
 
     await this.usersRepo.confirmUser(confirmation.ownerId);
 
-    await this.confirmationRepo.updateConfirmationStatus(
-      confirmation.id,
-      ConfirmationStatuses.Success,
-    );
+    await this.confirmationRepo.updateConfirmationStatus(confirmation.id, ConfirmationStatuses.Success);
 
     return true;
   }
@@ -136,17 +107,12 @@ export class UsersService {
     if (!confirmation) throw new BadRequestException();
 
     if (confirmation.status === ConfirmationStatuses.Success) {
-      throw new BadRequestException([
-        { message: 'User already confirmed', field: 'email' },
-      ]);
+      throw new BadRequestException([{ message: 'User already confirmed', field: 'email' }]);
     }
 
     const confirmationCode = `${uuidv4()}_${id}`;
 
-    await this.confirmationRepo.updateConfirmationCode(
-      confirmation.id,
-      confirmationCode,
-    );
+    await this.confirmationRepo.updateConfirmationCode(confirmation.id, confirmationCode);
 
     return { newCode: confirmationCode };
   }

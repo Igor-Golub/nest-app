@@ -42,14 +42,8 @@ export class UsersQueryRepository {
     return this.repository.findOneBy({ id });
   }
 
-  public async findByUniqueField<key extends keyof User>(
-    field: key,
-    value: User[key],
-  ) {
-    return this.repository
-      .createQueryBuilder()
-      .where(`${field} = :value`, { value })
-      .getOne();
+  public async findByUniqueField<key extends keyof User>(field: key, value: User[key]) {
+    return this.repository.createQueryBuilder().where(`${field} = :value`, { value }).getOne();
   }
 
   public async findByEmailOrLogin(value: string) {

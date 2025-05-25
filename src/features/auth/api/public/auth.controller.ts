@@ -35,11 +35,7 @@ import { AuthViewMapperManager } from '../mappers';
 import { JwtAuthGuard, JwtCookieRefreshAuthGuard } from '../../guards';
 import { RefreshTokenCommand } from '../../application/auth/refreshToken.useCase';
 import { CookiesService } from '../../../../infrastructure/services/cookies.service';
-import {
-  CurrentDevice,
-  CurrentSession,
-  CurrentUserId,
-} from '../../../../common/pipes';
+import { CurrentDevice, CurrentSession, CurrentUserId } from '../../../../common/pipes';
 import { LogoutCommand } from '../../application/auth';
 import { SessionService } from '../../application/sessions/session.service';
 import { UsersService } from '../../../users/application';
@@ -86,8 +82,7 @@ export class AuthController {
   ) {
     await this.sleep();
 
-    const user =
-      await this.userQueryRepository.findByEmailOrLogin(loginOrEmail);
+    const user = await this.userQueryRepository.findByEmailOrLogin(loginOrEmail);
 
     if (!user) throw new UnauthorizedException();
 
@@ -106,9 +101,7 @@ export class AuthController {
 
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.PasswordRecovery)
-  public async recoveryPassword(
-    @Body() passwordRecoveryDto: PasswordRecoveryDto,
-  ) {
+  public async recoveryPassword(@Body() passwordRecoveryDto: PasswordRecoveryDto) {
     const command = new PasswordRecoveryCommand(passwordRecoveryDto);
 
     return this.commandBus.execute(command);
@@ -116,12 +109,8 @@ export class AuthController {
 
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.NewPassword)
-  public async confirmPasswordRecovery(
-    @Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto,
-  ) {
-    const command = new ConfirmPasswordRecoveryCommand(
-      confirmPasswordRecoveryDto,
-    );
+  public async confirmPasswordRecovery(@Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto) {
+    const command = new ConfirmPasswordRecoveryCommand(confirmPasswordRecoveryDto);
 
     return await this.commandBus.execute(command);
   }
@@ -129,9 +118,7 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Confirmation)
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async confirmRegistration(
-    @Body() confirmRegistrationDto: ConfirmRegistrationDto,
-  ) {
+  public async confirmRegistration(@Body() confirmRegistrationDto: ConfirmRegistrationDto) {
     const command = new ConfirmRegistrationCommand(confirmRegistrationDto);
 
     return await this.commandBus.execute(command);
@@ -149,17 +136,13 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.RegistrationEmailResending)
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async resendConfirmation(
-    @Body() resendConfirmation: ResendConfirmationDto,
-  ) {
+  public async resendConfirmation(@Body() resendConfirmation: ResendConfirmationDto) {
     const { email } = resendConfirmation;
 
     const user = await this.userQueryRepository.findByEmailOrLogin(email);
 
     if (!user) {
-      throw new BadRequestException([
-        { field: 'email', message: 'Email not found' },
-      ]);
+      throw new BadRequestException([{ field: 'email', message: 'Email not found' }]);
     }
 
     const command = new ResendConfirmationCommand(resendConfirmation);
@@ -179,10 +162,7 @@ export class AuthController {
 
     await this.usersService.isUserExist(session.ownerId, 'unauthorized');
 
-    await this.sessionService.isSessionOfCurrentUser(
-      session.ownerId,
-      session.deviceId,
-    );
+    await this.sessionService.isSessionOfCurrentUser(session.ownerId, session.deviceId);
 
     const command = new RefreshTokenCommand({
       userId: session.ownerId,
@@ -201,9 +181,7 @@ export class AuthController {
   @Post(AuthRoutes.Logout)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtCookieRefreshAuthGuard)
-  public async logout(
-    @CurrentSession() { id: userId, deviceId, refreshToken }: Base.Session,
-  ) {
+  public async logout(@CurrentSession() { id: userId, deviceId, refreshToken }: Base.Session) {
     await this.sessionService.isSessionExist(refreshToken);
 
     const command = new LogoutCommand({ deviceId, ownerId: userId });

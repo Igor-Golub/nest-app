@@ -70,9 +70,7 @@ export class AdminBlogsController {
   public async createBlog(@Body() createBlogDto: CreateBlogDto) {
     const command = new CreateBlogCommand(createBlogDto);
 
-    const blog = await this.commandBus.execute<CreateBlogCommand, Blog>(
-      command,
-    );
+    const blog = await this.commandBus.execute<CreateBlogCommand, Blog>(command);
 
     if (!blog) throw new NotFoundException();
 
@@ -81,19 +79,14 @@ export class AdminBlogsController {
 
   @Put(':blogId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async updateBlog(
-    @Param() { blogId }: UpdateBlogParams,
-    @Body() updateData: UpdateBlogDto,
-  ) {
+  public async updateBlog(@Param() { blogId }: UpdateBlogParams, @Body() updateData: UpdateBlogDto) {
     const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
 
     if (!isBlogExist) throw new NotFoundException();
 
     const command = new UpdateBlogCommand({ id: blogId, updateData });
 
-    const updatedBlog = this.commandBus.execute<UpdateBlogCommand, Blog | null>(
-      command,
-    );
+    const updatedBlog = this.commandBus.execute<UpdateBlogCommand, Blog | null>(command);
 
     if (!updatedBlog) throw new NotFoundException();
 
@@ -129,10 +122,7 @@ export class AdminBlogsController {
   }
 
   @Post(':blogId/posts')
-  public async createPost(
-    @Param() { blogId }: CreateBlogPostParams,
-    @Body() createDTO: CreateBlogPostDto,
-  ) {
+  public async createPost(@Param() { blogId }: CreateBlogPostParams, @Body() createDTO: CreateBlogPostDto) {
     const blog = await this.blogsQueryRepo.findById(blogId);
 
     if (!blog) throw new NotFoundException();
@@ -143,9 +133,7 @@ export class AdminBlogsController {
       createData: createDTO,
     });
 
-    const postId = await this.commandBus.execute<CreateBlogPostCommand, string>(
-      command,
-    );
+    const postId = await this.commandBus.execute<CreateBlogPostCommand, string>(command);
 
     const post = await this.postsQueryRepository.findById(postId);
 
@@ -156,10 +144,7 @@ export class AdminBlogsController {
 
   @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async updatePost(
-    @Param() { blogId, postId }: UpdateBlogPostParams,
-    @Body() updateDTO: UpdateBlogPostDto,
-  ) {
+  public async updatePost(@Param() { blogId, postId }: UpdateBlogPostParams, @Body() updateDTO: UpdateBlogPostDto) {
     const isBlogExist = await this.blogsQueryRepo.isBlogExist(blogId);
     const isPostExist = await this.postsQueryRepository.isPostExist(postId);
 
@@ -171,9 +156,7 @@ export class AdminBlogsController {
       updateData: updateDTO,
     });
 
-    return this.commandBus.execute<UpdateBlogPostCommand, string>(
-      updateCommand,
-    );
+    return this.commandBus.execute<UpdateBlogPostCommand, string>(updateCommand);
   }
 
   @Delete(':blogId/posts/:postId')

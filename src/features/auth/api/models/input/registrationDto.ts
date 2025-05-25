@@ -1,9 +1,5 @@
 import { IsEmail } from 'class-validator';
-import {
-  LoginIsExist,
-  EmailIsExist,
-  IsStringWithExpectedLength,
-} from '../../../../../common/decorators';
+import { LoginIsExist, EmailIsExist, IsStringWithExpectedLength } from '../../../../../common/decorators';
 
 export class RegistrationDto {
   @LoginIsExist()

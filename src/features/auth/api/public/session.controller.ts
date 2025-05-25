@@ -1,19 +1,8 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import { DeleteSessionParams } from '../models/input';
 import { JwtCookieRefreshAuthGuard } from '../../guards';
 import { SessionViewMapperManager } from '../mappers';
-import {
-  DeleteAllSessionsCommand,
-  DeleteSessionCommand,
-} from '../../application/sessions';
+import { DeleteAllSessionsCommand, DeleteSessionCommand } from '../../application/sessions';
 import { CommandBus } from '@nestjs/cqrs';
 import { CurrentSession } from '../../../../common/pipes';
 import { SessionService } from '../../application/sessions/session.service';
@@ -44,9 +33,7 @@ export class SessionController {
 
   @Delete(SessionRoutes.Devices)
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async closeAllSessions(
-    @CurrentSession() { id: userId, refreshToken }: Base.Session,
-  ) {
+  public async closeAllSessions(@CurrentSession() { id: userId, refreshToken }: Base.Session) {
     const session = await this.sessionService.isSessionExist(refreshToken);
 
     const command = new DeleteAllSessionsCommand({

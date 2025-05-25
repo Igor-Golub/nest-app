@@ -22,12 +22,7 @@ export class PostsLikesRepo {
   }
 
   public async create(createDto: CreateLikeDto) {
-    return this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(PostLike)
-      .values(createDto)
-      .execute();
+    return this.repository.createQueryBuilder().insert().into(PostLike).values(createDto).execute();
   }
 
   public async updateStatus(likeId: string, likeStatus: LikeStatus) {

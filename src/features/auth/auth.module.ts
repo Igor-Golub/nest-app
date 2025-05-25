@@ -22,10 +22,7 @@ import { EmailService } from '../../infrastructure/managers/email.service';
 import { SmtpService } from '../../infrastructure/managers/smtp.service';
 import { EmailTemplatesCreatorService } from '../../infrastructure/managers/emailTemplatesCreator.service';
 import { SessionController } from './api/public/session.controller';
-import {
-  DeleteAllSessionsCommandHandler,
-  DeleteSessionCommandHandler,
-} from './application/sessions';
+import { DeleteAllSessionsCommandHandler, DeleteSessionCommandHandler } from './application/sessions';
 import { SessionService } from './application/sessions/session.service';
 import { AuthConfig } from './config/auth.config';
 import { AuthConfigModule } from './config/config.module';
@@ -34,12 +31,7 @@ import { RecoveryRepository } from './infrastructure/recovery.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './domain/session.entity';
 import { Recovery } from './domain/recovery.entity';
-import {
-  BasicStrategy,
-  CookieRefreshTokenStrategy,
-  JwtStrategy,
-  LocalStrategy,
-} from './strategies';
+import { BasicStrategy, CookieRefreshTokenStrategy, JwtStrategy, LocalStrategy } from './strategies';
 
 const authHandlers = [
   LoginHandler,
@@ -52,10 +44,7 @@ const authHandlers = [
   ConfirmPasswordRecoveryHandler,
 ];
 
-const sessionHandlers = [
-  DeleteSessionCommandHandler,
-  DeleteAllSessionsCommandHandler,
-];
+const sessionHandlers = [DeleteSessionCommandHandler, DeleteAllSessionsCommandHandler];
 
 @Module({
   imports: [

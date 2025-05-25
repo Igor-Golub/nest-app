@@ -10,9 +10,7 @@ export class ConfirmRegistrationCommand {
 }
 
 @CommandHandler(ConfirmRegistrationCommand)
-export class ConfirmRegistrationHandler
-  implements ICommandHandler<ConfirmRegistrationCommand>
-{
+export class ConfirmRegistrationHandler implements ICommandHandler<ConfirmRegistrationCommand> {
   constructor(private usersService: UsersService) {}
 
   public async execute({ payload }: ConfirmRegistrationCommand) {

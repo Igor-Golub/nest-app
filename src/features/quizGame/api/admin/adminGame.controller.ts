@@ -1,24 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Put,
-  Body,
-  Param,
-  Query,
-  HttpStatus,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Body, Param, Query, HttpStatus, HttpCode } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { QuestionQueryRepo } from '../../infrastructure';
-import {
-  PublishQuestionModel,
-  QuestionParam,
-  QuestionsQuery,
-  CreateUpdateQuestionModel,
-} from '../models/input';
 import { QuestionMapManager } from '../models/mappers';
+import { QuestionQueryRepo } from '../../infrastructure';
+import { PublishQuestionModel, QuestionParam, QuestionsQuery, CreateUpdateQuestionModel } from '../models/input';
 import {
   DeleteQuestionCommand,
   CreateQuestionCommand,
@@ -47,54 +31,37 @@ export class AdminQuizController {
 
   @Post('/questions')
   @HttpCode(HttpStatus.CREATED)
-  public async createQuestion(
-    @Body() createQuestionDto: CreateUpdateQuestionModel,
-  ) {
+  public async createQuestion(@Body() createQuestionDto: CreateUpdateQuestionModel) {
     const command = new CreateQuestionCommand({
       body: createQuestionDto.body,
       correctAnswers: createQuestionDto.correctAnswers,
     });
 
-    const questionId = await this.commandBus.execute<
-      CreateQuestionCommand,
-      string
-    >(command);
+    const questionId = await this.commandBus.execute<CreateQuestionCommand, string>(command);
 
     return this.questionQueryRepo.findById(questionId);
   }
 
   @Put('/questions/:id')
-  public async updateQuestion(
-    @Param() { id }: QuestionParam,
-    @Body() updateQuestionDto: CreateUpdateQuestionModel,
-  ) {
+  public async updateQuestion(@Param() { id }: QuestionParam, @Body() updateQuestionDto: CreateUpdateQuestionModel) {
     const command = new UpdateQuestionCommand({
       questionId: id,
       ...updateQuestionDto,
     });
 
-    const questionId = await this.commandBus.execute<
-      UpdateQuestionCommand,
-      string
-    >(command);
+    const questionId = await this.commandBus.execute<UpdateQuestionCommand, string>(command);
 
     return this.questionQueryRepo.findById(questionId);
   }
 
   @Put('/questions/:id/publish')
-  public async publishQuestion(
-    @Param() { id }: QuestionParam,
-    @Body() publishQuestionDto: PublishQuestionModel,
-  ) {
+  public async publishQuestion(@Param() { id }: QuestionParam, @Body() publishQuestionDto: PublishQuestionModel) {
     const command = new PublishQuestionCommand({
       questionId: id,
       publishStatus: publishQuestionDto.published,
     });
 
-    const questionId = await this.commandBus.execute<
-      PublishQuestionCommand,
-      string
-    >(command);
+    const questionId = await this.commandBus.execute<PublishQuestionCommand, string>(command);
 
     return this.questionQueryRepo.findById(questionId);
   }

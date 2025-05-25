@@ -11,17 +11,12 @@ export class DeleteSessionCommand {
 }
 
 @CommandHandler(DeleteSessionCommand)
-export class DeleteSessionCommandHandler
-  implements ICommandHandler<DeleteSessionCommand>
-{
+export class DeleteSessionCommandHandler implements ICommandHandler<DeleteSessionCommand> {
   constructor(private sessionRepository: SessionRepository) {}
 
   public async execute({ payload }: DeleteSessionCommand) {
     const { ownerId, deviceId } = payload;
 
-    return await this.sessionRepository.deleteByDeviceIdAndOwnerId(
-      deviceId,
-      ownerId,
-    );
+    return await this.sessionRepository.deleteByDeviceIdAndOwnerId(deviceId, ownerId);
   }
 }

@@ -81,10 +81,7 @@ export class EmailTemplatesCreatorService {
     return this.wrapWithLayout('Registration Confirmation', content);
   }
 
-  public getRegistrationEmailResendingTemplate(
-    login: string,
-    code: string,
-  ): string {
+  public getRegistrationEmailResendingTemplate(login: string, code: string): string {
     const content = `
       <h1>Hello again, ${login}!</h1>
       <p>It looks like you haven't completed your registration yet.</p>

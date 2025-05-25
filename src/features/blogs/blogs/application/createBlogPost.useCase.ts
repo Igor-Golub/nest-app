@@ -16,9 +16,7 @@ export class CreateBlogPostCommand {
 }
 
 @CommandHandler(CreateBlogPostCommand)
-export class CreateBlogPostHandler
-  implements ICommandHandler<CreateBlogPostCommand>
-{
+export class CreateBlogPostHandler implements ICommandHandler<CreateBlogPostCommand> {
   constructor(private readonly repository: PostsRepository) {}
 
   public async execute({ payload }: CreateBlogPostCommand) {

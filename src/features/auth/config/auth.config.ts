@@ -39,16 +39,12 @@ export class AuthConfig {
       message: 'Set correct JWT_REFRESH_EXPIRE_TIME value, ex.: 40',
     },
   )
-  public jwtRefreshExpireTime = Number(
-    this.configService.get('JWT_REFRESH_EXPIRE_TIME'),
-  );
+  public jwtRefreshExpireTime = Number(this.configService.get('JWT_REFRESH_EXPIRE_TIME'));
 
   @IsNotEmpty({
     message: 'Set correct JWT_REFRESH_SECRET value, ex.: 2312dsad',
   })
-  public jwtRefreshSecret = this.configService.get(
-    'JWT_REFRESH_SECRET',
-  ) as string;
+  public jwtRefreshSecret = this.configService.get('JWT_REFRESH_SECRET') as string;
 
   constructor(private configService: ConfigService) {
     CoreEnvUtils.validateConfig(this);

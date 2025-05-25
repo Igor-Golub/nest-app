@@ -3,9 +3,7 @@ import { PostComment } from '../../domain/postComment.entity';
 import { CommentViewModel } from '../models/output/comment';
 
 export class CommentsViewMapperManager {
-  static commentWithoutLikesToViewModel(
-    comment: PostComment,
-  ): CommentViewModel {
+  static commentWithoutLikesToViewModel(comment: PostComment): CommentViewModel {
     return {
       id: comment.id,
       content: comment.content,
@@ -22,17 +20,10 @@ export class CommentsViewMapperManager {
     };
   }
 
-  static commentWithLikeToViewModel(
-    comment: PostComment,
-    reqUserId: string | undefined,
-  ): CommentViewModel {
-    const likesCount = comment.likes.filter(
-      ({ status }) => status === LikeStatus.Like,
-    ).length;
+  static commentWithLikeToViewModel(comment: PostComment, reqUserId: string | undefined): CommentViewModel {
+    const likesCount = comment.likes.filter(({ status }) => status === LikeStatus.Like).length;
 
-    const dislikesCount = comment.likes.filter(
-      ({ status }) => status === LikeStatus.Dislike,
-    ).length;
+    const dislikesCount = comment.likes.filter(({ status }) => status === LikeStatus.Dislike).length;
 
     const myLike = comment.likes.find(({ ownerId }) => ownerId === reqUserId);
     const myStatus = myLike?.status ?? LikeStatus.None;

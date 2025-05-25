@@ -16,10 +16,7 @@ export class LogoutCommandHandler implements ICommandHandler<LogoutCommand> {
   constructor(private sessionRepository: SessionRepository) {}
 
   public async execute({ payload }: LogoutCommand) {
-    const session = await this.sessionRepository.findByDeviceIdAndOwnerId(
-      payload.deviceId,
-      payload.ownerId,
-    );
+    const session = await this.sessionRepository.findByDeviceIdAndOwnerId(payload.deviceId, payload.ownerId);
 
     if (!session) throw new UnauthorizedException();
 

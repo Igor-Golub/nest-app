@@ -28,9 +28,7 @@ describe('e2e quiz game', () => {
 
   describe('user current game', () => {
     it('should receive user current game', async () => {
-      await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+      await request(httpServer).get('/game/pairs/my-current').expect(HttpStatus.OK);
     });
   });
 });

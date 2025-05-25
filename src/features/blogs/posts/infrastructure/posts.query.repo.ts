@@ -38,19 +38,14 @@ export class PostsQueryRepository {
   ) {
     const offset = (query.pageNumber - 1) * query.pageSize;
 
-    const builder = this.repository
-      .createQueryBuilder('p')
-      .leftJoinAndSelect('p.blog', 'blog');
+    const builder = this.repository.createQueryBuilder('p').leftJoinAndSelect('p.blog', 'blog');
 
     if (blogId) {
       builder.where('p.blogId = :blogId', { blogId });
     }
 
     const [posts, totalCount] = await builder
-      .orderBy(
-        query.sortBy === 'blogName' ? 'blog.name' : `p.${query.sortBy}`,
-        query.sortDirection,
-      )
+      .orderBy(query.sortBy === 'blogName' ? 'blog.name' : `p.${query.sortBy}`, query.sortDirection)
       .take(query.pageSize)
       .skip(offset)
       .getManyAndCount();
@@ -84,17 +79,11 @@ export class PostsQueryRepository {
     const items = posts.map((post) => {
       const postLikes = likesByPostId.get(post.id) ?? [];
 
-      const likesCount = postLikes.filter(
-        (l) => l.status === LikeStatus.Like,
-      ).length;
+      const likesCount = postLikes.filter((l) => l.status === LikeStatus.Like).length;
 
-      const dislikesCount = postLikes.filter(
-        (l) => l.status === LikeStatus.Dislike,
-      ).length;
+      const dislikesCount = postLikes.filter((l) => l.status === LikeStatus.Dislike).length;
 
-      const myStatus =
-        postLikes.find(({ ownerId }) => ownerId === userId)?.status ??
-        LikeStatus.None;
+      const myStatus = postLikes.find(({ ownerId }) => ownerId === userId)?.status ?? LikeStatus.None;
 
       const newestLikes = postLikes
         .filter(({ status }) => status === LikeStatus.Like)

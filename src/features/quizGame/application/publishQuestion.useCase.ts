@@ -11,14 +11,10 @@ export class PublishQuestionCommand {
 }
 
 @CommandHandler(PublishQuestionCommand)
-export class PublishQuestionHandler
-  implements ICommandHandler<PublishQuestionCommand>
-{
+export class PublishQuestionHandler implements ICommandHandler<PublishQuestionCommand> {
   constructor(private questionRepo: QuestionRepo) {}
 
-  public async execute({
-    payload: { questionId, publishStatus },
-  }: PublishQuestionCommand) {
+  public async execute({ payload: { questionId, publishStatus } }: PublishQuestionCommand) {
     return this.questionRepo.updatedPublishStatus(questionId, publishStatus);
   }
 }

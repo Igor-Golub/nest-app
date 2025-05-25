@@ -24,10 +24,7 @@ export class QuestionRepo {
   }
 
   public async updateQuestion(id: string, text: string, answers: string[]) {
-    const { affected } = await this.questionRepository.update(id, {
-      text,
-      answers,
-    });
+    const { affected } = await this.questionRepository.update(id, { text, answers });
 
     if (!affected) throw new RepositoryError(`Question with ${id} not found`);
 
@@ -35,9 +32,7 @@ export class QuestionRepo {
   }
 
   public async updatedPublishStatus(id: string, status: boolean) {
-    const { affected } = await this.questionRepository.update(id, {
-      published: status,
-    });
+    const { affected } = await this.questionRepository.update(id, { published: status });
 
     if (!affected) throw new RepositoryError(`Question with ${id} not found`);
 

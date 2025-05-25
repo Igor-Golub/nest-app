@@ -1,8 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  PostsCommentsLikesQueryRepository,
-  PostsCommentsLikesRepo,
-} from '../infrastructure';
+import { PostsCommentsLikesQueryRepository, PostsCommentsLikesRepo } from '../infrastructure';
 import { LikeStatus } from '../../../../common/enums';
 
 interface UpdatePostCommentLikeStatus {
@@ -16,9 +13,7 @@ export class UpdateCommentLikeStatusCommand {
 }
 
 @CommandHandler(UpdateCommentLikeStatusCommand)
-export class UpdateCommentLikeStatusHandler
-  implements ICommandHandler<UpdateCommentLikeStatusCommand>
-{
+export class UpdateCommentLikeStatusHandler implements ICommandHandler<UpdateCommentLikeStatusCommand> {
   constructor(
     private readonly postsCommentsLikesRepo: PostsCommentsLikesRepo,
     private readonly postsCommentsLikesQueryRepo: PostsCommentsLikesQueryRepository,
@@ -27,11 +22,7 @@ export class UpdateCommentLikeStatusHandler
   public async execute({ payload }: UpdateCommentLikeStatusCommand) {
     const { commentId, nextStatus, userId } = payload;
 
-    const like =
-      await this.postsCommentsLikesQueryRepo.findLikeByUserIdAndCommentId(
-        userId,
-        commentId,
-      );
+    const like = await this.postsCommentsLikesQueryRepo.findLikeByUserIdAndCommentId(userId, commentId);
 
     if (!like) {
       await this.postsCommentsLikesRepo.create({

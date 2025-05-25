@@ -23,9 +23,7 @@ export class CoreEnvUtils {
     const errors = validateSync(config);
 
     if (errors.length) {
-      const sortedMessages = errors
-        .map((error) => Object.values(error.constraints || {}).join(', '))
-        .join(', ');
+      const sortedMessages = errors.map((error) => Object.values(error.constraints || {}).join(', ')).join(', ');
 
       throw new Error('Validation failed: ' + sortedMessages);
     }

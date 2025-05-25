@@ -1,8 +1,5 @@
 import { IsUrl, IsUUID, Matches } from 'class-validator';
-import {
-  IsStringWithExpectedLength,
-  Trim,
-} from '../../../../../../common/decorators';
+import { IsStringWithExpectedLength, Trim } from '../../../../../../common/decorators';
 
 export class UpdateBlogParams {
   @IsUUID()
@@ -19,8 +16,6 @@ export class UpdateBlogDto {
 
   @IsStringWithExpectedLength(1, 100)
   @IsUrl()
-  @Matches(
-    '^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$',
-  )
+  @Matches('^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$')
   websiteUrl: string;
 }

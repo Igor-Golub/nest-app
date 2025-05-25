@@ -35,22 +35,15 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
   public async execute({ payload }: LoginCommand) {
     const { userData, deviceData } = payload;
 
-    const compareResult = this.cryptoService.compareCredential(
-      userData.password,
-      userData.hash,
-    );
+    const compareResult = this.cryptoService.compareCredential(userData.password, userData.hash);
 
     if (!compareResult) throw new UnauthorizedException();
 
     const deviceId = uuidv4();
 
-    const pairTokens = await this.authService.generateTokens(
-      userData.id,
-      deviceId,
-    );
+    const pairTokens = await this.authService.generateTokens(userData.id, deviceId);
 
-    const { version, expirationDate } =
-      this.authService.getSessionVersionAndExpirationDate(pairTokens.refresh);
+    const { version, expirationDate } = this.authService.getSessionVersionAndExpirationDate(pairTokens.refresh);
 
     await this.sessionRepository.create({
       version,

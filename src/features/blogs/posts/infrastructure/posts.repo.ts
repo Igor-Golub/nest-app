@@ -39,11 +39,7 @@ export class PostsRepository {
     return await this.repository.findOneBy({ id });
   }
 
-  public async updateBlogPost(
-    blogId: string,
-    postId: string,
-    updatePostDto: UpdatePostDto,
-  ) {
+  public async updateBlogPost(blogId: string, postId: string, updatePostDto: UpdatePostDto) {
     await this.repository.update({ id: postId, blogId }, updatePostDto);
     return postId;
   }

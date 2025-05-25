@@ -1,17 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UsersController } from './api/public/users.controller';
-import {
-  ConfirmationQueryRepo,
-  ConfirmationRepository,
-  UsersQueryRepository,
-  UsersRepository,
-} from './infrastructure';
-import {
-  CreateUserHandler,
-  DeleteUserHandler,
-  UsersService,
-} from './application';
+import { ConfirmationQueryRepo, ConfirmationRepository, UsersQueryRepository, UsersRepository } from './infrastructure';
+import { CreateUserHandler, DeleteUserHandler, UsersService } from './application';
 import { CryptoService } from '../../infrastructure/services/crypto.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/user.entity';

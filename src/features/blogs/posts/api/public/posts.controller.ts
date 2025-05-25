@@ -21,18 +21,12 @@ import {
   UpdatePostLikeStatusParams,
 } from '../models/input';
 import { CommandBus } from '@nestjs/cqrs';
-import {
-  CreatePostCommentCommand,
-  UpdatePostLikeStatusCommand,
-} from '../../application';
+import { CreatePostCommentCommand, UpdatePostLikeStatusCommand } from '../../application';
 import { PostsViewMapperManager } from '../mappers';
 import { CommentsViewMapperManager } from '../../../comments/api/mappers/comments';
 import { UsersQueryRepository } from '../../../../users/infrastructure';
 import { JwtAuthGuard } from '../../../../auth/guards';
-import {
-  CurrentUserId,
-  UserIdFromAccessToken,
-} from '../../../../../common/pipes';
+import { CurrentUserId, UserIdFromAccessToken } from '../../../../../common/pipes';
 import { PostsQueryRepository } from '../../infrastructure/posts.query.repo';
 
 @Controller('posts')
@@ -45,27 +39,17 @@ export class PostsController {
   ) {}
 
   @Get()
-  public async getAll(
-    @UserIdFromAccessToken() userId: string | undefined,
-    @Query() query: PostsQueryParams,
-  ) {
+  public async getAll(@UserIdFromAccessToken() userId: string | undefined, @Query() query: PostsQueryParams) {
     return this.postsQueryRepository.getWithPagination(query, userId);
   }
 
   @Get(':id')
-  public async getById(
-    @UserIdFromAccessToken() userId: string | undefined,
-    @Param('id') id: string,
-  ) {
+  public async getById(@UserIdFromAccessToken() userId: string | undefined, @Param('id') id: string) {
     const post = await this.postsQueryRepository.findById(id);
 
     if (!post) throw new NotFoundException();
 
-    return PostsViewMapperManager.mapPostsToViewModelWithLikes(
-      post,
-      post.likes,
-      userId,
-    );
+    return PostsViewMapperManager.mapPostsToViewModelWithLikes(post, post.likes, userId);
   }
 
   @Get(':id/comments')
@@ -102,10 +86,7 @@ export class PostsController {
       userId: currentUserId,
     });
 
-    const { commentId } = await this.commandBus.execute<
-      CreatePostCommentCommand,
-      { commentId: string }
-    >(command);
+    const { commentId } = await this.commandBus.execute<CreatePostCommentCommand, { commentId: string }>(command);
 
     const comment = await this.commentsQueryRepo.findById(commentId);
 
@@ -132,8 +113,6 @@ export class PostsController {
       userId: currentUserId,
     });
 
-    return await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(
-      command,
-    );
+    return await this.commandBus.execute<UpdatePostLikeStatusCommand, void>(command);
   }
 }

@@ -1,9 +1,5 @@
 import { IsEmail } from 'class-validator';
-import {
-  IsStringWithExpectedLength,
-  LoginIsExist,
-  Trim,
-} from '../../../../../common/decorators';
+import { IsStringWithExpectedLength, LoginIsExist, Trim } from '../../../../../common/decorators';
 
 export class CreateUserDto {
   @Trim()

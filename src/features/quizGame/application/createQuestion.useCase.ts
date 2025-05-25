@@ -11,15 +11,10 @@ export class CreateQuestionCommand {
 }
 
 @CommandHandler(CreateQuestionCommand)
-export class CreateQuestionHandler
-  implements ICommandHandler<CreateQuestionCommand>
-{
+export class CreateQuestionHandler implements ICommandHandler<CreateQuestionCommand> {
   constructor(private questionRepo: QuestionRepo) {}
 
   public async execute({ payload }: CreateQuestionCommand) {
-    return await this.questionRepo.createQuestion(
-      payload.body,
-      payload.correctAnswers,
-    );
+    return await this.questionRepo.createQuestion(payload.body, payload.correctAnswers);
   }
 }

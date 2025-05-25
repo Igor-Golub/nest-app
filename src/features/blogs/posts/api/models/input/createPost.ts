@@ -1,9 +1,5 @@
 import { IsString } from 'class-validator';
-import {
-  BlogIsExist,
-  IsStringWithExpectedLength,
-  Trim,
-} from '../../../../../../common/decorators';
+import { BlogIsExist, IsStringWithExpectedLength, Trim } from '../../../../../../common/decorators';
 
 export class CreatePostDto {
   @Trim()

@@ -13,11 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import {
-  CreateUserDto,
-  DeleteUserParams,
-  GetUsersQueryParams,
-} from '../models/input';
+import { CreateUserDto, DeleteUserParams, GetUsersQueryParams } from '../models/input';
 import { UsersQueryRepository } from '../../infrastructure';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { CreateUserCommand, DeleteUserCommand } from '../../application';
@@ -46,10 +42,7 @@ export class AdminUsersController {
   public async create(@Body() createUserDto: CreateUserDto) {
     const command = new CreateUserCommand(createUserDto);
 
-    const { userId } = await this.commandBus.execute<
-      CreateUserCommand,
-      { userId: string }
-    >(command);
+    const { userId } = await this.commandBus.execute<CreateUserCommand, { userId: string }>(command);
 
     const createdUser = await this.usersQueryRepo.findById(userId);
 
@@ -63,9 +56,7 @@ export class AdminUsersController {
   public async delete(@Param() { id }: DeleteUserParams) {
     const command = new DeleteUserCommand({ id });
 
-    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(
-      command,
-    );
+    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(command);
 
     if (!result) throw new NotFoundException();
   }

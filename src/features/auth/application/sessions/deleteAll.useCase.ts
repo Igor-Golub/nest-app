@@ -12,33 +12,20 @@ export class DeleteAllSessionsCommand {
 }
 
 @CommandHandler(DeleteAllSessionsCommand)
-export class DeleteAllSessionsCommandHandler
-  implements ICommandHandler<DeleteAllSessionsCommand>
-{
+export class DeleteAllSessionsCommandHandler implements ICommandHandler<DeleteAllSessionsCommand> {
   constructor(private sessionRepository: SessionRepository) {}
 
   public async execute({ payload }: DeleteAllSessionsCommand) {
     const { ownerId, currentSessionVersion } = payload;
 
-    const userSessions = await this.sessionRepository.findByField(
-      'ownerId',
-      ownerId,
-    );
+    const userSessions = await this.sessionRepository.findByField('ownerId', ownerId);
 
-    const idsForDelete = this.defineSessionsIdsForDelete(
-      userSessions,
-      currentSessionVersion,
-    );
+    const idsForDelete = this.defineSessionsIdsForDelete(userSessions, currentSessionVersion);
 
     return this.sessionRepository.deleteAllSessions(ownerId, idsForDelete);
   }
 
-  private defineSessionsIdsForDelete(
-    userSessions: Session[],
-    currentSessionVersion: string,
-  ) {
-    return userSessions
-      .filter(({ version }) => version !== currentSessionVersion)
-      .map(({ id }) => id);
+  private defineSessionsIdsForDelete(userSessions: Session[], currentSessionVersion: string) {
+    return userSessions.filter(({ version }) => version !== currentSessionVersion).map(({ id }) => id);
   }
 }

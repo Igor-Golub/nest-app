@@ -16,9 +16,7 @@ export class ConfirmPasswordRecoveryCommand {
 }
 
 @CommandHandler(ConfirmPasswordRecoveryCommand)
-export class ConfirmPasswordRecoveryHandler
-  implements ICommandHandler<ConfirmPasswordRecoveryCommand>
-{
+export class ConfirmPasswordRecoveryHandler implements ICommandHandler<ConfirmPasswordRecoveryCommand> {
   constructor(
     private readonly usersService: UsersService,
     private readonly cryptoService: CryptoService,
@@ -26,10 +24,7 @@ export class ConfirmPasswordRecoveryHandler
   ) {}
 
   public async execute({ payload }: ConfirmPasswordRecoveryCommand) {
-    const recovery = await this.recoveryRepository.findByField(
-      'code',
-      payload.recoveryCode,
-    );
+    const recovery = await this.recoveryRepository.findByField('code', payload.recoveryCode);
 
     if (!recovery || isAfter(new Date(), recovery.expirationAt)) {
       throw new BadRequestException([
@@ -40,15 +35,9 @@ export class ConfirmPasswordRecoveryHandler
       ]);
     }
 
-    const { hash } = await this.cryptoService.createSaltAndHash(
-      payload.newPassword,
-    );
+    const { hash } = await this.cryptoService.createSaltAndHash(payload.newPassword);
 
     await this.usersService.updateHash(recovery.ownerId, hash);
-    await this.recoveryRepository.updateField(
-      recovery.id,
-      'status',
-      RecoveryStatuses.Success,
-    );
+    await this.recoveryRepository.updateField(recovery.id, 'status', RecoveryStatuses.Success);
   }
 }

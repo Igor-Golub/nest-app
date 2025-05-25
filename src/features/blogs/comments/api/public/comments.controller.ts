@@ -12,11 +12,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import {
-  DeleteCommentCommand,
-  UpdateCommentLikeCommand,
-  UpdateCommentLikeStatusCommand,
-} from '../../application';
+import { DeleteCommentCommand, UpdateCommentLikeCommand, UpdateCommentLikeStatusCommand } from '../../application';
 import {
   CommentsQuery,
   DeleteCommentParams,
@@ -29,10 +25,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CommentsQueryRepository } from '../../infrastructure';
 import { CommentsViewMapperManager } from '../mappers/comments';
 import { UsersQueryRepository } from '../../../../users/infrastructure';
-import {
-  CurrentUserId,
-  UserIdFromAccessToken,
-} from '../../../../../common/pipes';
+import { CurrentUserId, UserIdFromAccessToken } from '../../../../../common/pipes';
 import { JwtAuthGuard } from '../../../../auth/guards';
 
 @Controller('comments')
@@ -44,18 +37,12 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
-  public async getById(
-    @Param() { id: commentId }: CommentsQuery,
-    @UserIdFromAccessToken() userId: string | undefined,
-  ) {
+  public async getById(@Param() { id: commentId }: CommentsQuery, @UserIdFromAccessToken() userId: string | undefined) {
     const comment = await this.commentsQueryRepo.findById(commentId);
 
     if (!comment) throw new NotFoundException();
 
-    return CommentsViewMapperManager.commentWithLikeToViewModel(
-      comment,
-      userId,
-    );
+    return CommentsViewMapperManager.commentWithLikeToViewModel(comment, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -70,10 +57,7 @@ export class CommentsController {
 
     if (!comment) throw new NotFoundException();
 
-    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
-      id,
-      currentUserId,
-    );
+    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(id, currentUserId);
 
     if (!isOwnerComment) throw new ForbiddenException();
 
@@ -90,18 +74,12 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  public async delete(
-    @Param() { id }: DeleteCommentParams,
-    @CurrentUserId() currentUserId: string,
-  ) {
+  public async delete(@Param() { id }: DeleteCommentParams, @CurrentUserId() currentUserId: string) {
     const comment = await this.commentsQueryRepo.findById(id);
 
     if (!comment) throw new NotFoundException();
 
-    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(
-      id,
-      currentUserId,
-    );
+    const isOwnerComment = await this.commentsQueryRepo.isOwnerComment(id, currentUserId);
 
     if (!isOwnerComment) throw new ForbiddenException();
 
@@ -134,8 +112,7 @@ export class CommentsController {
       nextStatus: likeStatus,
     });
 
-    const result =
-      await this.commandBus.execute<UpdateCommentLikeStatusCommand>(command);
+    const result = await this.commandBus.execute<UpdateCommentLikeStatusCommand>(command);
 
     if (!result) throw new NotFoundException();
   }

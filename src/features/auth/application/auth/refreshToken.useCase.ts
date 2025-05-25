@@ -13,9 +13,7 @@ export class RefreshTokenCommand {
 }
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenHandler
-  implements ICommandHandler<RefreshTokenCommand>
-{
+export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
   constructor(
     private authService: AuthService,
     private sessionRepository: SessionRepository,
@@ -26,20 +24,10 @@ export class RefreshTokenHandler
 
     const tokensPairs = await this.authService.generateTokens(userId, deviceId);
 
-    const result = this.authService.getSessionVersionAndExpirationDate(
-      tokensPairs.refresh,
-    );
+    const result = this.authService.getSessionVersionAndExpirationDate(tokensPairs.refresh);
 
-    await this.sessionRepository.updateField(
-      sessionId,
-      'version',
-      result.version,
-    );
-    await this.sessionRepository.updateField(
-      sessionId,
-      'expirationDate',
-      result.expirationDate,
-    );
+    await this.sessionRepository.updateField(sessionId, 'version', result.version);
+    await this.sessionRepository.updateField(sessionId, 'expirationDate', result.expirationDate);
 
     return tokensPairs;
   }

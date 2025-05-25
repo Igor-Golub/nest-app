@@ -18,9 +18,7 @@ export class QueryParams {
   @IsOptional()
   pageNumber: number = 1;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.toUpperCase() : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value))
   @IsEnum(SortDirection)
   @IsOptional()
   sortDirection: SortDirection = SortDirection.Desc;

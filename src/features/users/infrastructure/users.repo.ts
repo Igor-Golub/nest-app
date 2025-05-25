@@ -41,9 +41,7 @@ export class UsersRepository {
     return !!affected;
   }
 
-  public async findByFields(
-    options: FindOptionsWhere<User> | FindOptionsWhere<User>[],
-  ) {
+  public async findByFields(options: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
     return this.repository.findOne({
       where: options,
     });

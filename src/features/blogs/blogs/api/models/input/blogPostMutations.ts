@@ -1,7 +1,4 @@
-import {
-  IsStringWithExpectedLength,
-  Trim,
-} from '../../../../../../common/decorators';
+import { IsStringWithExpectedLength, Trim } from '../../../../../../common/decorators';
 import { IsUUID } from 'class-validator';
 
 export class CreateBlogPostParams {

@@ -11,9 +11,7 @@ export class UpdateCommentLikeCommand {
 }
 
 @CommandHandler(UpdateCommentLikeCommand)
-export class UpdateCommentLikeHandler
-  implements ICommandHandler<UpdateCommentLikeCommand>
-{
+export class UpdateCommentLikeHandler implements ICommandHandler<UpdateCommentLikeCommand> {
   constructor(private readonly postsCommentRepo: PostsCommentsRepo) {}
 
   public async execute({ payload: { id, content } }: UpdateCommentLikeCommand) {

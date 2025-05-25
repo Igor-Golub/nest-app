@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { BlogsQueryRepository } from '../../infrastructure';
 import { BlogsQueryDto, BlogsQueryDtoParams } from '../models/input';
 import { BlogsViewMapperManager } from '../mappers';

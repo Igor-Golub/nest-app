@@ -28,17 +28,13 @@ describe('e2e admin quiz game', () => {
 
   describe.skip('get questions', () => {
     it('should receive user current game', async () => {
-      await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+      await request(httpServer).get('/game/pairs/my-current').expect(HttpStatus.OK);
     });
   });
 
   describe.skip('get question', () => {
     it('should receive user current game', async () => {
-      await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+      await request(httpServer).get('/game/pairs/my-current').expect(HttpStatus.OK);
     });
   });
 
@@ -53,17 +49,13 @@ describe('e2e admin quiz game', () => {
 
   describe.skip('update question', () => {
     it('should receive user current game', async () => {
-      await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+      await request(httpServer).get('/game/pairs/my-current').expect(HttpStatus.OK);
     });
   });
 
   describe.skip('publish question', () => {
     it('should receive user current game', async () => {
-      await request(httpServer)
-        .get('/game/pairs/my-current')
-        .expect(HttpStatus.OK);
+      await request(httpServer).get('/game/pairs/my-current').expect(HttpStatus.OK);
     });
   });
 
@@ -71,17 +63,13 @@ describe('e2e admin quiz game', () => {
     it('should return 400 if id not UUID', async () => {
       const nonUUIDId = '12';
 
-      await request(httpServer)
-        .delete(`/sa/quiz/questions/${nonUUIDId}`)
-        .expect(HttpStatus.BAD_REQUEST);
+      await request(httpServer).delete(`/sa/quiz/questions/${nonUUIDId}`).expect(HttpStatus.BAD_REQUEST);
     });
 
     it.skip('should return 400 if question id not UUID', async () => {
       const nonExistentId = '11111111-1111-1111-1111-111111111111';
 
-      await request(httpServer)
-        .delete(`/sa/quiz/questions/${nonExistentId}`)
-        .expect(HttpStatus.BAD_REQUEST);
+      await request(httpServer).delete(`/sa/quiz/questions/${nonExistentId}`).expect(HttpStatus.BAD_REQUEST);
     });
   });
 });

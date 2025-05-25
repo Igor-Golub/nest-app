@@ -13,15 +13,8 @@ import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
 import { TestingModule } from './features/testing';
 import { CryptoService } from './infrastructure/services/crypto.service';
-import {
-  BlogIsExistConstraint,
-  EmailIsExistConstraint,
-  LoginIsExistConstraint,
-} from './common/decorators';
-import {
-  AccessTokenExistMiddleware,
-  LoggingMiddleware,
-} from './common/middleware';
+import { BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint } from './common/decorators';
+import { AccessTokenExistMiddleware, LoggingMiddleware } from './common/middleware';
 
 @Module({
   imports: [
@@ -52,20 +45,10 @@ import {
     QuizGameModule,
     configModule,
   ],
-  providers: [
-    JwtService,
-    CryptoService,
-    BlogIsExistConstraint,
-    EmailIsExistConstraint,
-    LoginIsExistConstraint,
-  ],
+  providers: [JwtService, CryptoService, BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AccessTokenExistMiddleware)
-      .forRoutes('*')
-      .apply(LoggingMiddleware)
-      .forRoutes('*');
+    consumer.apply(AccessTokenExistMiddleware).forRoutes('*').apply(LoggingMiddleware).forRoutes('*');
   }
 }

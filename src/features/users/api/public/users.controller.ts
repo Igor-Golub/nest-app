@@ -29,9 +29,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  public async getAll(
-    @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewModel[]>> {
+  public async getAll(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewModel[]>> {
     return this.usersQueryRepo.findWithPagination(query);
   }
 
@@ -47,9 +45,7 @@ export class UsersController {
   public async delete(@Param() { id }: DeleteUserParams) {
     const command = new DeleteUserCommand({ id });
 
-    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(
-      command,
-    );
+    const result = await this.commandBus.execute<DeleteUserCommand, boolean>(command);
 
     if (!result) throw new NotFoundException();
   }
