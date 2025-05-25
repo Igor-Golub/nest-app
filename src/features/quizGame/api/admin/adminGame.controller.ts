@@ -55,7 +55,7 @@ export class AdminQuizController {
   ) {
     const command = new CreateQuestionCommand({
       body: createQuestionDto.body,
-      correctAnswers: JSON.parse(createQuestionDto.correctAnswers),
+      correctAnswers: createQuestionDto.correctAnswers,
     });
 
     const questionId = await this.commandBus.execute<
@@ -73,7 +73,7 @@ export class AdminQuizController {
   ) {
     await this.checkQuestionExisting(id);
 
-    const command = new UpdateQuestionCommand();
+    // const command = new UpdateQuestionCommand();
 
     return '';
   }
@@ -85,7 +85,7 @@ export class AdminQuizController {
   ) {
     await this.checkQuestionExisting(id);
 
-    const command = new PublishQuestionCommand();
+    // const command = new PublishQuestionCommand();
 
     return '';
   }

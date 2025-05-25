@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { QuestionRepo } from '../infrastructure/question.repo';
+import { QuestionRepo } from '../infrastructure';
 
 interface CreateQuestionPayload {
   body: string;
-  correctAnswers: JSON;
+  correctAnswers: string[];
 }
 
 export class CreateQuestionCommand {

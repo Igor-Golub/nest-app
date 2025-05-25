@@ -8,7 +8,7 @@ export class Question extends BaseEntity {
   public text: string;
 
   @Column({ type: 'jsonb' })
-  public answers: JSON;
+  public answers: string[];
 
   @Column({ type: 'boolean' })
   public published: boolean;

@@ -2,11 +2,11 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Participant } from './participant.entity';
 import type { Question } from './question.entity';
-import { GameStatus } from '../infrastructure';
+import { GameStatus } from '../infrastructure/enums';
 
 @Entity()
 export class Game extends BaseEntity {
-  @Column({ type: 'enum', default: GameStatus.Pending, enum: GameStatus })
+  @Column({ type: 'enum', enum: GameStatus, default: GameStatus.Pending })
   public status: GameStatus;
 
   @Column()

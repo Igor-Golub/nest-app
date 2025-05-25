@@ -1,16 +1,20 @@
 import {
+  ArrayMinSize,
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
   IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
+import { PublishedStatus } from '../../../infrastructure/enums';
+import { QueryParams } from '../../../../../common/decorators/validate';
 import {
   IsStringWithExpectedLength,
   Trim,
 } from '../../../../../common/decorators';
-import { PublishedStatus } from '../../../infrastructure';
-import { QueryParams } from '../../../../../common/decorators/validate';
 
 export class QuestionParam {
   @IsUUID()
@@ -32,9 +36,11 @@ export class CreateUpdateQuestionModel {
   @IsStringWithExpectedLength(10, 500)
   body: string;
 
-  @Trim()
-  @IsString()
-  correctAnswers: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  correctAnswers: string[];
 }
 
 export class PublishQuestionModel {

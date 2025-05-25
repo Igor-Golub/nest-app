@@ -10,10 +10,12 @@ export class QuestionRepo {
     private readonly questionRepository: Repository<Question>,
   ) {}
 
-  public async createQuestion(text: string, answers: JSON) {
+  public async createQuestion(text: string, answers: string[]) {
     const question = new Question();
+
     question.text = text;
     question.answers = answers;
+    question.published = false;
 
     const { id } = await this.questionRepository.save(question);
 
