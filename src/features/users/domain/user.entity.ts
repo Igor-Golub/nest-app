@@ -6,6 +6,7 @@ import type { Session } from '../../auth/domain/session.entity';
 import type { PostComment } from '../../blogs/comments/domain/postComment.entity';
 import type { PostLike } from '../../blogs/posts/domain/postLikes.entity';
 import type { CommentLike } from '../../blogs/comments/domain/commentLike.entity';
+import type { Participant } from '../../quizGame/domain';
 
 @Entity()
 export class User extends BaseEntity {
@@ -21,6 +22,9 @@ export class User extends BaseEntity {
 
   @Column({ default: false })
   public isConfirmed: boolean;
+
+  @OneToOne('Participant', ({ user }: Participant) => user)
+  public participant: Participant;
 
   @OneToOne('Confirmation', (confirmation: Confirmation) => confirmation.owner)
   public confirmation: Confirmation;

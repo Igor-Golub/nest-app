@@ -34,3 +34,8 @@ export class PublishQuestionModel {
   @IsBoolean()
   published: boolean;
 }
+
+export class AnswerModel {
+  @IsString()
+  answer: string;
+}

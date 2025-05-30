@@ -9,3 +9,8 @@ export enum GameStatus {
   Active = 'active',
   Finished = 'finished',
 }
+
+export enum AnswerStatus {
+  Correct = 'Correct',
+  InCorrect = 'InCorrect',
+}

@@ -3,7 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameController, AdminQuizController } from './api';
 import { Game, Answer, Stats, Question, Participant } from './domain';
-import { GameQueryRepo, QuestionQueryRepo, GameRepo, QuestionRepo } from './infrastructure';
+import { GameQueryRepo, QuestionQueryRepo, GameRepo, QuestionRepo, AnswerQueryRepo } from './infrastructure';
 import {
   GameService,
   StatsService,
@@ -22,13 +22,14 @@ import {
   imports: [CqrsModule, TypeOrmModule.forFeature([Game, Answer, Stats, Question, Participant])],
   providers: [
     GameRepo,
-    GameQueryRepo,
-    QuestionRepo,
-    QuestionQueryRepo,
     GameService,
     StatsService,
+    QuestionRepo,
     TimerService,
     AnswerService,
+    GameQueryRepo,
+    AnswerQueryRepo,
+    QuestionQueryRepo,
     MatchmakingService,
     AnswerCommandHandler,
     ConnectCommandHandler,

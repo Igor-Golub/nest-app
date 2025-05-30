@@ -3,6 +3,7 @@ import { GameService } from './game.service';
 
 interface AnswerCommandPayload {
   gameId: string;
+  userId: string;
   answer: string;
 }
 

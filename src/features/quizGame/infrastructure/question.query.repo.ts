@@ -4,7 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Question } from '../domain';
 import { PublishedStatus } from './enums';
 import { QuestionsQuery } from '../api/models/input';
-import { QuestionMapManager } from '../api/models/mappers';
+import { GameMapManager } from '../api/models/mappers';
 import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 
 const publishStatusMapper: Omit<Record<PublishedStatus, boolean>, PublishedStatus.All> = {
@@ -43,7 +43,7 @@ export class QuestionQueryRepo {
       totalCount,
       size: params.pageSize,
       page: params.pageNumber,
-      items: QuestionMapManager.mapListToView(questions),
+      items: GameMapManager.mapListToView(questions),
     });
   }
 
