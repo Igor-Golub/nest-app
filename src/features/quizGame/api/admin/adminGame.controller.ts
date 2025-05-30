@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Delete, Put, Body, Param, Query, HttpStatus, HttpCode } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { QuestionMapManager } from '../models/mappers';
+import { GameMapManager } from '../models/mappers';
 import { QuestionQueryRepo } from '../../infrastructure';
 import { PublishQuestionModel, QuestionParam, QuestionsQuery, CreateUpdateQuestionModel } from '../models/input';
 import {
@@ -26,7 +26,7 @@ export class AdminQuizController {
   public async getQuestion(@Param() { id }: QuestionParam) {
     const question = await this.questionQueryRepo.findById(id);
 
-    return QuestionMapManager.mapToView(question!);
+    return GameMapManager.mapToView(question!);
   }
 
   @Post('/questions')

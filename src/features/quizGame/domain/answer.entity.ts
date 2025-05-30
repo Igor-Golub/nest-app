@@ -7,7 +7,7 @@ import { AnswerStatus } from '../infrastructure/enums';
 @Entity()
 export class Answer extends BaseEntity {
   @Column({ type: 'enum', enum: AnswerStatus, default: AnswerStatus.InCorrect })
-  public answerStatus: AnswerStatus;
+  public status: AnswerStatus;
 
   @ManyToOne('Participant', ({ answers }: Participant) => answers)
   public participant: Participant;

@@ -6,7 +6,7 @@ export class GameMapManager {
     return {
       addedAt: answers.createdAt,
       questionId: answers.question.id,
-      answerStatus: answers.answerStatus,
+      answerStatus: answers.status,
     };
   }
 
