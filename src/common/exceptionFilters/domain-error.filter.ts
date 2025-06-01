@@ -1,14 +1,14 @@
 import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Response } from 'express';
-import { RepositoryError } from '../../core/errors';
+import { DomainError } from '../../core/errors';
 
-@Catch(RepositoryError)
-export class RepositoryErrorFilter implements ExceptionFilter {
-  catch(exception: RepositoryError, host: ArgumentsHost) {
+@Catch(DomainError)
+export class DomainErrorFilter implements ExceptionFilter {
+  catch(exception: DomainError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    response.status(404).json({
+    response.status(exception.httpStatus).json({
       errorsMessages: [exception.message],
     });
   }

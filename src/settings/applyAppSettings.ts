@@ -4,6 +4,7 @@ import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '../app.module';
 import { CoreConfig } from '../core/core.config';
+import { DomainErrorFilter } from '../common/exceptionFilters/domain-error.filter';
 import { HttpExceptionFilter } from '../common/exceptionFilters/http-exception.filter';
 import { RepositoryErrorFilter } from '../common/exceptionFilters/repository-error.filter';
 
@@ -49,6 +50,7 @@ export function applyAppSettings(app: INestApplication) {
     }),
   );
 
+  app.useGlobalFilters(new DomainErrorFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new RepositoryErrorFilter());
 }
