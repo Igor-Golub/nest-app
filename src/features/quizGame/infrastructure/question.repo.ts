@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../domain';
-import { RepositoryError } from '../../../core/errors/RepositoryError';
+import { RepositoryError } from '../../../core/errors';
 
 @Injectable()
 export class QuestionRepo {
@@ -10,6 +10,14 @@ export class QuestionRepo {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
   ) {}
+
+  public async getRandom(amount: number) {
+    return this.questionRepository
+      .createQueryBuilder('question')
+      .orderBy('question.createdAt', 'ASC')
+      .limit(amount)
+      .getMany();
+  }
 
   public async createQuestion(text: string, answers: string[]) {
     const question = new Question();

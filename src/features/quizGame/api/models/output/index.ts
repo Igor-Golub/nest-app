@@ -30,8 +30,8 @@ export interface GameViewModel {
   id: string;
   status: GameStatus;
   startGameDate: Date;
-  finishGameDate: Date;
-  pairCreatedDate: Date;
+  finishGameDate: Date | null;
+  pairCreatedDate: Date | null;
   questions: GameQuestionViewModel[];
   firstPlayerProgress: PlayerViewModel;
   secondPlayerProgress: PlayerViewModel;

@@ -12,11 +12,8 @@ export class Game extends BaseEntity {
   @Column()
   public startedAt: Date;
 
-  @Column()
-  public finishedAt: Date;
-
-  @Column()
-  public pairCreatedAt: Date;
+  @Column({ nullable: true })
+  public finishedAt: Date | null;
 
   @OneToMany('Participant', ({ game }: Participant) => game)
   public participants: Participant[];

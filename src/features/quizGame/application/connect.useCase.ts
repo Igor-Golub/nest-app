@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GameService } from './game.service';
-import { Game } from '../domain';
 
 interface ConnectCommandPayload {
   userId: string;
@@ -15,23 +14,24 @@ export class ConnectCommandHandler implements ICommandHandler<ConnectCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { userId } }: ConnectCommand) {
-    const availableGames = await this.gameService.findAvailableGames(2);
+    await this.gameService.checkIsUserAlreadyInGame(userId);
 
-    if (availableGames.length) return this.connectToFirstAvailableGame(availableGames, userId);
+    const availableGame = await this.gameService.findAvailableGames();
+
+    if (availableGame) return this.connectToGame(availableGame.id, userId);
     else return this.createGameAndConnect(userId);
   }
 
-  private async connectToFirstAvailableGame(games: Game[], userId: string) {
-    const [firstGame] = games;
-    await this.gameService.attachUserToGame(firstGame.id, userId);
+  private async connectToGame(gameId: string, userId: string) {
+    await this.gameService.connectUser(gameId, userId);
 
-    return firstGame.id;
+    return gameId;
   }
 
   private async createGameAndConnect(userId: string) {
-    const { id } = await this.gameService.createGame();
-    await this.gameService.attachUserToGame(id, userId);
+    const { id: gameId } = await this.gameService.createGame(userId);
+    await this.connectToGame(gameId, userId);
 
-    return id;
+    return gameId;
   }
 }
