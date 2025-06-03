@@ -25,12 +25,6 @@ export class GameRepo {
       .getOne();
   }
 
-  public async attachUserToGame(gameId: string, userId: string) {
-    await this.gameRepo.update(gameId, {
-      participants: [],
-    });
-  }
-
   public async create(dto: DeepPartial<Game>) {
     return this.gameRepo.create(dto);
   }
