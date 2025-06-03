@@ -15,7 +15,6 @@ import { TestingModule } from './features/testing';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint } from './common/decorators';
 import { AccessTokenExistMiddleware, LoggingMiddleware } from './common/middleware';
-import { TransactionService } from './infrastructure/services/transaction.service';
 
 @Module({
   imports: [
@@ -46,14 +45,7 @@ import { TransactionService } from './infrastructure/services/transaction.servic
     QuizGameModule,
     configModule,
   ],
-  providers: [
-    JwtService,
-    CryptoService,
-    BlogIsExistConstraint,
-    EmailIsExistConstraint,
-    LoginIsExistConstraint,
-    TransactionService,
-  ],
+  providers: [JwtService, CryptoService, BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { DeepPartial, Repository } from 'typeorm';
 import { Game } from '../domain';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class GameRepo {
-  constructor(private readonly gameRepo: Repository<Game>) {}
+  constructor(@InjectRepository(Game) private readonly gameRepo: Repository<Game>) {}
 
   public async checkIsUserAlreadyInGame(userId: string) {
     const numberOfOccurrences = await this.gameRepo

@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameController, AdminQuizController } from './api';
 import { Game, Answer, Stats, Question, Participant } from './domain';
+import { TransactionService } from '../../infrastructure/services/transaction.service';
 import { GameQueryRepo, QuestionQueryRepo, GameRepo, QuestionRepo, AnswerQueryRepo } from './infrastructure';
 import {
   GameService,
@@ -37,6 +38,7 @@ import {
     CreateQuestionHandler,
     UpdateQuestionHandler,
     PublishQuestionHandler,
+    TransactionService,
   ],
   controllers: [GameController, AdminQuizController],
   exports: [],
