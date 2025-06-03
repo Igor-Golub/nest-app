@@ -16,14 +16,6 @@ export class GameService {
     private readonly transactionService: TransactionService,
   ) {}
 
-  public async checkIsUserAlreadyInGame(userId: string) {
-    return this.gameRepo.checkIsUserAlreadyInGame(userId);
-  }
-
-  public async findAvailableGames() {
-    return this.gameRepo.findAvailableGames(2);
-  }
-
   public async connectUser(gameId: string, userId: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
@@ -81,24 +73,16 @@ export class GameService {
 
       await queryRunner.manager.save(participant);
 
-      const createdGame = await this.findGameOrFail(queryRunner, game.id);
-
-      if (!createdGame) throw new DomainError(`Creation failed`, HttpStatus.BAD_REQUEST);
-
-      return createdGame;
+      return this.findGameOrFail(queryRunner, game.id);
     });
-  }
-
-  public async generateSetOfQuestions() {
-    return this.questionRepo.getRandom(5);
   }
 
   public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
-      const question = game.questions.find(({ answers }) => answers.includes(inputAnswer));
-      const participant = game.participants.find(({ id }) => id === userId);
+      const question = this.getGameQuestionByAnswer(game, inputAnswer);
+      const participant = this.getGameParticipantById(game, userId);
 
       const answer = queryRunner.manager.create(Answer, {
         question,
@@ -110,6 +94,18 @@ export class GameService {
 
       return answer;
     });
+  }
+
+  public async checkIsUserAlreadyInGame(userId: string) {
+    return this.gameRepo.checkIsUserAlreadyInGame(userId);
+  }
+
+  public async findAvailableGames() {
+    return this.gameRepo.findAvailableGames(2);
+  }
+
+  private async generateSetOfQuestions() {
+    return this.questionRepo.getRandom(5);
   }
 
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
@@ -126,5 +122,13 @@ export class GameService {
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
     return game;
+  }
+
+  private getGameQuestionByAnswer(game: Game, answer: string) {
+    return game.questions.find(({ answers }) => answers.includes(answer));
+  }
+
+  private getGameParticipantById(game: Game, userId: string) {
+    return game.participants.find(({ id }) => id === userId);
   }
 }
