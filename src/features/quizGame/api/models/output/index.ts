@@ -17,7 +17,7 @@ export interface AnswerViewModel {
   answerStatus: AnswerStatus;
 }
 
-export interface PlayerViewModel {
+export interface PlayerProgressViewModel {
   score: number;
   answers: AnswerViewModel[];
   player: {
@@ -29,10 +29,10 @@ export interface PlayerViewModel {
 export interface GameViewModel {
   id: string;
   status: GameStatus;
-  startGameDate: Date;
+  startGameDate: Date | null;
   finishGameDate: Date | null;
   pairCreatedDate: Date | null;
-  questions: GameQuestionViewModel[];
-  firstPlayerProgress: PlayerViewModel;
-  secondPlayerProgress: PlayerViewModel;
+  questions: GameQuestionViewModel[] | null;
+  firstPlayerProgress: PlayerProgressViewModel;
+  secondPlayerProgress: PlayerProgressViewModel | null;
 }

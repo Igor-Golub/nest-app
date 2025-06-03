@@ -9,8 +9,8 @@ export class Game extends BaseEntity {
   @Column({ type: 'enum', enum: GameStatus, default: GameStatus.Pending })
   public status: GameStatus;
 
-  @Column()
-  public startedAt: Date;
+  @Column({ nullable: true })
+  public startedAt: Date | null;
 
   @Column({ nullable: true })
   public finishedAt: Date | null;

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { Game } from '../../domain';
 import { AnswerModel } from '../models/input';
 import { GameMapManager } from '../models/mappers';
 import { JwtAuthGuard } from '../../../auth/guards';

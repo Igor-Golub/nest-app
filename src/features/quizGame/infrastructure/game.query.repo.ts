@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Game } from '../domain';
-import { RepositoryError } from '../../../core/errors/RepositoryError';
+import { RepositoryError } from '../../../core/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()

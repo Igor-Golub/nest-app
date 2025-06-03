@@ -1,6 +1,12 @@
-import { AnswerViewModel, GameQuestionViewModel, GameViewModel, PlayerViewModel, QuestionViewModel } from '../output';
-import { Answer, Game, type Participant, Question } from '../../../domain';
 import { AnswerStatus } from '../../../infrastructure/enums';
+import { Answer, Game, type Participant, Question } from '../../../domain';
+import {
+  AnswerViewModel,
+  GameQuestionViewModel,
+  GameViewModel,
+  PlayerProgressViewModel,
+  QuestionViewModel,
+} from '../output';
 
 export class GameMapManager {
   static mapAnswersToView(answers: Answer): AnswerViewModel {
@@ -18,7 +24,7 @@ export class GameMapManager {
     };
   }
 
-  static mapPlayerToView(participant: Participant): PlayerViewModel {
+  static mapPlayerToView(participant: Participant): PlayerProgressViewModel {
     return {
       score: participant.answers.reduce((score, { status }) => (score += status === AnswerStatus.Correct ? 1 : 0), 0),
       answers: participant.answers.map(this.mapAnswersToView),
@@ -49,9 +55,9 @@ export class GameMapManager {
       startGameDate: game.startedAt,
       finishGameDate: game.finishedAt,
       pairCreatedDate: game.startedAt,
-      questions: game.questions.map(this.mapQuestionsToView),
       firstPlayerProgress: this.mapPlayerToView(firstPlayer),
-      secondPlayerProgress: this.mapPlayerToView(secondPlayer),
+      questions: secondPlayer ? game.questions.map(this.mapQuestionsToView) : null,
+      secondPlayerProgress: secondPlayer ? this.mapPlayerToView(secondPlayer) : null,
     };
   }
 }

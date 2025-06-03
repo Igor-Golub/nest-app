@@ -1,10 +1,10 @@
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Game, Participant } from '../domain';
 import { DomainError } from '../../../core/errors';
-import { GameStatus } from '../infrastructure/enums';
+import { Answer, Game, Participant } from '../domain';
 import { User } from '../../users/domain/user.entity';
 import { GameRepo, QuestionRepo } from '../infrastructure';
+import { AnswerStatus, GameStatus } from '../infrastructure/enums';
 import { TransactionService } from '../../../infrastructure/services/transaction.service';
 
 @Injectable()
@@ -17,9 +17,7 @@ export class GameService {
   ) {}
 
   public async checkIsUserAlreadyInGame(userId: string) {
-    const userAlreadyInGame = await this.gameRepo.checkIsUserAlreadyInGame(userId);
-
-    if (!userAlreadyInGame) throw new DomainError('User already in game', HttpStatus.FORBIDDEN);
+    return this.gameRepo.checkIsUserAlreadyInGame(userId);
   }
 
   public async findAvailableGames() {
@@ -28,15 +26,7 @@ export class GameService {
 
   public async connectUser(gameId: string, userId: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
-      const game = await queryRunner.manager.findOne(Game, {
-        where: {
-          id: gameId,
-        },
-        relations: {
-          questions: true,
-          participants: true,
-        },
-      });
+      const game = await this.findGameOrFail(queryRunner, gameId);
 
       const secondPlayer = await queryRunner.manager.findOne(User, {
         where: {
@@ -44,9 +34,13 @@ export class GameService {
         },
       });
 
-      if (!game || !secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+      if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, { game, user: secondPlayer });
+      const participant = queryRunner.manager.create(Participant, {
+        game,
+        user: secondPlayer,
+      });
+
       await queryRunner.manager.save(participant);
 
       await queryRunner.manager.update(Game, game.id, {
@@ -87,15 +81,7 @@ export class GameService {
 
       await queryRunner.manager.save(participant);
 
-      const createdGame = await this.dataSource.getRepository(Game).findOne({
-        where: {
-          id: game.id,
-        },
-        relations: {
-          questions: true,
-          participants: true,
-        },
-      });
+      const createdGame = await this.findGameOrFail(queryRunner, game.id);
 
       if (!createdGame) throw new DomainError(`Creation failed`, HttpStatus.BAD_REQUEST);
 
@@ -105,5 +91,40 @@ export class GameService {
 
   public async generateSetOfQuestions() {
     return this.questionRepo.getRandom(5);
+  }
+
+  public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
+    return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
+      const game = await this.findGameOrFail(queryRunner, gameId);
+
+      const question = game.questions.find(({ answers }) => answers.includes(inputAnswer));
+      const participant = game.participants.find(({ id }) => id === userId);
+
+      const answer = queryRunner.manager.create(Answer, {
+        question,
+        participant,
+        status: !!question ? AnswerStatus.Correct : AnswerStatus.InCorrect,
+      });
+
+      await queryRunner.manager.save(answer);
+
+      return answer;
+    });
+  }
+
+  private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
+    const game = await queryRunner.manager.findOne(Game, {
+      where: {
+        id: gameId,
+      },
+      relations: {
+        questions: true,
+        participants: true,
+      },
+    });
+
+    if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+
+    return game;
   }
 }

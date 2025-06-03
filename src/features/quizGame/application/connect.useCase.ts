@@ -1,5 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GameService } from './game.service';
+import { DomainError } from '../../../core/errors';
+import { HttpStatus } from '@nestjs/common';
 
 interface ConnectCommandPayload {
   userId: string;
@@ -14,7 +16,9 @@ export class ConnectCommandHandler implements ICommandHandler<ConnectCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { userId } }: ConnectCommand) {
-    await this.gameService.checkIsUserAlreadyInGame(userId);
+    const userAlreadyInGame = await this.gameService.checkIsUserAlreadyInGame(userId);
+
+    if (userAlreadyInGame) throw new DomainError('User already in game', HttpStatus.FORBIDDEN);
 
     const availableGame = await this.gameService.findAvailableGames();
 
@@ -30,7 +34,6 @@ export class ConnectCommandHandler implements ICommandHandler<ConnectCommand> {
 
   private async createGameAndConnect(userId: string) {
     const { id: gameId } = await this.gameService.createGame(userId);
-    await this.connectToGame(gameId, userId);
 
     return gameId;
   }
