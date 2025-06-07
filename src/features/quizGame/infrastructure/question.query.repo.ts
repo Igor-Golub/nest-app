@@ -33,7 +33,7 @@ export class QuestionQueryRepo {
     const [questions, totalCount] = await this.questionRepository.findAndCount({
       where,
       order: {
-        [params.sortBy]: params.sortDirection,
+        [params.sortBy === 'body' ? 'text' : params.sortBy]: params.sortDirection,
       },
       take: params.pageSize,
       skip: (params.pageNumber - 1) * params.pageSize,

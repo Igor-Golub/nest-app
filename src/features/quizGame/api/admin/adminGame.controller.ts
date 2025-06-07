@@ -1,6 +1,19 @@
-import { Controller, Get, Post, Delete, Put, Body, Param, Query, HttpStatus, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Put,
+  Body,
+  Param,
+  Query,
+  HttpStatus,
+  HttpCode,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { GameMapManager } from '../models/mappers';
+import { BasicAuthGuard } from '../../../auth/guards';
 import { QuestionQueryRepo } from '../../infrastructure';
 import { PublishQuestionModel, QuestionParam, QuestionsQuery, CreateUpdateQuestionModel } from '../models/input';
 import {
@@ -10,6 +23,7 @@ import {
   PublishQuestionCommand,
 } from '../../application';
 
+@UseGuards(BasicAuthGuard)
 @Controller('sa/quiz')
 export class AdminQuizController {
   constructor(
@@ -45,31 +59,25 @@ export class AdminQuizController {
   }
 
   @Put('/questions/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async updateQuestion(@Param() { id }: QuestionParam, @Body() updateQuestionDto: CreateUpdateQuestionModel) {
     const command = new UpdateQuestionCommand({
       questionId: id,
       ...updateQuestionDto,
     });
 
-    const questionId = await this.commandBus.execute<UpdateQuestionCommand, string>(command);
-
-    const question = await this.questionQueryRepo.findById(questionId);
-
-    return GameMapManager.mapToView(question);
+    return this.commandBus.execute<UpdateQuestionCommand, string>(command);
   }
 
   @Put('/questions/:id/publish')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async publishQuestion(@Param() { id }: QuestionParam, @Body() publishQuestionDto: PublishQuestionModel) {
     const command = new PublishQuestionCommand({
       questionId: id,
       publishStatus: publishQuestionDto.published,
     });
 
-    const questionId = await this.commandBus.execute<PublishQuestionCommand, string>(command);
-
-    const question = await this.questionQueryRepo.findById(questionId);
-
-    return GameMapManager.mapToView(question);
+    return this.commandBus.execute<PublishQuestionCommand, string>(command);
   }
 
   @Delete('/questions/:id')
