@@ -1,9 +1,12 @@
 import { AnswerStatus, GameStatus } from '../../../infrastructure/enums';
 
 export class QuestionViewModel {
+  id: string;
   body: string;
-
   correctAnswers: string[];
+  published: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface GameQuestionViewModel {

@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { DeepPartial, Repository } from 'typeorm';
-import { Game } from '../domain';
+import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class GameRepo {
-  constructor(@InjectRepository(Game) private readonly gameRepo: Repository<Game>) {}
+  constructor(
+    @InjectRepository(Game) private readonly gameRepo: Repository<Game>,
+    @InjectRepository(Participant) private readonly participantRepo: Repository<Participant>,
+    @InjectRepository(Question) private readonly questionRepo: Repository<Question>,
+    @InjectRepository(Answer) private readonly answerRepo: Repository<Answer>,
+  ) {}
 
   public async checkIsUserAlreadyInGame(userId: string) {
     const numberOfOccurrences = await this.gameRepo
@@ -28,5 +33,12 @@ export class GameRepo {
 
   public async create(dto: DeepPartial<Game>) {
     return this.gameRepo.create(dto);
+  }
+
+  public async drop() {
+    await this.participantRepo.delete({});
+    await this.questionRepo.delete({});
+    await this.answerRepo.delete({});
+    await this.gameRepo.delete({});
   }
 }

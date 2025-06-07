@@ -41,6 +41,6 @@ import {
     TransactionService,
   ],
   controllers: [GameController, AdminQuizController],
-  exports: [],
+  exports: [GameRepo],
 })
 export class QuizGameModule {}

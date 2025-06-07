@@ -39,7 +39,9 @@ export class AdminQuizController {
 
     const questionId = await this.commandBus.execute<CreateQuestionCommand, string>(command);
 
-    return this.questionQueryRepo.findById(questionId);
+    const question = await this.questionQueryRepo.findById(questionId);
+
+    return GameMapManager.mapToView(question);
   }
 
   @Put('/questions/:id')
@@ -51,7 +53,9 @@ export class AdminQuizController {
 
     const questionId = await this.commandBus.execute<UpdateQuestionCommand, string>(command);
 
-    return this.questionQueryRepo.findById(questionId);
+    const question = await this.questionQueryRepo.findById(questionId);
+
+    return GameMapManager.mapToView(question);
   }
 
   @Put('/questions/:id/publish')
@@ -63,7 +67,9 @@ export class AdminQuizController {
 
     const questionId = await this.commandBus.execute<PublishQuestionCommand, string>(command);
 
-    return this.questionQueryRepo.findById(questionId);
+    const question = await this.questionQueryRepo.findById(questionId);
+
+    return GameMapManager.mapToView(question);
   }
 
   @Delete('/questions/:id')

@@ -37,8 +37,12 @@ export class GameMapManager {
 
   static mapToView(question: Question): QuestionViewModel {
     return {
+      id: question.id,
       body: question.text,
       correctAnswers: question.answers,
+      published: question.published,
+      createdAt: question.createdAt,
+      updatedAt: question.updatedAt,
     };
   }
 

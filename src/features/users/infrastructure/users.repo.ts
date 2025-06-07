@@ -51,10 +51,6 @@ export class UsersRepository {
     return this.repository.update(id, { isConfirmed: true });
   }
 
-  public findById(id: string) {
-    return this.repository.findOneBy({ id });
-  }
-
   public async drop() {
     return this.repository.delete({});
   }
