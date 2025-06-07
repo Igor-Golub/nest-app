@@ -8,6 +8,6 @@ export abstract class BaseEntity<Id extends string | number = string> {
   @CreateDateColumn()
   public createdAt: Date;
 
-  @UpdateDateColumn()
-  public updatedAt: Date;
+  @UpdateDateColumn({ nullable: true })
+  public updatedAt: Date | null;
 }

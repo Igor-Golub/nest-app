@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToMany } from 'typeorm';
-import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Game } from './game.entity';
+import { BaseTrackedEntity } from '../../../core/entities/baseTrackedEntity';
 
 @Entity()
-export class Question extends BaseEntity {
+export class Question extends BaseTrackedEntity {
   @Column()
   public text: string;
 

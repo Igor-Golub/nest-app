@@ -6,7 +6,7 @@ export class QuestionViewModel {
   correctAnswers: string[];
   published: boolean;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
 }
 
 export interface GameQuestionViewModel {
