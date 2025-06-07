@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { AnswerModel } from '../models/input';
 import { GameMapManager } from '../models/mappers';
@@ -23,7 +23,10 @@ export class GameController {
   }
 
   @Get('pairs/:id')
-  async pairs(@Param('id') id: string) {
+  async pairs(@CurrentUserId() userId: string, @Param('id') id: string) {
+    const isHasAccess = await this.gameQueryRepo.checkIsUserHasAccessToGame(id, userId);
+    if (!isHasAccess) throw new ForbiddenException();
+
     const game = await this.gameQueryRepo.findById(id);
     return GameMapManager.mapGameToView(game);
   }

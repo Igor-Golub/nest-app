@@ -81,6 +81,8 @@ export class GameService {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
+      console.log(game);
+
       const question = this.getGameQuestionByAnswer(game, inputAnswer);
       const participant = this.getGameParticipantById(game, userId);
 
@@ -114,6 +116,7 @@ export class GameService {
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
+      .leftJoinAndSelect('participants.user', 'user')
       .where('game.id = :gameId', { gameId })
       .getOne();
 
@@ -127,6 +130,6 @@ export class GameService {
   }
 
   private getGameParticipantById(game: Game, userId: string) {
-    return game.participants.find(({ id }) => id === userId);
+    return game.participants.find(({ user }) => user.id === userId);
   }
 }

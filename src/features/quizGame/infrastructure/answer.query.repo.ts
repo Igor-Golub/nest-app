@@ -11,7 +11,14 @@ export class AnswerQueryRepo {
   ) {}
 
   public async findById(id: string) {
-    const answer = await this.answerRepository.findOneBy({ id });
+    const answer = await this.answerRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        question: true,
+      },
+    });
 
     if (!answer) {
       throw new NotFoundException(`Answer with id ${id} not found`);

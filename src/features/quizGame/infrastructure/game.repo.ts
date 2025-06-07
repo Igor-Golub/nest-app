@@ -13,13 +13,12 @@ export class GameRepo {
   ) {}
 
   public async checkIsUserAlreadyInGame(userId: string) {
-    const numberOfOccurrences = await this.gameRepo
+    return this.gameRepo
       .createQueryBuilder('game')
-      .leftJoin('game.participants', 'participant')
-      .where('participant.id = :id', { id: userId })
-      .getCount();
-
-    return Boolean(numberOfOccurrences);
+      .leftJoinAndSelect('game.participants', 'participants')
+      .leftJoinAndSelect('participants.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getExists();
   }
 
   public async findAvailableGames(amountOfParticipants: number) {

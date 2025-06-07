@@ -14,6 +14,7 @@ export class QuestionRepo {
   public async getRandom(amount: number) {
     return this.questionRepository
       .createQueryBuilder('question')
+      .where('question.published = :published', { published: true })
       .orderBy('question.createdAt', 'ASC')
       .limit(amount)
       .getMany();

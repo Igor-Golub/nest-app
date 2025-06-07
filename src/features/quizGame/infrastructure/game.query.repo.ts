@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { Game } from '../domain';
+import { Game, Participant } from '../domain';
 import { RepositoryError } from '../../../core/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -9,6 +9,7 @@ export class GameQueryRepo {
   constructor(
     @InjectRepository(Game)
     private gameRepo: Repository<Game>,
+    @InjectRepository(Participant) private participantRepo: Repository<Participant>,
   ) {}
 
   public async findById(id: string) {
@@ -18,6 +19,7 @@ export class GameQueryRepo {
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
+      .leftJoinAndSelect('answers.question', 'question')
       .where('game.id = :gameId', { gameId: id })
       .getOne();
 
@@ -26,18 +28,28 @@ export class GameQueryRepo {
     return game;
   }
 
-  public async findByParticipantId(id: string) {
-    const game = await this.gameRepo
+  public async findByParticipantId(userId: string) {
+    const participant = await this.participantRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['game'],
+    });
+
+    if (!participant || !participant.game) {
+      throw new RepositoryError(`Game not found for user ${userId}`);
+    }
+
+    const gameId = participant.game.id;
+
+    return this.findById(gameId);
+  }
+
+  public async checkIsUserHasAccessToGame(gameId: string, userId: string) {
+    return this.gameRepo
       .createQueryBuilder('game')
-      .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
-      .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
-      .where('participants.user.id = :userId', { userId: id })
-      .getOne();
-
-    if (!game) throw new RepositoryError(`Game does not exist`);
-
-    return game;
+      .where('user.id = :userId', { userId })
+      .andWhere('game.id = :gameId', { gameId })
+      .getExists();
   }
 }
