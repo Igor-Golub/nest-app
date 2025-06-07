@@ -17,19 +17,19 @@ export class GameController {
   ) {}
 
   @Get('pairs/my-current')
-  async getGame(@CurrentUserId() userId: string) {
+  async myCurrent(@CurrentUserId() userId: string) {
     const game = await this.gameQueryRepo.findByParticipantId(userId);
     return GameMapManager.mapGameToView(game);
   }
 
   @Get('pairs/:id')
-  async gamePairs(@Param('id') id: string) {
+  async pairs(@Param('id') id: string) {
     const game = await this.gameQueryRepo.findById(id);
     return GameMapManager.mapGameToView(game);
   }
 
   @Post('pairs/connection')
-  async connectToGame(@CurrentUserId() userId: string) {
+  async connect(@CurrentUserId() userId: string) {
     const connect = new ConnectCommand({ userId });
 
     const gameId = await this.commandBus.execute<ConnectCommand, string>(connect);
@@ -40,7 +40,7 @@ export class GameController {
   }
 
   @Post('pairs/my-current/answer')
-  async answerGame(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {
+  async answer(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {
     const game = await this.gameQueryRepo.findByParticipantId(userId);
 
     const command = new AnswerCommand({ userId, answer: inputAnswer, gameId: game.id });

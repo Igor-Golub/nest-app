@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DeepPartial, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -29,10 +29,6 @@ export class GameRepo {
       .groupBy('game.id')
       .having('COUNT(participant.id) < :count', { count: amountOfParticipants })
       .getOne();
-  }
-
-  public async create(dto: DeepPartial<Game>) {
-    return this.gameRepo.create(dto);
   }
 
   public async drop() {

@@ -15,9 +15,9 @@ export class TestingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete() {
     try {
-      await this.userRepository.drop();
-      await this.blogRepository.drop();
       await this.gameRepository.drop();
+      await this.blogRepository.drop();
+      await this.userRepository.drop();
     } catch (error) {
       console.error(error);
     }

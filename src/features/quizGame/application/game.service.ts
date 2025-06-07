@@ -109,15 +109,13 @@ export class GameService {
   }
 
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
-    const game = await queryRunner.manager.findOne(Game, {
-      where: {
-        id: gameId,
-      },
-      relations: {
-        questions: true,
-        participants: true,
-      },
-    });
+    const game = await queryRunner.manager
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('game.participants', 'participants')
+      .leftJoinAndSelect('participants.answers', 'answers')
+      .where('game.id = :gameId', { gameId })
+      .getOne();
 
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 

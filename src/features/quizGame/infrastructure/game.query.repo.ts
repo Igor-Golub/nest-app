@@ -12,13 +12,14 @@ export class GameQueryRepo {
   ) {}
 
   public async findById(id: string) {
-    const game = await this.gameRepo.findOne({
-      where: { id },
-      relations: {
-        questions: true,
-        participants: true,
-      },
-    });
+    const game = await this.gameRepo
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('game.participants', 'participants')
+      .leftJoinAndSelect('participants.answers', 'answers')
+      .leftJoinAndSelect('participants.user', 'user')
+      .where('game.id = :gameId', { gameId: id })
+      .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);
 
@@ -28,7 +29,11 @@ export class GameQueryRepo {
   public async findByParticipantId(id: string) {
     const game = await this.gameRepo
       .createQueryBuilder('game')
-      .innerJoin('game.participants', 'participant', 'participant.id = :participantId', { participantId: id })
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('game.participants', 'participants')
+      .leftJoinAndSelect('participants.answers', 'answers')
+      .leftJoinAndSelect('participants.user', 'user')
+      .where('participants.user.id = :userId', { userId: id })
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);
