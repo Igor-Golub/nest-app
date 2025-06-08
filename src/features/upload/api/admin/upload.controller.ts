@@ -1,21 +1,47 @@
 import { extname } from 'path';
+import { Response } from 'express';
 import { diskStorage } from 'multer';
-import { Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  StreamableFile,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { BasicAuthGuard } from '../../../auth/guards';
-import { UploadService } from '../../application/upload.service';
 import { UploadViewMapper } from '../mappers/viewMapper';
+import { UploadService } from '../../application/upload.service';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/file')
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
-  @Get(':id')
+  @Get(':id/meta')
   async fileMeta(@Param('id') id: string) {
     const fileMeta = await this.uploadService.findById(id);
 
     return UploadViewMapper.fileMetaToView(fileMeta);
+  }
+
+  @Get(':id')
+  async file(@Param('id') id: string, @Res({ passthrough: true }) res: Response) {
+    const fileMeta = await this.uploadService.findById(id);
+
+    const fileStream = createReadStream(fileMeta.path);
+
+    res.set({
+      'Content-Type': fileMeta.mimetype,
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(fileMeta.originalName)}"`,
+    });
+
+    return new StreamableFile(fileStream);
   }
 
   @Post('upload')
