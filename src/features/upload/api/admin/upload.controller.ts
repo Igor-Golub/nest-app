@@ -3,15 +3,17 @@ import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
-  Controller,
   Get,
-  Param,
-  Post,
   Res,
-  StreamableFile,
-  UploadedFile,
+  Post,
+  Param,
   UseGuards,
+  HttpStatus,
+  Controller,
+  UploadedFile,
+  StreamableFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../../auth/guards';
@@ -23,6 +25,29 @@ import { UploadService } from '../../application/upload.service';
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
+  @ApiOperation({
+    summary: 'Get meta information about file',
+    description: 'Response will include meta information about uploaded file.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    required: true,
+    example: 'random UUID',
+    description: 'Id of uploaded file',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieve meta information about uploaded file.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Information by resaved id not found.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'If id param not UUID',
+  })
   @Get(':id/meta')
   async fileMeta(@Param('id') id: string) {
     const fileMeta = await this.uploadService.findById(id);
