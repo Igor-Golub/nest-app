@@ -1,16 +1,25 @@
-import { extname } from 'path';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiProduces,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   Get,
   Res,
   Post,
   Param,
   UseGuards,
-  HttpStatus,
   Controller,
   UploadedFile,
   StreamableFile,
@@ -19,7 +28,9 @@ import {
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UploadViewMapper } from '../mappers/viewMapper';
 import { UploadService } from '../../application/upload.service';
+import { FileMetaViewModel, UploadedFileViewModel } from '../models/output';
 
+@ApiTags('Files')
 @UseGuards(BasicAuthGuard)
 @Controller('sa/file')
 export class UploadController {
@@ -33,30 +44,58 @@ export class UploadController {
     name: 'id',
     type: 'string',
     required: true,
-    example: 'random UUID',
-    description: 'Id of uploaded file',
+    description: 'UUID of the uploaded file',
+    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Successfully retrieve meta information about uploaded file.',
+  @ApiExtraModels(FileMetaViewModel)
+  @ApiOkResponse({
+    type: FileMetaViewModel,
+    description: 'Meta information about uploaded file',
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Information by resaved id not found.',
+  @ApiNotFoundResponse({
+    description: 'Information by resaved id not found',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiBadRequestResponse({
     description: 'If id param not UUID',
   })
   @Get(':id/meta')
-  async fileMeta(@Param('id') id: string) {
+  async getFileMeta(@Param('id') id: string) {
     const fileMeta = await this.uploadService.findById(id);
 
     return UploadViewMapper.fileMetaToView(fileMeta);
   }
 
+  @ApiOperation({
+    summary: 'Download uploaded file by ID',
+    description: 'Returns a file stream with appropriate headers for downloading.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    required: true,
+    example: '9f8e1c7a-2d47-4c2d-a4e1-bb91c8123456',
+    description: 'UUID of the uploaded file',
+  })
+  @ApiProduces('application/octet-stream')
+  @ApiOkResponse({
+    description: 'Returns the file as a stream',
+    content: {
+      'application/octet-stream': {
+        schema: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'No file found with the given ID',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid file ID format',
+  })
   @Get(':id')
-  async file(@Param('id') id: string, @Res({ passthrough: true }) res: Response) {
+  async downloadFile(@Param('id') id: string, @Res({ passthrough: true }) res: Response) {
     const fileMeta = await this.uploadService.findById(id);
 
     const fileStream = createReadStream(fileMeta.path);
@@ -69,15 +108,38 @@ export class UploadController {
     return new StreamableFile(fileStream);
   }
 
+  @ApiOperation({
+    summary: 'Upload any file',
+    description: 'Endpoint for uploading a file to the server. Accepts any file type.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File to upload',
+    required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    type: UploadedFileViewModel,
+    description: 'Successfully uploaded file metadata',
+  })
+  @ApiBadRequestResponse({
+    description: 'No file provided or file upload failed',
+  })
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
-        filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        filename: ({ uploadService }, file, callback) => {
+          const filename = uploadService.generateUniqueFileName(file);
           callback(null, filename);
         },
       }),

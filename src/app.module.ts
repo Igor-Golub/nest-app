@@ -15,7 +15,7 @@ import { UploadModule } from './features/upload';
 import { TestingModule } from './features/testing';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint } from './common/decorators';
-import { AccessTokenExistMiddleware, LoggingMiddleware } from './common/middleware';
+import { AccessTokenExistMiddleware, LoggingMiddleware, UploadMiddleware } from './common/middleware';
 
 @Module({
   imports: [
@@ -51,6 +51,12 @@ import { AccessTokenExistMiddleware, LoggingMiddleware } from './common/middlewa
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AccessTokenExistMiddleware).forRoutes('*').apply(LoggingMiddleware).forRoutes('*');
+    consumer
+      .apply(AccessTokenExistMiddleware)
+      .forRoutes('*')
+      .apply(LoggingMiddleware)
+      .forRoutes('*')
+      .apply(UploadMiddleware)
+      .forRoutes('sa/file/upload');
   }
 }

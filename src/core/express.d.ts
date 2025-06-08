@@ -1,3 +1,5 @@
+import type { UploadService } from '../features/upload/application/upload.service';
+
 export declare global {
   namespace Express {
     export interface Request {
@@ -5,6 +7,8 @@ export declare global {
         id: string | null;
         deviceId: string | null;
       };
+
+      uploadService: UploadService;
     }
   }
 }

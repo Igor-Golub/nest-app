@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadedFile } from '../domain/file.entity';
 import { Repository } from 'typeorm';
 import { RepositoryError } from '../../../core/errors';
+import { extname } from 'path';
 
 @Injectable()
 export class UploadService {
@@ -26,5 +27,11 @@ export class UploadService {
     });
 
     return this.fileRepository.save(entity);
+  }
+
+  public generateUniqueFileName(file: Express.Multer.File) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = extname(file.originalname);
+    return `${file.fieldname}-${uniqueSuffix}${ext}`;
   }
 }
