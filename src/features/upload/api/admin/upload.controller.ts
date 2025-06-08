@@ -1,16 +1,24 @@
 import { extname } from 'path';
 import { diskStorage } from 'multer';
-import { Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BasicAuthGuard } from '../../../auth/guards';
 import { UploadService } from '../../application/upload.service';
+import { UploadViewMapper } from '../mappers/viewMapper';
 
 @UseGuards(BasicAuthGuard)
-@Controller('sa/upload')
+@Controller('sa/file')
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
-  @Post()
+  @Get(':id')
+  async fileMeta(@Param('id') id: string) {
+    const fileMeta = await this.uploadService.findById(id);
+
+    return UploadViewMapper.fileMetaToView(fileMeta);
+  }
+
+  @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
