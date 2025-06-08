@@ -11,6 +11,7 @@ import { BlogsModule } from './features/blogs';
 import { QuizGameModule } from './features/quizGame';
 import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
+import { UploadModule } from './features/upload';
 import { TestingModule } from './features/testing';
 import { CryptoService } from './infrastructure/services/crypto.service';
 import { BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint } from './common/decorators';
@@ -43,6 +44,7 @@ import { AccessTokenExistMiddleware, LoggingMiddleware } from './common/middlewa
     TestingModule,
     BlogsModule,
     QuizGameModule,
+    UploadModule,
     configModule,
   ],
   providers: [JwtService, CryptoService, BlogIsExistConstraint, EmailIsExistConstraint, LoginIsExistConstraint],
