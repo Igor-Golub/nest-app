@@ -1,11 +1,48 @@
 import { AnswerStatus, GameStatus } from '../../../infrastructure/enums';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class QuestionViewModel {
+  @ApiProperty({
+    example: 'f1a2b3c4-5678-90ab-cdef-1234567890ab',
+    description: 'Unique identifier of the question',
+    format: 'uuid',
+  })
   id: string;
+
+  @ApiProperty({
+    example: 'What is the capital of France?',
+    description: 'Text content of the question',
+  })
   body: string;
+
+  @ApiProperty({
+    example: ['Paris'],
+    description: 'List of correct answers for the question',
+    type: [String],
+  })
   correctAnswers: string[];
+
+  @ApiProperty({
+    example: true,
+    description: 'Indicates whether the question is published and visible to users',
+  })
   published: boolean;
+
+  @ApiProperty({
+    example: '2024-06-08T12:34:56.789Z',
+    description: 'Date and time when the question was created',
+    type: String,
+    format: 'date-time',
+  })
   createdAt: Date;
+
+  @ApiProperty({
+    example: '2024-06-09T09:15:30.000Z',
+    description: 'Date and time when the question was last updated (nullable)',
+    type: String,
+    format: 'date-time',
+    nullable: true,
+  })
   updatedAt: Date | null;
 }
 
