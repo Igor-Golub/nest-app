@@ -8,12 +8,14 @@ import { CurrentSession } from '../../../../common/pipes';
 import { SessionService } from '../../application/sessions/session.service';
 import { UsersService } from '../../../users/application';
 import { SessionRepository } from '../../infrastructure/session.repository';
+import { ApiTags } from '@nestjs/swagger';
 
 enum SessionRoutes {
   Devices = 'devices',
   DeleteSessionByDeviceId = 'devices/:id',
 }
 
+@ApiTags('Sessions')
 @Controller('security')
 @UseGuards(JwtCookieRefreshAuthGuard)
 export class SessionController {

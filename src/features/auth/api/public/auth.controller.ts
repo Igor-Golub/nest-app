@@ -39,6 +39,18 @@ import { CurrentDevice, CurrentSession, CurrentUserId } from '../../../../common
 import { LogoutCommand } from '../../application/auth';
 import { SessionService } from '../../application/sessions/session.service';
 import { UsersService } from '../../../users/application';
+import {
+  ApiBadRequestResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { ProfileViewModel } from '../models/output';
+import { LoginViewModel } from '../models/input/loginDto';
 
 enum AuthRoutes {
   Me = '/me',
@@ -52,6 +64,7 @@ enum AuthRoutes {
   RegistrationEmailResending = '/registration-email-resending',
 }
 
+@ApiTags('Authorization')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -62,6 +75,10 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiOkResponse({ description: 'User profile returned successfully', type: ProfileViewModel })
+  @ApiUnauthorizedResponse({ description: 'No authenticated' })
+  @ApiBadRequestResponse({ description: 'User not found' })
   @UseGuards(JwtAuthGuard)
   @Get(AuthRoutes.Me)
   public async getProfile(@CurrentUserId() currentUserId: string) {
@@ -72,6 +89,11 @@ export class AuthController {
     return AuthViewMapperManager.mapProfileToView(data);
   }
 
+  @ApiOperation({ summary: 'Login user and set auth cookies' })
+  @ApiOkResponse({ description: 'Login successful, access token returned', type: LoginViewModel })
+  @ApiBadRequestResponse({ description: 'Input invalid' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Post(AuthRoutes.Login)
@@ -99,6 +121,10 @@ export class AuthController {
     return { accessToken: access };
   }
 
+  @ApiOperation({ summary: 'Send password recovery email' })
+  @ApiOkResponse({ description: 'Recovery email sent' })
+  @ApiBadRequestResponse({ description: 'Input invalid' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.PasswordRecovery)
   public async recoveryPassword(@Body() passwordRecoveryDto: PasswordRecoveryDto) {
@@ -107,6 +133,9 @@ export class AuthController {
     return this.commandBus.execute(command);
   }
 
+  @ApiOperation({ summary: 'Set new password after recovery' })
+  @ApiOkResponse({ description: 'Password changed successfully' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.NewPassword)
   public async confirmPasswordRecovery(@Body() confirmPasswordRecoveryDto: ConfirmPasswordRecoveryDto) {
@@ -115,6 +144,9 @@ export class AuthController {
     return await this.commandBus.execute(command);
   }
 
+  @ApiOperation({ summary: 'Confirm user registration' })
+  @ApiNoContentResponse({ description: 'Confirmation successful' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Confirmation)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -124,6 +156,9 @@ export class AuthController {
     return await this.commandBus.execute(command);
   }
 
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiNoContentResponse({ description: 'Registration successful' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.Registration)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -133,6 +168,10 @@ export class AuthController {
     return await this.commandBus.execute(command);
   }
 
+  @ApiOperation({ summary: 'Resend confirmation email' })
+  @ApiNoContentResponse({ description: 'Email resent successfully' })
+  @ApiNotFoundResponse({ description: 'User with this email not found' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @Post(AuthRoutes.RegistrationEmailResending)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -150,6 +189,10 @@ export class AuthController {
     return await this.commandBus.execute(command);
   }
 
+  @ApiOperation({ summary: 'Refresh access and refresh tokens' })
+  @ApiOkResponse({ description: 'Tokens refreshed successfully' })
+  @ApiUnauthorizedResponse({ description: 'No authenticated' })
+  @ApiTooManyRequestsResponse({ description: 'Throttle limit' })
   @UseGuards(ThrottlerGuard)
   @UseGuards(JwtCookieRefreshAuthGuard)
   @Post(AuthRoutes.Refresh)
@@ -178,6 +221,9 @@ export class AuthController {
     return { accessToken: access };
   }
 
+  @ApiOperation({ summary: 'Logout user and clear session' })
+  @ApiNoContentResponse({ description: 'Logout successful' })
+  @ApiUnauthorizedResponse({ description: 'No authenticated' })
   @Post(AuthRoutes.Logout)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtCookieRefreshAuthGuard)
