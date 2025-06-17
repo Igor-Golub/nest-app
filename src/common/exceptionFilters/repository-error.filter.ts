@@ -8,7 +8,7 @@ export class RepositoryErrorFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    response.status(404).json({
+    response.status(exception.httpStatus).json({
       errorsMessages: [exception.message],
     });
   }

@@ -81,8 +81,6 @@ export class GameService {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
-      console.log(game);
-
       const question = this.getGameQuestionByAnswer(game, inputAnswer);
       const participant = this.getGameParticipantById(game, userId);
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Game, Participant } from '../domain';
 import { RepositoryError } from '../../../core/errors';
@@ -28,14 +28,14 @@ export class GameQueryRepo {
     return game;
   }
 
-  public async findByParticipantId(userId: string) {
+  public async findByParticipantId(userId: string, httpErrorStatus: HttpStatus = HttpStatus.NOT_FOUND) {
     const participant = await this.participantRepo.findOne({
       where: { user: { id: userId } },
       relations: ['game'],
     });
 
     if (!participant || !participant.game) {
-      throw new RepositoryError(`Game not found for user ${userId}`);
+      throw new RepositoryError(`Game not found for user ${userId}`, httpErrorStatus);
     }
 
     const gameId = participant.game.id;

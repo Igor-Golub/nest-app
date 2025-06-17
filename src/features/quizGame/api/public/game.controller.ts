@@ -1,11 +1,11 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { AnswerModel } from '../models/input';
 import { GameMapManager } from '../models/mappers';
 import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
-import { GameQueryRepo, AnswerQueryRepo } from '../../infrastructure';
+import { AnswerQueryRepo, GameQueryRepo } from '../../infrastructure';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiBearerAuth()
@@ -58,7 +58,7 @@ export class GameController {
   })
   @Post('pairs/my-current/answers')
   async answer(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {
-    const game = await this.gameQueryRepo.findByParticipantId(userId);
+    const game = await this.gameQueryRepo.findByParticipantId(userId, HttpStatus.FORBIDDEN);
 
     const command = new AnswerCommand({ userId, answer: inputAnswer, gameId: game.id });
 
