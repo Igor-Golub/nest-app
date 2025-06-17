@@ -6,9 +6,11 @@ import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
 import { GameQueryRepo, AnswerQueryRepo } from '../../infrastructure';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('game')
+@Controller('pair-game-quiz')
 export class GameController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -16,12 +18,18 @@ export class GameController {
     private readonly answerQueryRepo: AnswerQueryRepo,
   ) {}
 
+  @ApiOperation({
+    summary: 'Get user game',
+  })
   @Get('pairs/my-current')
   async myCurrent(@CurrentUserId() userId: string) {
     const game = await this.gameQueryRepo.findByParticipantId(userId);
     return GameMapManager.mapGameToView(game);
   }
 
+  @ApiOperation({
+    summary: 'Get game by id',
+  })
   @Get('pairs/:id')
   async pairs(@CurrentUserId() userId: string, @Param('id') id: string) {
     const isHasAccess = await this.gameQueryRepo.checkIsUserHasAccessToGame(id, userId);
@@ -31,6 +39,9 @@ export class GameController {
     return GameMapManager.mapGameToView(game);
   }
 
+  @ApiOperation({
+    summary: 'Connect user to game',
+  })
   @Post('pairs/connection')
   async connect(@CurrentUserId() userId: string) {
     const connect = new ConnectCommand({ userId });
@@ -42,7 +53,10 @@ export class GameController {
     return GameMapManager.mapGameToView(game);
   }
 
-  @Post('pairs/my-current/answer')
+  @ApiOperation({
+    summary: 'Send answer for next not answered question in active game',
+  })
+  @Post('pairs/my-current/answers')
   async answer(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {
     const game = await this.gameQueryRepo.findByParticipantId(userId);
 

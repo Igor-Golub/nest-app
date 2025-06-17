@@ -31,9 +31,9 @@ export class GameRepo {
   }
 
   public async drop() {
-    await this.participantRepo.delete({});
-    await this.questionRepo.delete({});
     await this.answerRepo.delete({});
+    await this.questionRepo.delete({});
+    await this.participantRepo.delete({});
     await this.gameRepo.delete({});
   }
 }
