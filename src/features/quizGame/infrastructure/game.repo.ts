@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RepositoryError } from '../../../core/errors';
+import { AnswerStatus } from './enums';
 
 @Injectable()
 export class GameRepo {
@@ -12,6 +13,18 @@ export class GameRepo {
     @InjectRepository(Question) private readonly questionRepo: Repository<Question>,
     @InjectRepository(Answer) private readonly answerRepo: Repository<Answer>,
   ) {}
+
+  public async checkAmountOfRightAnswers(gameId: string, userId: string) {
+    return this.answerRepo
+      .createQueryBuilder('answer')
+      .leftJoinAndSelect('answer.participant', 'participant')
+      .leftJoinAndSelect('participant.user', 'user')
+      .leftJoinAndSelect('participant.game', 'game')
+      .where('user.id = :userId', { userId })
+      .andWhere('game.id = :gameId', { gameId })
+      .andWhere('answer.status = :status', { status: AnswerStatus.Correct })
+      .getCount();
+  }
 
   public async checkIsUserAlreadyInGame(userId: string) {
     return this.gameRepo

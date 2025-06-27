@@ -34,7 +34,7 @@ export class QuestionViewModel {
     type: String,
     format: 'date-time',
   })
-  createdAt: string;
+  createdAt: Date;
 
   @ApiProperty({
     example: '2024-06-09T09:15:30.000Z',
@@ -43,7 +43,7 @@ export class QuestionViewModel {
     format: 'date-time',
     nullable: true,
   })
-  updatedAt: string | null;
+  updatedAt: Date | null;
 }
 
 export interface GameQuestionViewModel {
@@ -69,9 +69,9 @@ export interface PlayerProgressViewModel {
 export interface GameViewModel {
   id: string;
   status: GameStatus;
-  startGameDate: string | null;
-  finishGameDate: string | null;
-  pairCreatedDate: string | null;
+  startGameDate: Date | null;
+  finishGameDate: Date | null;
+  pairCreatedDate: Date | null;
   questions: GameQuestionViewModel[] | null;
   firstPlayerProgress: PlayerProgressViewModel;
   secondPlayerProgress: PlayerProgressViewModel | null;

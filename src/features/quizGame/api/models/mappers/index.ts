@@ -41,8 +41,8 @@ export class GameMapManager {
       body: question.text,
       correctAnswers: question.answers,
       published: question.published,
-      createdAt: question.createdAt.toString(),
-      updatedAt: question.updatedAt?.toString() ?? null,
+      createdAt: question.createdAt,
+      updatedAt: question.updatedAt ?? null,
     };
   }
 

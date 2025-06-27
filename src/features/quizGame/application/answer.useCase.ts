@@ -26,6 +26,10 @@ export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
 
     if (!isGameReadyForAnswers) throw new DomainError('Game not ready yet', HttpStatus.FORBIDDEN);
 
+    const isUserAnsweredForAllQueries = await this.gameService.checkIsAllQueriesAnswered(gameId, userId);
+
+    if (isUserAnsweredForAllQueries) throw new DomainError('Answered for all queries', HttpStatus.FORBIDDEN);
+
     const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
 
     return id;

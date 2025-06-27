@@ -38,7 +38,7 @@ export class GameService {
         await queryRunner.manager.save(participant);
 
         await queryRunner.manager.update(Game, game.id, {
-          startedAt: new Date(),
+          startedAt: new Date().toDateString(),
           status: GameStatus.Active,
         });
 
@@ -57,8 +57,8 @@ export class GameService {
       const game = queryRunner.manager.create(Game, {
         questions,
         finishedAt: null,
-        startedAt: new Date(),
-        pairCreatedAt: new Date(),
+        startedAt: new Date().toISOString(),
+        pairCreatedAt: new Date().toISOString(),
         status: GameStatus.Pending,
       });
 
@@ -90,11 +90,10 @@ export class GameService {
       const question = this.getGameQuestionByAnswer(game, inputAnswer);
       const participant = this.getGameParticipantById(game, userId);
 
-      if (!question || !participant) throw new DomainError('Question or participant not found', HttpStatus.BAD_REQUEST);
-
+      // Как определить на какой вопрос отвечает игрок?
       const answer = queryRunner.manager.create(Answer, {
-        question,
         participant,
+        question: question ?? game.questions[0],
         status: !!question ? AnswerStatus.Correct : AnswerStatus.InCorrect,
       });
 
@@ -106,6 +105,11 @@ export class GameService {
 
   public async checkIsUserAlreadyInGame(userId: string) {
     return this.gameRepo.checkIsUserAlreadyInGame(userId);
+  }
+
+  public async checkIsAllQueriesAnswered(gameId: string, userId: string) {
+    const amount = await this.gameRepo.checkAmountOfRightAnswers(gameId, userId);
+    return amount >= 5;
   }
 
   public async checkIsGameReadyForAnswers(gameId: string) {
