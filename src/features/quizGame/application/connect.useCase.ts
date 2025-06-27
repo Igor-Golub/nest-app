@@ -1,7 +1,7 @@
+import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GameService } from './game.service';
 import { DomainError } from '../../../core/errors';
-import { HttpStatus } from '@nestjs/common';
 
 interface ConnectCommandPayload {
   userId: string;

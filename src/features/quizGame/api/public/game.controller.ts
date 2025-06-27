@@ -1,6 +1,16 @@
-import { Body, Controller, ForbiddenException, Get, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { AnswerModel } from '../models/input';
+import { AnswerModel, PairParam } from '../models/input';
 import { GameMapManager } from '../models/mappers';
 import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId } from '../../../../common/pipes';
@@ -31,7 +41,9 @@ export class GameController {
     summary: 'Get game by id',
   })
   @Get('pairs/:id')
-  async pairs(@CurrentUserId() userId: string, @Param('id') id: string) {
+  async pairs(@CurrentUserId() userId: string, @Param() { id }: PairParam) {
+    await this.gameQueryRepo.isGameExist(id);
+
     const isHasAccess = await this.gameQueryRepo.checkIsUserHasAccessToGame(id, userId);
     if (!isHasAccess) throw new ForbiddenException();
 
@@ -42,6 +54,7 @@ export class GameController {
   @ApiOperation({
     summary: 'Connect user to game',
   })
+  @HttpCode(HttpStatus.OK)
   @Post('pairs/connection')
   async connect(@CurrentUserId() userId: string) {
     const connect = new ConnectCommand({ userId });
@@ -56,6 +69,7 @@ export class GameController {
   @ApiOperation({
     summary: 'Send answer for next not answered question in active game',
   })
+  @HttpCode(HttpStatus.OK)
   @Post('pairs/my-current/answers')
   async answer(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {
     const game = await this.gameQueryRepo.findByParticipantId(userId, HttpStatus.FORBIDDEN);

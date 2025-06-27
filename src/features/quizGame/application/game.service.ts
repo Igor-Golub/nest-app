@@ -17,31 +17,37 @@ export class GameService {
   ) {}
 
   public async connectUser(gameId: string, userId: string) {
-    return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
-      const game = await this.findGameOrFail(queryRunner, gameId);
+    return this.transactionService.runInTransaction(
+      this.dataSource,
+      async (queryRunner) => {
+        const game = await this.findGameOrFail(queryRunner, gameId);
 
-      const secondPlayer = await queryRunner.manager.findOne(User, {
-        where: {
-          id: userId,
-        },
-      });
+        const secondPlayer = await queryRunner.manager.findOne(User, {
+          where: {
+            id: userId,
+          },
+        });
 
-      if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+        if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, {
-        game,
-        user: secondPlayer,
-      });
+        const participant = queryRunner.manager.create(Participant, {
+          game,
+          user: secondPlayer,
+        });
 
-      await queryRunner.manager.save(participant);
+        await queryRunner.manager.save(participant);
 
-      await queryRunner.manager.update(Game, game.id, {
-        startedAt: new Date(),
-        status: GameStatus.Active,
-      });
+        await queryRunner.manager.update(Game, game.id, {
+          startedAt: new Date(),
+          status: GameStatus.Active,
+        });
 
-      return game;
-    });
+        return game;
+      },
+      {
+        lockMode: 'for_update',
+      },
+    );
   }
 
   public async createGame(firstPlayerId: string) {
@@ -98,6 +104,12 @@ export class GameService {
 
   public async checkIsUserAlreadyInGame(userId: string) {
     return this.gameRepo.checkIsUserAlreadyInGame(userId);
+  }
+
+  public async checkIsGameReadyForAnswers(gameId: string) {
+    const game = await this.gameRepo.findById(gameId);
+
+    return game.status === GameStatus.Active;
   }
 
   public async findAvailableGames() {

@@ -22,6 +22,10 @@ export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
 
     if (!userAlreadyInGame) throw new DomainError('User not in game', HttpStatus.FORBIDDEN);
 
+    const isGameReadyForAnswers = await this.gameService.checkIsGameReadyForAnswers(gameId);
+
+    if (!isGameReadyForAnswers) throw new DomainError('Game not ready yet', HttpStatus.FORBIDDEN);
+
     const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
 
     return id;

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RepositoryError } from '../../../core/errors';
 
 @Injectable()
 export class GameRepo {
@@ -28,6 +29,14 @@ export class GameRepo {
       .groupBy('game.id')
       .having('COUNT(participant.id) < :count', { count: amountOfParticipants })
       .getOne();
+  }
+
+  public async findById(id: string) {
+    const game = await this.gameRepo.createQueryBuilder('game').where('game.id = :gameId', { gameId: id }).getOne();
+
+    if (!game) throw new RepositoryError(`Game does not exist`);
+
+    return game;
   }
 
   public async drop() {

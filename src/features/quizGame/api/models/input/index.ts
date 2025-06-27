@@ -3,6 +3,11 @@ import { PublishedStatus } from '../../../infrastructure/enums';
 import { QueryParams } from '../../../../../common/decorators/validate';
 import { IsStringWithExpectedLength, Trim } from '../../../../../common/decorators';
 
+export class PairParam {
+  @IsUUID()
+  id: string;
+}
+
 export class QuestionParam {
   @IsUUID()
   id: string;

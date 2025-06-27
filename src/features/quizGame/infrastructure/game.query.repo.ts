@@ -1,8 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Game, Participant } from '../domain';
 import { RepositoryError } from '../../../core/errors';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class GameQueryRepo {
@@ -11,6 +11,12 @@ export class GameQueryRepo {
     private gameRepo: Repository<Game>,
     @InjectRepository(Participant) private participantRepo: Repository<Participant>,
   ) {}
+
+  public async isGameExist(id: string) {
+    const game = await this.gameRepo.createQueryBuilder('game').where('game.id = :gameId', { gameId: id }).getExists();
+
+    if (!game) throw new RepositoryError(`Game does not exist`);
+  }
 
   public async findById(id: string) {
     const game = await this.gameRepo
