@@ -90,6 +90,8 @@ export class GameService {
       const question = this.getGameQuestionByAnswer(game, inputAnswer);
       const participant = this.getGameParticipantById(game, userId);
 
+      if (!question || !participant) throw new DomainError('Question or participant not found', HttpStatus.BAD_REQUEST);
+
       const answer = queryRunner.manager.create(Answer, {
         question,
         participant,

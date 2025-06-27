@@ -9,11 +9,11 @@ import {
 } from '../output';
 
 export class GameMapManager {
-  static mapAnswersToView(answers: Answer): AnswerViewModel {
+  static mapAnswersToView(answer: Answer): AnswerViewModel {
     return {
-      addedAt: answers.createdAt,
-      questionId: answers.question.id,
-      answerStatus: answers.status,
+      answerStatus: answer.status,
+      questionId: answer.question.id,
+      addedAt: answer.createdAt.toISOString(),
     };
   }
 
@@ -41,8 +41,8 @@ export class GameMapManager {
       body: question.text,
       correctAnswers: question.answers,
       published: question.published,
-      createdAt: question.createdAt,
-      updatedAt: question.updatedAt,
+      createdAt: question.createdAt.toString(),
+      updatedAt: question.updatedAt?.toString() ?? null,
     };
   }
 
