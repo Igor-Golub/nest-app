@@ -35,7 +35,7 @@ import { AccessTokenExistMiddleware, LoggingMiddleware, UploadMiddleware } from 
       imports: [CoreModule],
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => ({
-        logging: [coreConfig.postgresLoggingLevel],
+        // logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
         ...dbOptions,
       }),

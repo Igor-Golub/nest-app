@@ -18,6 +18,14 @@ export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { gameId, answer, userId } }: AnswerCommand) {
+    await this.checkIsCanAnswer(gameId, userId);
+
+    const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
+
+    return id;
+  }
+
+  public async checkIsCanAnswer(gameId: string, userId: string) {
     const userAlreadyInGame = await this.gameService.checkIsUserAlreadyInGame(userId);
 
     if (!userAlreadyInGame) throw new DomainError('User not in game', HttpStatus.FORBIDDEN);
@@ -26,12 +34,8 @@ export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
 
     if (!isGameReadyForAnswers) throw new DomainError('Game not ready yet', HttpStatus.FORBIDDEN);
 
-    const isUserAnsweredForAllQueries = await this.gameService.checkIsAllQueriesAnswered(gameId, userId);
+    const isUserAnsweredForAllQueries = await this.gameService.checkAmountOfAnswers(gameId, userId);
 
     if (isUserAnsweredForAllQueries) throw new DomainError('Answered for all queries', HttpStatus.FORBIDDEN);
-
-    const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
-
-    return id;
   }
 }

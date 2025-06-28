@@ -14,7 +14,7 @@ export class GameRepo {
     @InjectRepository(Answer) private readonly answerRepo: Repository<Answer>,
   ) {}
 
-  public async checkAmountOfRightAnswers(gameId: string, userId: string) {
+  public async checkAmountOfAnswers(gameId: string, userId: string) {
     return this.answerRepo
       .createQueryBuilder('answer')
       .leftJoinAndSelect('answer.participant', 'participant')
@@ -22,7 +22,6 @@ export class GameRepo {
       .leftJoinAndSelect('participant.game', 'game')
       .where('user.id = :userId', { userId })
       .andWhere('game.id = :gameId', { gameId })
-      .andWhere('answer.status = :status', { status: AnswerStatus.Correct })
       .getCount();
   }
 

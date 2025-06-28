@@ -57,8 +57,8 @@ export class GameService {
       const game = queryRunner.manager.create(Game, {
         questions,
         finishedAt: null,
-        startedAt: new Date().toISOString(),
-        pairCreatedAt: new Date().toISOString(),
+        startedAt: new Date(),
+        pairCreatedAt: new Date(),
         status: GameStatus.Pending,
       });
 
@@ -107,8 +107,8 @@ export class GameService {
     return this.gameRepo.checkIsUserAlreadyInGame(userId);
   }
 
-  public async checkIsAllQueriesAnswered(gameId: string, userId: string) {
-    const amount = await this.gameRepo.checkAmountOfRightAnswers(gameId, userId);
+  public async checkAmountOfAnswers(gameId: string, userId: string) {
+    const amount = await this.gameRepo.checkAmountOfAnswers(gameId, userId);
     return amount >= 5;
   }
 

@@ -9,10 +9,10 @@ export class Game extends BaseEntity {
   @Column({ type: 'enum', enum: GameStatus, default: GameStatus.Pending })
   public status: GameStatus;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   public startedAt: Date | null;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   public finishedAt: Date | null;
 
   @OneToMany('Participant', ({ game }: Participant) => game)
