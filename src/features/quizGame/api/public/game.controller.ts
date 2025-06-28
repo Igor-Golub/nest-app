@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
 import { AnswerQueryRepo, GameQueryRepo } from '../../infrastructure';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiForbiddenResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -54,6 +54,12 @@ export class GameController {
   @ApiOperation({
     summary: 'Connect user to game',
   })
+  @ApiOkResponse({
+    description: 'Game connected or created',
+  })
+  @ApiForbiddenResponse({
+    description: 'User already in game',
+  })
   @HttpCode(HttpStatus.OK)
   @Post('pairs/connection')
   async connect(@CurrentUserId() userId: string) {
@@ -68,6 +74,12 @@ export class GameController {
 
   @ApiOperation({
     summary: 'Send answer for next not answered question in active game',
+  })
+  @ApiOkResponse({
+    description: 'Answer saved',
+  })
+  @ApiForbiddenResponse({
+    description: 'User not in game or Game not ready yet or Answered for all queries',
   })
   @HttpCode(HttpStatus.OK)
   @Post('pairs/my-current/answers')

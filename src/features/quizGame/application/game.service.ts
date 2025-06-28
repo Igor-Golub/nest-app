@@ -101,7 +101,10 @@ export class GameService {
       const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
 
       if (isFinished) {
-        // LOGIC FOR SCORES
+        const secondPlayer = game.participants.find(({ user }) => user.id !== userId);
+
+        await this.addAdditionalScore(secondPlayer);
+
         await queryRunner.manager.update(Game, game.id, {
           finishedAt: new Date(),
           status: GameStatus.Finished,
@@ -156,5 +159,14 @@ export class GameService {
 
   private getGameParticipantById(game: Game, userId: string) {
     return game.participants.find(({ user }) => user.id === userId);
+  }
+
+  private async addAdditionalScore(participant: Participant | undefined) {
+    const isNeedAddAdditionalScore =
+      participant && participant.answers.some(({ status }) => status === AnswerStatus.Correct);
+
+    if (isNeedAddAdditionalScore) return;
+
+    console.log('-----', `need to add additional score to ${participant}`);
   }
 }

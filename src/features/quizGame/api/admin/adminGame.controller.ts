@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBasicAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -32,6 +33,7 @@ import {
 } from '../../application';
 import { QuestionViewModel } from '../models/output';
 
+@ApiBasicAuth()
 @ApiTags('Admin Game')
 @UseGuards(BasicAuthGuard)
 @Controller('sa/quiz')
