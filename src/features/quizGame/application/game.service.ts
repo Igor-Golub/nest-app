@@ -38,7 +38,7 @@ export class GameService {
         await queryRunner.manager.save(participant);
 
         await queryRunner.manager.update(Game, game.id, {
-          startedAt: new Date().toDateString(),
+          startedAt: new Date(),
           status: GameStatus.Active,
         });
 
@@ -56,9 +56,8 @@ export class GameService {
 
       const game = queryRunner.manager.create(Game, {
         questions,
+        startedAt: null,
         finishedAt: null,
-        startedAt: new Date(),
-        pairCreatedAt: new Date(),
         status: GameStatus.Pending,
       });
 
@@ -98,6 +97,16 @@ export class GameService {
       });
 
       await queryRunner.manager.save(answer);
+
+      const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
+
+      if (isFinished) {
+        // LOGIC FOR SCORES
+        await queryRunner.manager.update(Game, game.id, {
+          finishedAt: new Date(),
+          status: GameStatus.Finished,
+        });
+      }
 
       return answer;
     });

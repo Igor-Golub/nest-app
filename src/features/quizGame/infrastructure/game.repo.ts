@@ -3,7 +3,6 @@ import { Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RepositoryError } from '../../../core/errors';
-import { AnswerStatus } from './enums';
 
 @Injectable()
 export class GameRepo {
@@ -23,6 +22,14 @@ export class GameRepo {
       .where('user.id = :userId', { userId })
       .andWhere('game.id = :gameId', { gameId })
       .getCount();
+  }
+
+  public async checkIsGameFinished(gameId: string) {
+    const totalAnswers = await this.answerRepo.count({
+      where: { participant: { game: { id: gameId } } },
+    });
+
+    return totalAnswers === 9;
   }
 
   public async checkIsUserAlreadyInGame(userId: string) {

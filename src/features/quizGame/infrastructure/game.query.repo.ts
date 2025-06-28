@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Game, Participant } from '../domain';
 import { RepositoryError } from '../../../core/errors';
+import { GameStatus } from './enums';
 
 @Injectable()
 export class GameQueryRepo {
@@ -13,7 +14,13 @@ export class GameQueryRepo {
   ) {}
 
   public async isGameExist(id: string) {
-    const game = await this.gameRepo.createQueryBuilder('game').where('game.id = :gameId', { gameId: id }).getExists();
+    const game = await this.gameRepo
+      .createQueryBuilder('game')
+      .where('game.id = :gameId', { gameId: id })
+      .andWhere('game.status IN (:...statuses)', { statuses: [GameStatus.Active, GameStatus.Pending] })
+      .getExists();
+
+    console.log(game);
 
     if (!game) throw new RepositoryError(`Game does not exist`);
   }
@@ -40,7 +47,7 @@ export class GameQueryRepo {
       relations: ['game'],
     });
 
-    if (!participant || !participant.game) {
+    if (!participant || !participant.game || participant.game.status === GameStatus.Finished) {
       throw new RepositoryError(`Game not found for user ${userId}`, httpErrorStatus);
     }
 
