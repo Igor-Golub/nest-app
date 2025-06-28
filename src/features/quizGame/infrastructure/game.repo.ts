@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RepositoryError } from '../../../core/errors';
+import { GameStatus } from './enums';
 
 @Injectable()
 export class GameRepo {
@@ -38,6 +39,7 @@ export class GameRepo {
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.user', 'user')
       .where('user.id = :userId', { userId })
+      .andWhere('game.status IN (:...statuses)', { statuses: [GameStatus.Active, GameStatus.Pending] })
       .getExists();
   }
 

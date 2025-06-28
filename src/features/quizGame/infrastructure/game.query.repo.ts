@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Game, Participant } from '../domain';
@@ -39,8 +39,17 @@ export class GameQueryRepo {
 
   public async findByParticipantId(userId: string, httpErrorStatus: HttpStatus = HttpStatus.NOT_FOUND) {
     const participant = await this.participantRepo.findOne({
-      where: { user: { id: userId } },
-      relations: ['game'],
+      where: {
+        user: {
+          id: userId,
+        },
+        game: {
+          status: In([GameStatus.Active, GameStatus.Pending]),
+        },
+      },
+      relations: {
+        game: true,
+      },
     });
 
     if (!participant || !participant.game || participant.game.status === GameStatus.Finished) {
