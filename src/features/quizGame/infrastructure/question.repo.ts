@@ -25,7 +25,7 @@ export class QuestionRepo {
 
     question.text = text;
     question.answers = answers;
-    question.published = true;
+    question.published = false;
 
     const { id } = await this.questionRepository.save(question);
 
