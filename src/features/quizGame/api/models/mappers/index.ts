@@ -29,7 +29,7 @@ export class GameMapManager {
       score: participant.answers.reduce((score, { status }) => (score += status === AnswerStatus.Correct ? 1 : 0), 0),
       answers: participant.answers.map(this.mapAnswersToView),
       player: {
-        id: participant.id,
+        id: participant.user.id,
         login: participant.user.login,
       },
     };

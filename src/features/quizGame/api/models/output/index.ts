@@ -46,18 +46,18 @@ export class QuestionViewModel {
   updatedAt: Date | null;
 }
 
-export interface GameQuestionViewModel {
+export class GameQuestionViewModel {
   id: string;
   body: string;
 }
 
-export interface AnswerViewModel {
+export class AnswerViewModel {
   addedAt: string;
   questionId: string;
   answerStatus: AnswerStatus;
 }
 
-export interface PlayerProgressViewModel {
+export class PlayerProgressViewModel {
   score: number;
   answers: AnswerViewModel[];
   player: {
@@ -66,13 +66,46 @@ export interface PlayerProgressViewModel {
   };
 }
 
-export interface GameViewModel {
+export class GameViewModel {
+  @ApiProperty({
+    format: 'uuid',
+    description: 'Unique identifier of the game',
+    example: 'f1a2b3c4-5678-90ab-cdef-1234567890ab',
+  })
   id: string;
+
   status: GameStatus;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    format: 'date-time',
+    example: '2024-06-09T09:15:30.000Z',
+    description: 'Date and time when the second player connected',
+  })
   startGameDate: Date | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    format: 'date-time',
+    example: '2024-06-09T09:15:30.000Z',
+    description: 'Date and time when the game finished',
+  })
   finishGameDate: Date | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    format: 'date-time',
+    example: '2024-06-09T09:15:30.000Z',
+    description: 'Date and time when the game created',
+  })
   pairCreatedDate: Date | null;
+
   questions: GameQuestionViewModel[] | null;
+
   firstPlayerProgress: PlayerProgressViewModel;
+
   secondPlayerProgress: PlayerProgressViewModel | null;
 }

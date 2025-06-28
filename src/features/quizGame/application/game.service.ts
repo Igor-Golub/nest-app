@@ -93,7 +93,7 @@ export class GameService {
       const answer = queryRunner.manager.create(Answer, {
         participant,
         question: question ?? game.questions[0],
-        status: !!question ? AnswerStatus.Correct : AnswerStatus.InCorrect,
+        status: !!question ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       });
 
       await queryRunner.manager.save(answer);

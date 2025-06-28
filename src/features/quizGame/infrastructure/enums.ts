@@ -12,5 +12,5 @@ export enum GameStatus {
 
 export enum AnswerStatus {
   Correct = 'Correct',
-  InCorrect = 'InCorrect',
+  Incorrect = 'Incorrect',
 }
