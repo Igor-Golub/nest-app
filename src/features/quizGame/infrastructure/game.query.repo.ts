@@ -14,11 +14,7 @@ export class GameQueryRepo {
   ) {}
 
   public async isGameExist(id: string) {
-    const game = await this.gameRepo
-      .createQueryBuilder('game')
-      .where('game.id = :gameId', { gameId: id })
-      .andWhere('game.status IN (:...statuses)', { statuses: [GameStatus.Active, GameStatus.Pending] })
-      .getExists();
+    const game = await this.gameRepo.createQueryBuilder('game').where('game.id = :gameId', { gameId: id }).getExists();
 
     console.log(game);
 

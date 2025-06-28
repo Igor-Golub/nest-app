@@ -18,7 +18,7 @@ export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
   constructor(private gameService: GameService) {}
 
   public async execute({ payload: { gameId, answer, userId } }: AnswerCommand) {
-    // await this.checkIsCanAnswer(gameId, userId);
+    await this.checkIsCanAnswer(gameId, userId);
 
     const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
 
