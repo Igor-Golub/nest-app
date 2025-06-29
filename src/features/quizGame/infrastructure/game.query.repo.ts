@@ -16,8 +16,6 @@ export class GameQueryRepo {
   public async isGameExist(id: string) {
     const game = await this.gameRepo.createQueryBuilder('game').where('game.id = :gameId', { gameId: id }).getExists();
 
-    console.log(game);
-
     if (!game) throw new RepositoryError(`Game does not exist`);
   }
 
