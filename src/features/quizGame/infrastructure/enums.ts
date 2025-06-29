@@ -14,3 +14,10 @@ export enum AnswerStatus {
   Correct = 'Correct',
   Incorrect = 'Incorrect',
 }
+
+export enum PlayerResultOfGame {
+  InProgress = 'InProgress',
+  Won = 'Won',
+  Lost = 'Lost',
+  Draw = 'Draw',
+}

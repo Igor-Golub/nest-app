@@ -1,13 +1,20 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { BaseEntity } from '../../../core/entities/baseEntity';
 import type { Game } from './game.entity';
 import type { Answer } from './answer.entity';
 import type { User } from '../../users/domain/user.entity';
+import { PlayerResultOfGame } from '../infrastructure/enums';
+import { BaseEntity } from '../../../core/entities/baseEntity';
 
 @Entity()
 export class Participant extends BaseEntity {
   @Column()
   public gameId: string;
+
+  @Column({ type: 'int', default: 0 })
+  public score: number;
+
+  @Column({ type: 'enum', enum: PlayerResultOfGame, default: PlayerResultOfGame.InProgress })
+  public resultOfGame: PlayerResultOfGame;
 
   @OneToOne('User', ({ participant }: User) => participant)
   @JoinColumn()
