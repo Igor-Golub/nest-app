@@ -9,7 +9,7 @@ import { TransactionService } from '../../../infrastructure/services/transaction
 
 @Injectable()
 export class GameService {
-  private readonly AMOUNT_OF_ANSWERS_FOR_FINISH_GAME = 4;
+  private readonly AMOUNT_OF_ANSWERS_FOR_FINISH_GAME = 5;
 
   private readonly AMOUNT_OF_PARTICIPANTS = 2;
 
@@ -95,7 +95,7 @@ export class GameService {
 
       // Как определить на какой вопрос отвечает игрок?
       const answer = queryRunner.manager.create(Answer, {
-        current,
+        participant: current,
         question: question ?? game.questions[0],
         status: !!question ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       });
@@ -111,7 +111,7 @@ export class GameService {
       const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
 
       if (isFinished) {
-        const isSecondPlayerNotFinish = second.answers.length <= this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME - 1;
+        const isSecondPlayerNotFinish = second.answers.length < this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME;
         const isCurrentPlayerHasCorrectAnswer = current.answers.some(({ status }) => status === AnswerStatus.Correct);
 
         const isNeedAddAdditionalScore = isSecondPlayerNotFinish && isCurrentPlayerHasCorrectAnswer;
@@ -175,8 +175,8 @@ export class GameService {
   }
 
   private getCurrentAnsSecondPlayers(game: Game, userId: string) {
-    const current = game.participants.find((p) => p.id === userId);
-    const second = game.participants.find((p) => p.id !== userId);
+    const current = game.participants.find((p) => p.user.id === userId);
+    const second = game.participants.find((p) => p.user.id !== userId);
 
     if (!current || !second) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
