@@ -9,6 +9,10 @@ import { TransactionService } from '../../../infrastructure/services/transaction
 
 @Injectable()
 export class GameService {
+  private readonly AMOUNT_OF_ANSWERS_FOR_FINISH_GAME = 4;
+
+  private readonly AMOUNT_OF_PARTICIPANTS = 2;
+
   constructor(
     private readonly gameRepo: GameRepo,
     private readonly dataSource: DataSource,
@@ -87,23 +91,36 @@ export class GameService {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
       const question = this.getGameQuestionByAnswer(game, inputAnswer);
-      const participant = this.getGameParticipantById(game, userId);
+      const { current, second } = this.getCurrentAnsSecondPlayers(game, userId);
 
       // Как определить на какой вопрос отвечает игрок?
       const answer = queryRunner.manager.create(Answer, {
-        participant,
+        current,
         question: question ?? game.questions[0],
         status: !!question ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       });
 
       await queryRunner.manager.save(answer);
 
+      if (question) {
+        await queryRunner.manager.update(Participant, current.id, {
+          score: current.score + 1,
+        });
+      }
+
       const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
 
       if (isFinished) {
-        const secondPlayer = game.participants.find(({ user }) => user.id !== userId);
+        const isSecondPlayerNotFinish = second.answers.length <= this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME - 1;
+        const isCurrentPlayerHasCorrectAnswer = current.answers.some(({ status }) => status === AnswerStatus.Correct);
 
-        await this.addAdditionalScore(secondPlayer);
+        const isNeedAddAdditionalScore = isSecondPlayerNotFinish && isCurrentPlayerHasCorrectAnswer;
+
+        if (isNeedAddAdditionalScore) {
+          await queryRunner.manager.update(Participant, current.id, {
+            score: current.score + 1,
+          });
+        }
 
         await queryRunner.manager.update(Game, game.id, {
           finishedAt: new Date(),
@@ -121,7 +138,7 @@ export class GameService {
 
   public async checkAmountOfAnswers(gameId: string, userId: string) {
     const amount = await this.gameRepo.checkAmountOfAnswers(gameId, userId);
-    return amount >= 5;
+    return amount >= this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME;
   }
 
   public async checkIsGameReadyForAnswers(gameId: string) {
@@ -131,11 +148,11 @@ export class GameService {
   }
 
   public async findAvailableGames() {
-    return this.gameRepo.findAvailableGames(2);
+    return this.gameRepo.findAvailableGames(this.AMOUNT_OF_PARTICIPANTS);
   }
 
   private async generateSetOfQuestions() {
-    return this.questionRepo.getRandom(5);
+    return this.questionRepo.getRandom(this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME);
   }
 
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
@@ -157,16 +174,15 @@ export class GameService {
     return game.questions.find(({ answers }) => answers.includes(answer));
   }
 
-  private getGameParticipantById(game: Game, userId: string) {
-    return game.participants.find(({ user }) => user.id === userId);
-  }
+  private getCurrentAnsSecondPlayers(game: Game, userId: string) {
+    const current = game.participants.find((p) => p.id === userId);
+    const second = game.participants.find((p) => p.id !== userId);
 
-  private async addAdditionalScore(participant: Participant | undefined) {
-    const isNeedAddAdditionalScore =
-      participant && participant.answers.some(({ status }) => status === AnswerStatus.Correct);
+    if (!current || !second) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
-    if (isNeedAddAdditionalScore) return;
-
-    console.log('-----', `need to add additional score to ${participant}`);
+    return {
+      current,
+      second,
+    };
   }
 }
