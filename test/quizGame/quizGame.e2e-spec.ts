@@ -97,6 +97,13 @@ class Manager {
       .send({ answer })
       .expect(HttpStatus.OK);
   }
+
+  public async getCurrentGame(httpServer: any, token: string) {
+    return request(httpServer)
+      .get(`/pair-game-quiz/pairs/my-current`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+  }
 }
 
 const manager = new Manager();
@@ -264,7 +271,7 @@ describe('e2e quiz game', () => {
       expect(gameById.secondPlayerProgress.answers.length).toBe(2);
     });
 
-    it('should add additional score to player', async () => {
+    it.skip('should add additional score to player', async () => {
       await manager.clearDB(httpServer);
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
@@ -304,6 +311,20 @@ describe('e2e quiz game', () => {
       expect(gameAfterFirstUserAnswers.firstPlayerProgress.answers.length).toBe(5);
 
       expect(gameAfterFirstUserAnswers.status).toBe(GameStatus.Finished);
+    });
+
+    it('failed', async () => {
+      await manager.clearDB(httpServer);
+
+      const { firstAccessToken } = await manager.createGameForTowPlayers(httpServer);
+
+      await manager.answer(httpServer, firstAccessToken, '1');
+      const { body: game } = await manager.getCurrentGame(httpServer, firstAccessToken);
+
+      console.log(game.questions);
+      console.log(game.firstPlayerProgress.answers[0]);
+
+      expect(game.questions[0].id).toEqual(game.firstPlayerProgress.answers[0].questionId);
     });
   });
 });

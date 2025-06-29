@@ -19,17 +19,19 @@ export class AnswerService {
   public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
-      const question = this.getGameQuestionByAnswer(game, inputAnswer);
       const { current, second } = this.getCurrentAnsSecondPlayers(game, userId);
+      const question = this.getGameQuestionByIndex(game, current.answers.length);
+
+      const isCorrect = question.answers.includes(inputAnswer);
 
       const answer = await this.createAnswer(
         queryRunner,
         current,
-        question ?? game.questions[0],
-        question ? AnswerStatus.Correct : AnswerStatus.Incorrect,
+        question,
+        isCorrect ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       );
 
-      await this.handleScoreCalculation(queryRunner, current, second, !!question, game.id);
+      await this.handleScoreCalculation(queryRunner, current, second, isCorrect, game.id);
 
       return answer;
     });
@@ -42,12 +44,16 @@ export class AnswerService {
     status: AnswerStatus,
   ) {
     const answer = queryRunner.manager.create(Answer, { participant, question, status });
+
     await queryRunner.manager.save(answer);
     return answer;
   }
 
-  private getGameQuestionByAnswer(game: Game, answer: string) {
-    return game.questions.find(({ answers }) => answers.includes(answer));
+  private getGameQuestionByIndex(game: Game, targetIndex: number) {
+    const question = game.questions.find((_, index) => index === targetIndex);
+    if (!question) throw new DomainError(`Question by index not found`, HttpStatus.BAD_REQUEST);
+
+    return question;
   }
 
   private getCurrentAnsSecondPlayers(game: Game, userId: string) {
@@ -107,17 +113,16 @@ export class AnswerService {
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
     const game = await queryRunner.manager
       .createQueryBuilder(Game, 'game')
-      // .setLock('pessimistic_write')
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
       .where('game.id = :gameId', { gameId })
       .orderBy('participants.createdAt', 'ASC')
+      .addOrderBy('questions.createdAt', 'ASC') // Такая же сортировка вопросов
       .getOne();
 
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
-
     return game;
   }
 }

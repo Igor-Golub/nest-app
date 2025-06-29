@@ -1,16 +1,15 @@
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Game, Participant } from '../domain';
-import { RepositoryError } from '../../../core/errors';
+import { Game } from '../domain';
 import { GameStatus } from './enums';
+import { RepositoryError } from '../../../core/errors';
 
 @Injectable()
 export class GameQueryRepo {
   constructor(
     @InjectRepository(Game)
     private gameRepo: Repository<Game>,
-    @InjectRepository(Participant) private participantRepo: Repository<Participant>,
   ) {}
 
   public async isGameExist(id: string) {
@@ -29,34 +28,28 @@ export class GameQueryRepo {
       .leftJoinAndSelect('answers.question', 'question')
       .where('game.id = :gameId', { gameId: id })
       .orderBy('participants.createdAt', 'ASC')
-      .addOrderBy('answers.createdAt', 'ASC')
+      .addOrderBy('questions.createdAt', 'ASC') // Добавляем сортировку вопросов
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);
-
     return game;
   }
 
   public async findByParticipantId(userId: string, httpErrorStatus: HttpStatus = HttpStatus.NOT_FOUND) {
-    const participant = await this.participantRepo.findOne({
-      where: {
-        user: {
-          id: userId,
-        },
-        game: {
-          status: In([GameStatus.Active, GameStatus.Pending]),
-        },
-      },
-      relations: {
-        game: true,
-      },
-    });
+    const game = await this.gameRepo
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.participants', 'participant')
+      .where('participant.userId = :userId', { userId })
+      .andWhere('game.status IN (:...statuses)', {
+        statuses: [GameStatus.Active, GameStatus.Pending],
+      })
+      .getOne();
 
-    if (!participant || !participant.game || participant.game.status === GameStatus.Finished) {
+    if (!game || game.status === GameStatus.Finished) {
       throw new RepositoryError(`Game not found for user ${userId}`, httpErrorStatus);
     }
 
-    const gameId = participant.game.id;
+    const gameId = game.id;
 
     return this.findById(gameId);
   }

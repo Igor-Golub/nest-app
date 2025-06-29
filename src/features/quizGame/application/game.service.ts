@@ -24,15 +24,25 @@ export class GameService {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
-      const secondPlayer = await queryRunner.manager.findOne(User, { where: { id: userId } });
+      const relatedUser = await queryRunner.manager.findOne(User, {
+        where: {
+          id: userId,
+        },
+      });
 
-      if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+      if (!relatedUser) throw new DomainError(`Connect failed. Related user not found`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, { game, user: secondPlayer });
+      const participant = queryRunner.manager.create(Participant, {
+        game,
+        user: relatedUser,
+      });
 
       await queryRunner.manager.save(participant);
 
-      await queryRunner.manager.update(Game, game.id, { startedAt: new Date(), status: GameStatus.Active });
+      await queryRunner.manager.update(Game, game.id, {
+        startedAt: new Date(),
+        status: GameStatus.Active,
+      });
 
       return game;
     });
@@ -51,11 +61,18 @@ export class GameService {
 
       await queryRunner.manager.save(game);
 
-      const firstPlayer = await queryRunner.manager.findOne(User, { where: { id: firstPlayerId } });
+      const relatedUser = await queryRunner.manager.findOne(User, {
+        where: {
+          id: firstPlayerId,
+        },
+      });
 
-      if (!firstPlayer) throw new DomainError(`User with ID ${firstPlayerId} not found`, HttpStatus.BAD_REQUEST);
+      if (!relatedUser) throw new DomainError(`User with ID ${firstPlayerId} not found`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, { game, user: firstPlayer });
+      const participant = queryRunner.manager.create(Participant, {
+        game,
+        user: relatedUser,
+      });
 
       await queryRunner.manager.save(participant);
 
@@ -89,17 +106,16 @@ export class GameService {
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
     const game = await queryRunner.manager
       .createQueryBuilder(Game, 'game')
-      // .setLock('pessimistic_write')
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
       .where('game.id = :gameId', { gameId })
       .orderBy('participants.createdAt', 'ASC')
+      .addOrderBy('questions.createdAt', 'ASC') // Такая же сортировка вопросов
       .getOne();
 
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
-
     return game;
   }
 }
