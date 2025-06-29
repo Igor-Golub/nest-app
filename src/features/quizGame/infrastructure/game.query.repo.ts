@@ -28,6 +28,7 @@ export class GameQueryRepo {
       .leftJoinAndSelect('participants.user', 'user')
       .leftJoinAndSelect('answers.question', 'question')
       .where('game.id = :gameId', { gameId: id })
+      .orderBy('participants.createdAt', 'ASC')
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);

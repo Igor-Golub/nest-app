@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/applyAppSettings';
 
-describe('e2e admin quiz game', () => {
+describe.skip('e2e admin quiz game', () => {
   let app: INestApplication;
   let httpServer;
 

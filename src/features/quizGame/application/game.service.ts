@@ -21,37 +21,31 @@ export class GameService {
   ) {}
 
   public async connectUser(gameId: string, userId: string) {
-    return this.transactionService.runInTransaction(
-      this.dataSource,
-      async (queryRunner) => {
-        const game = await this.findGameOrFail(queryRunner, gameId);
+    return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
+      const game = await this.findGameOrFail(queryRunner, gameId);
 
-        const secondPlayer = await queryRunner.manager.findOne(User, {
-          where: {
-            id: userId,
-          },
-        });
+      const secondPlayer = await queryRunner.manager.findOne(User, {
+        where: {
+          id: userId,
+        },
+      });
 
-        if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+      if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
-        const participant = queryRunner.manager.create(Participant, {
-          game,
-          user: secondPlayer,
-        });
+      const participant = queryRunner.manager.create(Participant, {
+        game,
+        user: secondPlayer,
+      });
 
-        await queryRunner.manager.save(participant);
+      await queryRunner.manager.save(participant);
 
-        await queryRunner.manager.update(Game, game.id, {
-          startedAt: new Date(),
-          status: GameStatus.Active,
-        });
+      await queryRunner.manager.update(Game, game.id, {
+        startedAt: new Date(),
+        status: GameStatus.Active,
+      });
 
-        return game;
-      },
-      {
-        lockMode: 'for_update',
-      },
-    );
+      return game;
+    });
   }
 
   public async createGame(firstPlayerId: string) {
@@ -108,20 +102,23 @@ export class GameService {
         });
       }
 
+      const isSecondPlayerNotFinish = this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME <= second.answers.length;
+
+      const isCurrentPlayerHasCorrectAnswer =
+        current.answers.length === this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME - 1 &&
+        current.answers.some(({ status }) => status === AnswerStatus.Correct);
+
+      const isNeedAddAdditionalScore = !isSecondPlayerNotFinish && isCurrentPlayerHasCorrectAnswer;
+
+      if (isNeedAddAdditionalScore) {
+        await queryRunner.manager.update(Participant, current.id, {
+          score: current.score + 2,
+        });
+      }
+
       const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
 
       if (isFinished) {
-        const isSecondPlayerNotFinish = second.answers.length < this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME;
-        const isCurrentPlayerHasCorrectAnswer = current.answers.some(({ status }) => status === AnswerStatus.Correct);
-
-        const isNeedAddAdditionalScore = isSecondPlayerNotFinish && isCurrentPlayerHasCorrectAnswer;
-
-        if (isNeedAddAdditionalScore) {
-          await queryRunner.manager.update(Participant, current.id, {
-            score: current.score + 1,
-          });
-        }
-
         await queryRunner.manager.update(Game, game.id, {
           finishedAt: new Date(),
           status: GameStatus.Finished,
@@ -163,6 +160,7 @@ export class GameService {
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
       .where('game.id = :gameId', { gameId })
+      .orderBy('participants.createdAt', 'ASC')
       .getOne();
 
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
