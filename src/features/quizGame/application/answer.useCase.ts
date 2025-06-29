@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { GameService } from './game.service';
 import { DomainError } from '../../../core/errors';
+import { AnswerService } from './answer.service';
 
 interface AnswerCommandPayload {
   gameId: string;
@@ -15,12 +16,15 @@ export class AnswerCommand {
 
 @CommandHandler(AnswerCommand)
 export class AnswerCommandHandler implements ICommandHandler<AnswerCommand> {
-  constructor(private gameService: GameService) {}
+  constructor(
+    private gameService: GameService,
+    private answerService: AnswerService,
+  ) {}
 
   public async execute({ payload: { gameId, answer, userId } }: AnswerCommand) {
     await this.checkIsCanAnswer(gameId, userId);
 
-    const { id } = await this.gameService.answerToQuestion(gameId, userId, answer);
+    const { id } = await this.answerService.answerToQuestion(gameId, userId, answer);
 
     return id;
   }

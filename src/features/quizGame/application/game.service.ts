@@ -1,10 +1,10 @@
 import { DataSource, QueryRunner } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainError } from '../../../core/errors';
-import { Answer, Game, Participant } from '../domain';
 import { User } from '../../users/domain/user.entity';
 import { GameRepo, QuestionRepo } from '../infrastructure';
-import { AnswerStatus, GameStatus } from '../infrastructure/enums';
+import { Game, Participant } from '../domain';
+import { GameStatus } from '../infrastructure/enums';
 import { TransactionService } from '../../../infrastructure/services/transaction.service';
 
 @Injectable()
@@ -24,25 +24,15 @@ export class GameService {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.findGameOrFail(queryRunner, gameId);
 
-      const secondPlayer = await queryRunner.manager.findOne(User, {
-        where: {
-          id: userId,
-        },
-      });
+      const secondPlayer = await queryRunner.manager.findOne(User, { where: { id: userId } });
 
       if (!secondPlayer) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, {
-        game,
-        user: secondPlayer,
-      });
+      const participant = queryRunner.manager.create(Participant, { game, user: secondPlayer });
 
       await queryRunner.manager.save(participant);
 
-      await queryRunner.manager.update(Game, game.id, {
-        startedAt: new Date(),
-        status: GameStatus.Active,
-      });
+      await queryRunner.manager.update(Game, game.id, { startedAt: new Date(), status: GameStatus.Active });
 
       return game;
     });
@@ -61,71 +51,15 @@ export class GameService {
 
       await queryRunner.manager.save(game);
 
-      const firstPlayer = await queryRunner.manager.findOne(User, {
-        where: {
-          id: firstPlayerId,
-        },
-      });
+      const firstPlayer = await queryRunner.manager.findOne(User, { where: { id: firstPlayerId } });
 
       if (!firstPlayer) throw new DomainError(`User with ID ${firstPlayerId} not found`, HttpStatus.BAD_REQUEST);
 
-      const participant = queryRunner.manager.create(Participant, {
-        game,
-        user: firstPlayer,
-      });
+      const participant = queryRunner.manager.create(Participant, { game, user: firstPlayer });
 
       await queryRunner.manager.save(participant);
 
       return this.findGameOrFail(queryRunner, game.id);
-    });
-  }
-
-  public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
-    return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
-      const game = await this.findGameOrFail(queryRunner, gameId);
-
-      const question = this.getGameQuestionByAnswer(game, inputAnswer);
-      const { current, second } = this.getCurrentAnsSecondPlayers(game, userId);
-
-      // Как определить на какой вопрос отвечает игрок?
-      const answer = queryRunner.manager.create(Answer, {
-        participant: current,
-        question: question ?? game.questions[0],
-        status: question ? AnswerStatus.Correct : AnswerStatus.Incorrect,
-      });
-
-      await queryRunner.manager.save(answer);
-
-      if (question) {
-        await queryRunner.manager.update(Participant, current.id, {
-          score: current.score + 1,
-        });
-      }
-
-      const isSecondPlayerNotFinish = this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME <= second.answers.length;
-
-      const isCurrentPlayerHasCorrectAnswer =
-        current.answers.length === this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME - 1 &&
-        current.answers.some(({ status }) => status === AnswerStatus.Correct);
-
-      const isNeedAddAdditionalScore = !isSecondPlayerNotFinish && isCurrentPlayerHasCorrectAnswer;
-
-      if (isNeedAddAdditionalScore) {
-        await queryRunner.manager.update(Participant, current.id, {
-          score: current.score + 2,
-        });
-      }
-
-      const isFinished = await this.gameRepo.checkIsGameFinished(gameId);
-
-      if (isFinished) {
-        await queryRunner.manager.update(Game, game.id, {
-          finishedAt: new Date(),
-          status: GameStatus.Finished,
-        });
-      }
-
-      return answer;
     });
   }
 
@@ -155,6 +89,7 @@ export class GameService {
   private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
     const game = await queryRunner.manager
       .createQueryBuilder(Game, 'game')
+      // .setLock('pessimistic_write')
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
@@ -166,21 +101,5 @@ export class GameService {
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
 
     return game;
-  }
-
-  private getGameQuestionByAnswer(game: Game, answer: string) {
-    return game.questions.find(({ answers }) => answers.includes(answer));
-  }
-
-  private getCurrentAnsSecondPlayers(game: Game, userId: string) {
-    const current = game.participants.find((p) => p.user.id === userId);
-    const second = game.participants.find((p) => p.user.id !== userId);
-
-    if (!current || !second) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
-
-    return {
-      current,
-      second,
-    };
   }
 }
