@@ -18,7 +18,7 @@ export class AnswerService {
 
   public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
-      const game = await this.findGameOrFail(queryRunner, gameId);
+      const game = await this.gameRepo.findFullGameOrFail(queryRunner, gameId);
       const { current, second } = this.getCurrentAnsSecondPlayers(game, userId);
       const question = this.getGameQuestionByIndex(game, current.answers.length);
 
@@ -108,21 +108,5 @@ export class AnswerService {
       finishedAt: new Date(),
       status: GameStatus.Finished,
     });
-  }
-
-  private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
-    const game = await queryRunner.manager
-      .createQueryBuilder(Game, 'game')
-      .leftJoinAndSelect('game.questions', 'questions')
-      .leftJoinAndSelect('game.participants', 'participants')
-      .leftJoinAndSelect('participants.answers', 'answers')
-      .leftJoinAndSelect('participants.user', 'user')
-      .where('game.id = :gameId', { gameId })
-      .orderBy('participants.createdAt', 'ASC')
-      .addOrderBy('questions.createdAt', 'ASC') // Такая же сортировка вопросов
-      .getOne();
-
-    if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
-    return game;
   }
 }

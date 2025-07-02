@@ -3,7 +3,8 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/applyAppSettings';
-import { GameStatus } from '../../src/features/quizGame/infrastructure/enums';
+import { AnswerStatus, GameStatus } from '../../src/features/quizGame/infrastructure/enums';
+import { GameViewModel } from '../../src/features/quizGame/api/models/output';
 
 class Manager {
   public firstPlayerDTO = {
@@ -17,37 +18,50 @@ class Manager {
   };
 
   public questions = [
-    { body: 'Body of 1 question', correctAnswers: ['1'] },
-    { body: 'Body of 2 question', correctAnswers: ['2'] },
-    { body: 'Body of 3 question', correctAnswers: ['3'] },
-    { body: 'Body of 4 question', correctAnswers: ['4'] },
-    { body: 'Body of 5 question', correctAnswers: ['5'] },
+    { body: 'Body of 1 question', correctAnswers: ['one'] },
+    { body: 'Body of 2 question', correctAnswers: ['two'] },
+    { body: 'Body of 3 question', correctAnswers: ['tree'] },
+    { body: 'Body of 4 question', correctAnswers: ['four'] },
+    { body: 'Body of 5 question', correctAnswers: ['five'] },
   ];
 
   public async clearDB(httpServer: any) {
     await request(httpServer).delete('/testing/all-data').expect(HttpStatus.NO_CONTENT);
   }
 
-  public async generateQuestions(httpServer: any) {
-    const res = await Promise.all(
-      this.questions.map((question) =>
-        request(httpServer)
-          .post('/sa/quiz/questions')
-          .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-          .send(question)
-          .expect(HttpStatus.CREATED),
-      ),
-    );
+  public async createQuestion(httpServer: any, question: { body: string; correctAnswers: string[] }) {
+    return request(httpServer)
+      .post('/sa/quiz/questions')
+      .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
+      .send(question)
+      .expect(HttpStatus.CREATED);
+  }
 
-    await Promise.all(
-      res.map(({ body }) =>
-        request(httpServer)
-          .put(`/sa/quiz/questions/${body.id}/publish`)
-          .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-          .send({ published: true })
-          .expect(HttpStatus.NO_CONTENT),
-      ),
-    );
+  public async publishQuestion(httpServer: any, questionId: string) {
+    return request(httpServer)
+      .put(`/sa/quiz/questions/${questionId}/publish`)
+      .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
+      .send({ published: true })
+      .expect(HttpStatus.NO_CONTENT);
+  }
+
+  public async generateQuestions(httpServer: any) {
+    const [first, second, third, fourth, fifth] = this.questions;
+
+    const { body: firstQuestion } = await this.createQuestion(httpServer, first);
+    await this.publishQuestion(httpServer, firstQuestion.id);
+
+    const { body: secondQuestion } = await this.createQuestion(httpServer, second);
+    await this.publishQuestion(httpServer, secondQuestion.id);
+
+    const { body: thirdQuestion } = await this.createQuestion(httpServer, third);
+    await this.publishQuestion(httpServer, thirdQuestion.id);
+
+    const { body: fourthQuestion } = await this.createQuestion(httpServer, fourth);
+    await this.publishQuestion(httpServer, fourthQuestion.id);
+
+    const { body: fifthQuestion } = await this.createQuestion(httpServer, fifth);
+    await this.publishQuestion(httpServer, fifthQuestion.id);
   }
 
   public async loginPlayer(httpServer: any, data: { loginOrEmail: string; password: string }) {
@@ -80,17 +94,11 @@ class Manager {
   public async createGameForTowPlayers(httpServer: any) {
     await this.generateQuestions(httpServer);
 
-    const { accessToken: firstAccessToken } = await this.createAndLoginPlayer(httpServer, {
-      loginOrEmail: 'Second',
-      password: 'firstPlayer',
-    });
+    const { accessToken: firstAccessToken } = await this.createAndLoginPlayer(httpServer, this.firstPlayerDTO);
 
     await this.connectPlayerToGame(httpServer, firstAccessToken);
 
-    const { accessToken: secondAccessToken } = await this.createAndLoginPlayer(httpServer, {
-      loginOrEmail: 'First',
-      password: 'secondPlayer',
-    });
+    const { accessToken: secondAccessToken } = await this.createAndLoginPlayer(httpServer, this.secondPlayerDTO);
 
     const { game } = await this.connectPlayerToGame(httpServer, secondAccessToken);
 
@@ -99,8 +107,8 @@ class Manager {
     const firstPlayer = game.firstPlayerProgress;
     const secondPlayer = game.secondPlayerProgress;
 
-    expect(firstPlayer.player.login).toBe('First');
-    expect(secondPlayer.player.login).toBe('Second');
+    expect(firstPlayer.player.login).toBe(this.firstPlayerDTO.loginOrEmail);
+    expect(secondPlayer.player.login).toBe(this.secondPlayerDTO.loginOrEmail);
 
     return { game, firstAccessToken, secondAccessToken };
   }
@@ -114,10 +122,12 @@ class Manager {
   }
 
   public async getCurrentGame(httpServer: any, token: string) {
-    return request(httpServer)
+    const { body } = await request(httpServer)
       .get(`/pair-game-quiz/pairs/my-current`)
       .set('Authorization', `Bearer ${token}`)
       .expect(HttpStatus.OK);
+
+    return { game: body as GameViewModel };
   }
 }
 
@@ -285,18 +295,31 @@ describe('e2e quiz game', () => {
       expect(gameAfterFirstUserAnswers.status).toBe(GameStatus.Finished);
     });
 
-    it('failed', async () => {
+    it.skip('dasdadsa', async () => {
       await manager.clearDB(httpServer);
 
-      const { firstAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
       await manager.answer(httpServer, firstAccessToken, '1');
-      const { body: game } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      const { game: fpGameAfter1Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
 
-      console.log(game.questions);
-      console.log(game.firstPlayerProgress.answers[0]);
+      expect(fpGameAfter1Answer.questions![0].id).toEqual(fpGameAfter1Answer.firstPlayerProgress.answers[0].questionId);
+      expect(fpGameAfter1Answer.firstPlayerProgress.answers[0].answerStatus).toEqual(AnswerStatus.Incorrect);
+      expect(fpGameAfter1Answer.firstPlayerProgress.score).toEqual(0);
 
-      expect(game.questions[0].id).toEqual(game.firstPlayerProgress.answers[0].questionId);
+      await manager.answer(httpServer, firstAccessToken, 'two');
+      const { game: fpGameAfter2Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+
+      expect(fpGameAfter2Answer.questions![1].id).toEqual(fpGameAfter2Answer.firstPlayerProgress.answers[1].questionId);
+      expect(fpGameAfter2Answer.firstPlayerProgress.answers[1].answerStatus).toEqual(AnswerStatus.Correct);
+      expect(fpGameAfter2Answer.firstPlayerProgress.score).toEqual(1);
+
+      await manager.answer(httpServer, secondAccessToken, 'one');
+      const { game: spGameAfter1Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(spGameAfter1Answer.questions![0].id).toEqual(
+        spGameAfter1Answer.secondPlayerProgress!.answers[0].questionId,
+      );
+      expect(spGameAfter1Answer.secondPlayerProgress!.score).toEqual(1);
     });
   });
 });

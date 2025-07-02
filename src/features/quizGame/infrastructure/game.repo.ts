@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { QueryRunner, Repository } from 'typeorm';
 import { Answer, Game, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RepositoryError } from '../../../core/errors';
+import { DomainError, RepositoryError } from '../../../core/errors';
 import { GameStatus } from './enums';
 
 @Injectable()
@@ -57,6 +57,24 @@ export class GameRepo {
 
     if (!game) throw new RepositoryError(`Game does not exist`);
 
+    return game;
+  }
+
+  public async findFullGameOrFail(queryRunner: QueryRunner, gameId: string) {
+    const game = await queryRunner.manager
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('game.participants', 'participants')
+      .leftJoinAndSelect('participants.answers', 'answers')
+      .leftJoinAndSelect('participants.user', 'user')
+      .leftJoinAndSelect('answers.question', 'question')
+      .where('game.id = :gameId', { gameId })
+      .orderBy('participants.createdAt', 'ASC')
+      .addOrderBy('questions.createdAt', 'ASC')
+      .addOrderBy('answers.createdAt', 'DESC')
+      .getOne();
+
+    if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
     return game;
   }
 

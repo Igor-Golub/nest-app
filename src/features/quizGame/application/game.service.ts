@@ -1,4 +1,4 @@
-import { DataSource, QueryRunner } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainError } from '../../../core/errors';
 import { User } from '../../users/domain/user.entity';
@@ -22,7 +22,7 @@ export class GameService {
 
   public async connectUser(gameId: string, userId: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
-      const game = await this.findGameOrFail(queryRunner, gameId);
+      const game = await this.gameRepo.findFullGameOrFail(queryRunner, gameId);
 
       const relatedUser = await queryRunner.manager.findOne(User, {
         where: {
@@ -76,7 +76,7 @@ export class GameService {
 
       await queryRunner.manager.save(participant);
 
-      return this.findGameOrFail(queryRunner, game.id);
+      return this.gameRepo.findFullGameOrFail(queryRunner, game.id);
     });
   }
 
@@ -101,21 +101,5 @@ export class GameService {
 
   private async generateSetOfQuestions() {
     return this.questionRepo.getRandom(this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME);
-  }
-
-  private async findGameOrFail(queryRunner: QueryRunner, gameId: string) {
-    const game = await queryRunner.manager
-      .createQueryBuilder(Game, 'game')
-      .leftJoinAndSelect('game.questions', 'questions')
-      .leftJoinAndSelect('game.participants', 'participants')
-      .leftJoinAndSelect('participants.answers', 'answers')
-      .leftJoinAndSelect('participants.user', 'user')
-      .where('game.id = :gameId', { gameId })
-      .orderBy('participants.createdAt', 'ASC')
-      .addOrderBy('questions.createdAt', 'ASC') // Такая же сортировка вопросов
-      .getOne();
-
-    if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
-    return game;
   }
 }

@@ -18,7 +18,7 @@ export class GameQueryRepo {
     if (!game) throw new RepositoryError(`Game does not exist`);
   }
 
-  public async findById(id: string) {
+  public async findById(gameId: string) {
     const game = await this.gameRepo
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.questions', 'questions')
@@ -26,9 +26,10 @@ export class GameQueryRepo {
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
       .leftJoinAndSelect('answers.question', 'question')
-      .where('game.id = :gameId', { gameId: id })
+      .where('game.id = :gameId', { gameId })
       .orderBy('participants.createdAt', 'ASC')
       .addOrderBy('questions.createdAt', 'ASC')
+      .addOrderBy('answers.createdAt', 'DESC')
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);
