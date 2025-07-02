@@ -6,6 +6,16 @@ import { applyAppSettings } from '../../src/settings/applyAppSettings';
 import { GameStatus } from '../../src/features/quizGame/infrastructure/enums';
 
 class Manager {
+  public firstPlayerDTO = {
+    loginOrEmail: 'First',
+    password: 'firstPlayer',
+  };
+
+  public secondPlayerDTO = {
+    loginOrEmail: 'Second',
+    password: 'secondPlayer',
+  };
+
   public questions = [
     { body: 'Body of 1 question', correctAnswers: ['1'] },
     { body: 'Body of 2 question', correctAnswers: ['2'] },
@@ -40,44 +50,49 @@ class Manager {
     );
   }
 
+  public async loginPlayer(httpServer: any, data: { loginOrEmail: string; password: string }) {
+    const {
+      body: { accessToken },
+    } = await request(httpServer).post('/auth/login').send(data).expect(HttpStatus.OK);
+
+    return { accessToken };
+  }
+
+  public async createAndLoginPlayer(httpServer: any, data: { loginOrEmail: string; password: string }) {
+    await request(httpServer)
+      .post('/sa/users')
+      .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
+      .send({ login: data.loginOrEmail, password: data.password, email: `${data.loginOrEmail}@gmail.com` })
+      .expect(HttpStatus.CREATED);
+
+    return await this.loginPlayer(httpServer, data);
+  }
+
+  public async connectPlayerToGame(httpServer: any, token: string) {
+    const { body } = await request(httpServer)
+      .post('/pair-game-quiz/pairs/connection')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+
+    return { game: body };
+  }
+
   public async createGameForTowPlayers(httpServer: any) {
     await this.generateQuestions(httpServer);
 
-    await request(httpServer)
-      .post('/sa/users')
-      .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-      .send({ login: 'First', password: 'firstPlayer', email: 'firstPlayer@gmail.com' })
-      .expect(HttpStatus.CREATED);
+    const { accessToken: firstAccessToken } = await this.createAndLoginPlayer(httpServer, {
+      loginOrEmail: 'Second',
+      password: 'firstPlayer',
+    });
 
-    const {
-      body: { accessToken: firstAccessToken },
-    } = await request(httpServer)
-      .post('/auth/login')
-      .send({ loginOrEmail: 'First', password: 'firstPlayer' })
-      .expect(HttpStatus.OK);
+    await this.connectPlayerToGame(httpServer, firstAccessToken);
 
-    await request(httpServer)
-      .post('/pair-game-quiz/pairs/connection')
-      .set('Authorization', `Bearer ${firstAccessToken}`)
-      .expect(HttpStatus.OK);
+    const { accessToken: secondAccessToken } = await this.createAndLoginPlayer(httpServer, {
+      loginOrEmail: 'First',
+      password: 'secondPlayer',
+    });
 
-    await request(httpServer)
-      .post('/sa/users')
-      .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-      .send({ login: 'Second', password: 'secondPlayer', email: 'secondPlayer@gmail.com' })
-      .expect(HttpStatus.CREATED);
-
-    const {
-      body: { accessToken: secondAccessToken },
-    } = await request(httpServer)
-      .post('/auth/login')
-      .send({ loginOrEmail: 'Second', password: 'secondPlayer' })
-      .expect(HttpStatus.OK);
-
-    const { body: game } = await request(httpServer)
-      .post('/pair-game-quiz/pairs/connection')
-      .set('Authorization', `Bearer ${secondAccessToken}`)
-      .expect(HttpStatus.OK);
+    const { game } = await this.connectPlayerToGame(httpServer, secondAccessToken);
 
     expect(game.questions.length).toBe(5);
 
@@ -145,33 +160,8 @@ describe('e2e quiz game', () => {
 
     it.skip('should create game and connect first player', async () => {
       await manager.clearDB(httpServer);
-
-      const { body } = await request(httpServer)
-        .get('/sa/users')
-        .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-        .expect(HttpStatus.OK);
-
-      expect(body.items.length).toBe(0);
-
-      await request(httpServer)
-        .post('/sa/users')
-        .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-        .send({ login: 'First', password: 'firstPlayer', email: 'firstPlayer@gmail.com' })
-        .expect(HttpStatus.CREATED);
-
-      const {
-        body: { accessToken },
-      } = await request(httpServer)
-        .post('/auth/login')
-        .send({ loginOrEmail: 'First', password: 'firstPlayer' })
-        .expect(HttpStatus.OK);
-
-      const { body: game } = await request(httpServer)
-        .post('/pair-game-quiz/pairs/connection')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(HttpStatus.OK);
-
-      gameId = game.id;
+      const { accessToken } = await manager.createAndLoginPlayer(httpServer, manager.firstPlayerDTO);
+      const { game } = await manager.connectPlayerToGame(httpServer, accessToken);
 
       expect(game).not.toBeNull();
       expect(game.questions).toBeNull();
@@ -182,6 +172,8 @@ describe('e2e quiz game', () => {
       expect(game.pairCreatedDate).not.toBeNull();
       expect(game.status).toBe(GameStatus.Pending);
       expect(game.firstPlayerProgress).not.toBeNull();
+
+      gameId = game.id;
     });
 
     it.skip('should not create new game and connect second player to existing game', async () => {
@@ -192,23 +184,8 @@ describe('e2e quiz game', () => {
 
       expect(body.items.length).toBe(1);
 
-      await request(httpServer)
-        .post('/sa/users')
-        .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
-        .send({ login: 'Second', password: 'secondPlayer', email: 'secondPlayer@gmail.com' })
-        .expect(HttpStatus.CREATED);
-
-      const {
-        body: { accessToken },
-      } = await request(httpServer)
-        .post('/auth/login')
-        .send({ loginOrEmail: 'Second', password: 'secondPlayer' })
-        .expect(HttpStatus.OK);
-
-      const { body: game } = await request(httpServer)
-        .post('/pair-game-quiz/pairs/connection')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(HttpStatus.OK);
+      const { accessToken } = await manager.createAndLoginPlayer(httpServer, manager.secondPlayerDTO);
+      const { game } = await manager.connectPlayerToGame(httpServer, accessToken);
 
       expect(game).not.toBeNull();
       expect(game.id).toEqual(gameId);
@@ -231,12 +208,7 @@ describe('e2e quiz game', () => {
 
       expect(body.items.length).toBe(2);
 
-      const {
-        body: { accessToken },
-      } = await request(httpServer)
-        .post('/auth/login')
-        .send({ loginOrEmail: 'Second', password: 'secondPlayer' })
-        .expect(HttpStatus.OK);
+      const { accessToken } = await manager.loginPlayer(httpServer, manager.secondPlayerDTO);
 
       await request(httpServer)
         .post('/pair-game-quiz/pairs/connection')

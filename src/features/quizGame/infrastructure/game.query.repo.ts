@@ -1,4 +1,4 @@
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Game } from '../domain';
@@ -28,7 +28,7 @@ export class GameQueryRepo {
       .leftJoinAndSelect('answers.question', 'question')
       .where('game.id = :gameId', { gameId: id })
       .orderBy('participants.createdAt', 'ASC')
-      .addOrderBy('questions.createdAt', 'ASC') // Добавляем сортировку вопросов
+      .addOrderBy('questions.createdAt', 'ASC')
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);
