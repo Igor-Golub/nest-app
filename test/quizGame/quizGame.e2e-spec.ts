@@ -364,16 +364,40 @@ describe('e2e quiz game', () => {
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
+      const { game: gameAfterFirstAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterFirstAnswer.firstPlayerProgress.score).toEqual(0);
+
       await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
+      const { game: gameAfterSecondAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterSecondAnswer.firstPlayerProgress.score).toEqual(0);
+
       await manager.answer(httpServer, firstAccessToken, manager.answers.third.wrong);
+      const { game: gameAfterThirdAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterThirdAnswer.firstPlayerProgress.score).toEqual(0);
+
       await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.wrong);
+      const { game: gameAfterFourthAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterFourthAnswer.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.first.wrong);
+      const { game: gameAfterFifthAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterFifthAnswer.secondPlayerProgress!.score).toEqual(0);
+
       await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      const { game: gameAfterSixthAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterSixthAnswer.secondPlayerProgress!.score).toEqual(1);
+
       await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
+      const { game: gameAfterSeventhAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterSeventhAnswer.secondPlayerProgress!.score).toEqual(2);
+
       await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.wrong);
+      const { game: gameAfterEighthAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterEighthAnswer.secondPlayerProgress!.score).toEqual(2);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
+      const { game: gameAfterNinthAnswer } = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(gameAfterNinthAnswer.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.wrong);
 
