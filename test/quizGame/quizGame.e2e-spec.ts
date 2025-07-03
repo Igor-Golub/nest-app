@@ -17,12 +17,20 @@ class Manager {
     password: 'secondPlayer',
   };
 
+  public answers = {
+    first: { right: 'one', wrong: 'w' },
+    second: { right: 'two', wrong: 'w' },
+    third: { right: 'tree', wrong: 'w' },
+    fourth: { right: 'four', wrong: 'w' },
+    fifth: { right: 'five', wrong: 'w' },
+  };
+
   public questions = [
-    { body: 'Body of 1 question', correctAnswers: ['one'] },
-    { body: 'Body of 2 question', correctAnswers: ['two'] },
-    { body: 'Body of 3 question', correctAnswers: ['tree'] },
-    { body: 'Body of 4 question', correctAnswers: ['four'] },
-    { body: 'Body of 5 question', correctAnswers: ['five'] },
+    { body: 'Body of 1 question', correctAnswers: [this.answers.first.right] },
+    { body: 'Body of 2 question', correctAnswers: [this.answers.second.right] },
+    { body: 'Body of 3 question', correctAnswers: [this.answers.third.right] },
+    { body: 'Body of 4 question', correctAnswers: [this.answers.fourth.right] },
+    { body: 'Body of 5 question', correctAnswers: [this.answers.fifth.right] },
   ];
 
   public async clearDB(httpServer: any) {
@@ -246,9 +254,9 @@ describe('e2e quiz game', () => {
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
-      await manager.answer(httpServer, firstAccessToken, '1');
-      await manager.answer(httpServer, secondAccessToken, '1');
-      await manager.answer(httpServer, secondAccessToken, '0');
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.wrong);
 
       const { game: gameById } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
@@ -264,13 +272,13 @@ describe('e2e quiz game', () => {
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
-      await manager.answer(httpServer, firstAccessToken, '1');
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
 
-      await manager.answer(httpServer, secondAccessToken, '1');
-      await manager.answer(httpServer, secondAccessToken, '2');
-      await manager.answer(httpServer, secondAccessToken, '3');
-      await manager.answer(httpServer, secondAccessToken, '4');
-      await manager.answer(httpServer, secondAccessToken, '5');
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.right);
 
       const { game: gameAfterSecondUserAnswers } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
@@ -282,10 +290,10 @@ describe('e2e quiz game', () => {
 
       expect(gameAfterSecondUserAnswers.status).toBe(GameStatus.Active);
 
-      await manager.answer(httpServer, firstAccessToken, '2');
-      await manager.answer(httpServer, firstAccessToken, '3');
-      await manager.answer(httpServer, firstAccessToken, '4');
-      await manager.answer(httpServer, firstAccessToken, '5');
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.right);
 
       const { game: gameAfterFirstUserAnswers } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
@@ -300,21 +308,21 @@ describe('e2e quiz game', () => {
 
       const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
-      await manager.answer(httpServer, firstAccessToken, '1');
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
       const { game: fpGameAfter1Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
 
       expect(fpGameAfter1Answer.questions![0].id).toEqual(fpGameAfter1Answer.firstPlayerProgress.answers[0].questionId);
       expect(fpGameAfter1Answer.firstPlayerProgress.answers[0].answerStatus).toEqual(AnswerStatus.Incorrect);
       expect(fpGameAfter1Answer.firstPlayerProgress.score).toEqual(0);
 
-      await manager.answer(httpServer, firstAccessToken, 'two');
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
       const { game: fpGameAfter2Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
 
       expect(fpGameAfter2Answer.questions![1].id).toEqual(fpGameAfter2Answer.firstPlayerProgress.answers[1].questionId);
       expect(fpGameAfter2Answer.firstPlayerProgress.answers[1].answerStatus).toEqual(AnswerStatus.Correct);
       expect(fpGameAfter2Answer.firstPlayerProgress.score).toEqual(1);
 
-      await manager.answer(httpServer, secondAccessToken, 'one');
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.wrong);
       const { game: spGameAfter1Answer } = await manager.getCurrentGame(httpServer, firstAccessToken);
       expect(spGameAfter1Answer.questions![0].id).toEqual(
         spGameAfter1Answer.secondPlayerProgress!.answers[0].questionId,
@@ -327,19 +335,19 @@ describe('e2e quiz game', () => {
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
-      await manager.answer(httpServer, firstAccessToken, 'one'); // R
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, firstAccessToken, 'four'); //  R
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.right);
 
-      await manager.answer(httpServer, secondAccessToken, 'one'); // R
-      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, secondAccessToken, 'four'); // R
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.right);
 
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // - 1P W
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
 
-      await manager.answer(httpServer, secondAccessToken, 'five'); // - 2P R
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
 
       // 1P 2 right + 1 additional
       // 2P 3 right
@@ -355,19 +363,19 @@ describe('e2e quiz game', () => {
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
 
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.wrong);
 
-      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
-      await manager.answer(httpServer, secondAccessToken, 'two'); // R
-      await manager.answer(httpServer, secondAccessToken, 'tree'); // R
-      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.wrong);
 
-      await manager.answer(httpServer, firstAccessToken, 'wrong'); // - 1P W
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
 
-      await manager.answer(httpServer, secondAccessToken, 'wrong'); // - 2P W
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.wrong);
 
       const { game: finalGame } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
