@@ -71,7 +71,7 @@ export class GameRepo {
       .where('game.id = :gameId', { gameId })
       .orderBy('participants.createdAt', 'ASC')
       .addOrderBy('questions.createdAt', 'ASC')
-      .addOrderBy('answers.createdAt', 'DESC')
+      .addOrderBy('answers.createdAt', 'ASC')
       .getOne();
 
     if (!game) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);

@@ -29,7 +29,7 @@ export class GameQueryRepo {
       .where('game.id = :gameId', { gameId })
       .orderBy('participants.createdAt', 'ASC')
       .addOrderBy('questions.createdAt', 'ASC')
-      .addOrderBy('answers.createdAt', 'DESC')
+      .addOrderBy('answers.createdAt', 'ASC')
       .getOne();
 
     if (!game) throw new RepositoryError(`Game does not exist`);

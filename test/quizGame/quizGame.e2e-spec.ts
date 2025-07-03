@@ -129,6 +129,15 @@ class Manager {
 
     return { game: body as GameViewModel };
   }
+
+  public async getPairById(httpServer: any, id: string, token: string) {
+    const { body: game } = await request(httpServer)
+      .get(`/pair-game-quiz/pairs/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+
+    return { game };
+  }
 }
 
 const manager = new Manager();
@@ -241,10 +250,7 @@ describe('e2e quiz game', () => {
       await manager.answer(httpServer, secondAccessToken, '1');
       await manager.answer(httpServer, secondAccessToken, '0');
 
-      const { body: gameById } = await request(httpServer)
-        .get(`/pair-game-quiz/pairs/${game.id}`)
-        .set('Authorization', `Bearer ${firstAccessToken}`)
-        .expect(HttpStatus.OK);
+      const { game: gameById } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
       expect(gameById.firstPlayerProgress.score).toBe(1);
       expect(gameById.firstPlayerProgress.answers.length).toBe(1);
@@ -266,10 +272,7 @@ describe('e2e quiz game', () => {
       await manager.answer(httpServer, secondAccessToken, '4');
       await manager.answer(httpServer, secondAccessToken, '5');
 
-      const { body: gameAfterSecondUserAnswers } = await request(httpServer)
-        .get(`/pair-game-quiz/pairs/${game.id}`)
-        .set('Authorization', `Bearer ${firstAccessToken}`)
-        .expect(HttpStatus.OK);
+      const { game: gameAfterSecondUserAnswers } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
       expect(gameAfterSecondUserAnswers.firstPlayerProgress.score).toBe(1);
       expect(gameAfterSecondUserAnswers.firstPlayerProgress.answers.length).toBe(1);
@@ -284,10 +287,7 @@ describe('e2e quiz game', () => {
       await manager.answer(httpServer, firstAccessToken, '4');
       await manager.answer(httpServer, firstAccessToken, '5');
 
-      const { body: gameAfterFirstUserAnswers } = await request(httpServer)
-        .get(`/pair-game-quiz/pairs/${game.id}`)
-        .set('Authorization', `Bearer ${firstAccessToken}`)
-        .expect(HttpStatus.OK);
+      const { game: gameAfterFirstUserAnswers } = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
       expect(gameAfterFirstUserAnswers.firstPlayerProgress.score).toBe(5);
       expect(gameAfterFirstUserAnswers.firstPlayerProgress.answers.length).toBe(5);
@@ -295,7 +295,7 @@ describe('e2e quiz game', () => {
       expect(gameAfterFirstUserAnswers.status).toBe(GameStatus.Finished);
     });
 
-    it.skip('dasdadsa', async () => {
+    it.skip('should return in right order', async () => {
       await manager.clearDB(httpServer);
 
       const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
@@ -320,6 +320,62 @@ describe('e2e quiz game', () => {
         spGameAfter1Answer.secondPlayerProgress!.answers[0].questionId,
       );
       expect(spGameAfter1Answer.secondPlayerProgress!.score).toEqual(1);
+    });
+
+    it.skip('players play full game and finish with a draw', async () => {
+      await manager.clearDB(httpServer);
+
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+
+      await manager.answer(httpServer, firstAccessToken, 'one'); // R
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, 'four'); //  R
+
+      await manager.answer(httpServer, secondAccessToken, 'one'); // R
+      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, secondAccessToken, 'four'); // R
+
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // - 1P W
+
+      await manager.answer(httpServer, secondAccessToken, 'five'); // - 2P R
+
+      // 1P 2 right + 1 additional
+      // 2P 3 right
+      const { game: finalGame } = await manager.getPairById(httpServer, game.id, firstAccessToken);
+
+      expect(finalGame.status).toBe(GameStatus.Finished);
+      expect(finalGame.firstPlayerProgress.score).toBe(3);
+      expect(finalGame.secondPlayerProgress!.score).toBe(2);
+    });
+
+    it('players play full game and finish answered all wrong second 2 right', async () => {
+      await manager.clearDB(httpServer);
+
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // W
+
+      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
+      await manager.answer(httpServer, secondAccessToken, 'two'); // R
+      await manager.answer(httpServer, secondAccessToken, 'tree'); // R
+      await manager.answer(httpServer, secondAccessToken, 'wrong'); // W
+
+      await manager.answer(httpServer, firstAccessToken, 'wrong'); // - 1P W
+
+      await manager.answer(httpServer, secondAccessToken, 'wrong'); // - 2P W
+
+      const { game: finalGame } = await manager.getPairById(httpServer, game.id, firstAccessToken);
+
+      // 1P 0 right
+      // 2P 2 right
+      expect(finalGame.status).toBe(GameStatus.Finished);
+      expect(finalGame.firstPlayerProgress.score).toBe(0);
+      expect(finalGame.secondPlayerProgress!.score).toBe(2);
     });
   });
 });
