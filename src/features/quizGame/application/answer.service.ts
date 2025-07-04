@@ -8,8 +8,6 @@ import { TransactionService } from '../../../infrastructure/services/transaction
 
 @Injectable()
 export class AnswerService {
-  private readonly AMOUNT_OF_ANSWERS_FOR_FINISH_GAME = 5;
-
   constructor(
     private readonly gameRepo: GameRepo,
     private readonly dataSource: DataSource,
@@ -31,7 +29,7 @@ export class AnswerService {
         isCorrect ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       );
 
-      await this.handleScoreCalculation(queryRunner, current, second, isCorrect, game.id);
+      await this.handleScoreCalculation(queryRunner, current, second, isCorrect, game);
 
       return answer;
     });
@@ -70,33 +68,22 @@ export class AnswerService {
     currentPlayer: Participant,
     secondPlayer: Participant,
     isCorrectAnswer: boolean,
-    gameId: string,
+    game: Game,
   ) {
     if (isCorrectAnswer) {
       await this.updatePlayerScore(queryRunner, currentPlayer.id, 1);
     }
 
-    if (this.shouldGiveBonusPoints(currentPlayer, secondPlayer, isCorrectAnswer)) {
-      await this.updatePlayerScore(queryRunner, currentPlayer.id, 1);
-    }
-
-    if (await this.gameRepo.checkIsGameFinished(gameId)) {
-      await this.finishGame(queryRunner, gameId);
+    if (await this.gameRepo.checkIsGameFinished(game.id)) {
+      await this.giveBonusPoints(queryRunner, secondPlayer);
+      await this.finishGame(queryRunner, game.id);
     }
   }
 
-  private shouldGiveBonusPoints(
-    currentPlayer: Participant,
-    secondPlayer: Participant,
-    isCorrectAnswer: boolean,
-  ): boolean {
-    const isSecondPlayerFinished = secondPlayer.answers.length >= this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME;
-    const isCurrentPlayerAboutToFinish = currentPlayer.answers.length === this.AMOUNT_OF_ANSWERS_FOR_FINISH_GAME - 1;
-    const hasCurrentPlayerCorrectAnswer = currentPlayer.answers.some(({ status }) => status === AnswerStatus.Correct);
+  private async giveBonusPoints(queryRunner: QueryRunner, secondPlayer: Participant) {
+    const hasSecondPlayerCorrectAnswer = secondPlayer.answers.some(({ status }) => status === AnswerStatus.Correct);
 
-    return (
-      !isSecondPlayerFinished && isCurrentPlayerAboutToFinish && (hasCurrentPlayerCorrectAnswer || isCorrectAnswer)
-    );
+    if (hasSecondPlayerCorrectAnswer) await this.updatePlayerScore(queryRunner, secondPlayer.id, 1);
   }
 
   private async updatePlayerScore(queryRunner: QueryRunner, playerId: string, points: number) {
