@@ -4,7 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameController, AdminQuizController } from './api';
 import { Game, Answer, Stats, Question, Participant } from './domain';
 import { TransactionService } from '../../infrastructure/services/transaction.service';
-import { GameQueryRepo, QuestionQueryRepo, GameRepo, QuestionRepo, AnswerQueryRepo } from './infrastructure';
+import {
+  GameQueryRepo,
+  QuestionQueryRepo,
+  GameRepo,
+  QuestionRepo,
+  AnswerQueryRepo,
+  StatisticsQueryRepo,
+} from './infrastructure';
 import {
   GameService,
   StatsService,
@@ -32,6 +39,7 @@ import {
     AnswerQueryRepo,
     QuestionQueryRepo,
     MatchmakingService,
+    StatisticsQueryRepo,
     AnswerCommandHandler,
     ConnectCommandHandler,
     DeleteQuestionHandler,

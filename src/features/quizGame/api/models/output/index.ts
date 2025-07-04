@@ -109,3 +109,23 @@ export class GameViewModel {
 
   secondPlayerProgress: PlayerProgressViewModel | null;
 }
+
+export class StatisticViewModel {
+  @ApiProperty({ type: Number, nullable: false, description: 'Sum score' })
+  public sumScore: number;
+
+  @ApiProperty({ type: Number, nullable: false, description: 'Avg scores' })
+  public avgScores: number;
+
+  @ApiProperty({ type: Number, nullable: false, description: 'Games count' })
+  public gamesCount: number;
+
+  @ApiProperty({ type: Number, nullable: false, description: 'Wins count' })
+  public winsCount: number;
+
+  @ApiProperty({ type: Number, nullable: false, description: 'Losses count' })
+  public lossesCount: number;
+
+  @ApiProperty({ type: Number, nullable: false, description: 'Draws count' })
+  public drawsCount: number;
+}

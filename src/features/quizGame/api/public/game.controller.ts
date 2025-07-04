@@ -1,22 +1,29 @@
 import {
-  Body,
-  Controller,
-  ForbiddenException,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
+  Body,
   Post,
+  Param,
+  HttpCode,
   UseGuards,
+  Controller,
+  HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiForbiddenResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
-import { AnswerModel, PairParam } from '../models/input';
 import { GameMapManager } from '../models/mappers';
 import { JwtAuthGuard } from '../../../auth/guards';
+import { StatisticViewModel } from '../models/output';
+import { AnswerModel, PairParam } from '../models/input';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
-import { AnswerQueryRepo, GameQueryRepo } from '../../infrastructure';
-import { ApiBearerAuth, ApiForbiddenResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { AnswerQueryRepo, GameQueryRepo, StatisticsQueryRepo } from '../../infrastructure';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -26,7 +33,16 @@ export class GameController {
     private readonly commandBus: CommandBus,
     private readonly gameQueryRepo: GameQueryRepo,
     private readonly answerQueryRepo: AnswerQueryRepo,
+    private readonly statisticsQueryRepo: StatisticsQueryRepo,
   ) {}
+
+  @ApiOperation({ summary: 'Get current user statistic' })
+  @ApiUnauthorizedResponse({ description: 'User unauthorized' })
+  @ApiOkResponse({ description: 'User statistic', type: StatisticViewModel })
+  @Get('pairs/my-statistic')
+  async statistic(@CurrentUserId() userId: string) {
+    return this.statisticsQueryRepo.getUserStatistic(userId);
+  }
 
   @ApiOperation({
     summary: 'Get user game',

@@ -491,4 +491,12 @@ describe('e2e quiz game', () => {
       expect(game.secondPlayerProgress!.score).toBe(3);
     });
   });
+
+  describe('statistics', async () => {
+    it('should get user statistics', () => {});
+  });
+
+  describe('history', async () => {
+    it('should get user history', () => {});
+  });
 });
