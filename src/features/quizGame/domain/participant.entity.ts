@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import type { Game } from './game.entity';
 import type { Answer } from './answer.entity';
 import type { User } from '../../users/domain/user.entity';
@@ -16,8 +16,7 @@ export class Participant extends BaseEntity {
   @Column({ type: 'enum', enum: PlayerResultOfGame, default: PlayerResultOfGame.InProgress })
   public resultOfGame: PlayerResultOfGame;
 
-  @OneToOne('User', ({ participant }: User) => participant)
-  @JoinColumn()
+  @ManyToOne('User', ({ participants }: User) => participants)
   public user: User;
 
   @ManyToOne('Game', ({ participants }: Game) => participants)

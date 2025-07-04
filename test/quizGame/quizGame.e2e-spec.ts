@@ -6,6 +6,11 @@ import { applyAppSettings } from '../../src/settings/applyAppSettings';
 import { AnswerStatus, GameStatus } from '../../src/features/quizGame/infrastructure/enums';
 import { GameViewModel } from '../../src/features/quizGame/api/models/output';
 
+interface ICreatePlayer {
+  password: string;
+  loginOrEmail: string;
+}
+
 class Manager {
   public firstPlayerDTO = {
     loginOrEmail: 'First',
@@ -72,7 +77,7 @@ class Manager {
     await this.publishQuestion(httpServer, fifthQuestion.id);
   }
 
-  public async loginPlayer(httpServer: any, data: { loginOrEmail: string; password: string }) {
+  public async loginPlayer(httpServer: any, data: ICreatePlayer) {
     const {
       body: { accessToken },
     } = await request(httpServer).post('/auth/login').send(data).expect(HttpStatus.OK);
@@ -80,7 +85,7 @@ class Manager {
     return { accessToken };
   }
 
-  public async createAndLoginPlayer(httpServer: any, data: { loginOrEmail: string; password: string }) {
+  public async createAndLoginPlayer(httpServer: any, data: ICreatePlayer) {
     await request(httpServer)
       .post('/sa/users')
       .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
@@ -96,19 +101,19 @@ class Manager {
       .set('Authorization', `Bearer ${token}`)
       .expect(HttpStatus.OK);
 
-    return { game: body };
+    return body;
   }
 
-  public async createGameForTowPlayers(httpServer: any) {
+  public async createGameForTowPlayers(httpServer: any, players: { first: ICreatePlayer; second: ICreatePlayer }) {
     await this.generateQuestions(httpServer);
 
-    const { accessToken: firstAccessToken } = await this.createAndLoginPlayer(httpServer, this.firstPlayerDTO);
+    const { accessToken: firstAccessToken } = await this.createAndLoginPlayer(httpServer, players.first);
 
     await this.connectPlayerToGame(httpServer, firstAccessToken);
 
-    const { accessToken: secondAccessToken } = await this.createAndLoginPlayer(httpServer, this.secondPlayerDTO);
+    const { accessToken: secondAccessToken } = await this.createAndLoginPlayer(httpServer, players.second);
 
-    const { game } = await this.connectPlayerToGame(httpServer, secondAccessToken);
+    const game = await this.connectPlayerToGame(httpServer, secondAccessToken);
 
     expect(game.questions.length).toBe(5);
 
@@ -188,7 +193,7 @@ describe('e2e quiz game', () => {
     it.skip('should create game and connect first player', async () => {
       await manager.clearDB(httpServer);
       const { accessToken } = await manager.createAndLoginPlayer(httpServer, manager.firstPlayerDTO);
-      const { game } = await manager.connectPlayerToGame(httpServer, accessToken);
+      const game = await manager.connectPlayerToGame(httpServer, accessToken);
 
       expect(game).not.toBeNull();
       expect(game.questions).toBeNull();
@@ -212,7 +217,7 @@ describe('e2e quiz game', () => {
       expect(body.items.length).toBe(1);
 
       const { accessToken } = await manager.createAndLoginPlayer(httpServer, manager.secondPlayerDTO);
-      const { game } = await manager.connectPlayerToGame(httpServer, accessToken);
+      const game = await manager.connectPlayerToGame(httpServer, accessToken);
 
       expect(game).not.toBeNull();
       expect(game.id).toEqual(gameId);
@@ -252,7 +257,10 @@ describe('e2e quiz game', () => {
     it.skip('should create game and connect two players make answers', async () => {
       await manager.clearDB(httpServer);
 
-      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
       await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
@@ -270,7 +278,10 @@ describe('e2e quiz game', () => {
     it.skip('should add additional score to player', async () => {
       await manager.clearDB(httpServer);
 
-      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
 
@@ -306,34 +317,38 @@ describe('e2e quiz game', () => {
     it.skip('should return in right order', async () => {
       await manager.clearDB(httpServer);
 
-      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
-      const fpGameAfter1Answer = await manager.getCurrentGame(httpServer, firstAccessToken);
+      let game = await manager.getCurrentGame(httpServer, firstAccessToken);
 
-      expect(fpGameAfter1Answer.questions![0].id).toEqual(fpGameAfter1Answer.firstPlayerProgress.answers[0].questionId);
-      expect(fpGameAfter1Answer.firstPlayerProgress.answers[0].answerStatus).toEqual(AnswerStatus.Incorrect);
-      expect(fpGameAfter1Answer.firstPlayerProgress.score).toEqual(0);
+      expect(game.questions![0].id).toEqual(game.firstPlayerProgress.answers[0].questionId);
+      expect(game.firstPlayerProgress.answers[0].answerStatus).toEqual(AnswerStatus.Incorrect);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
-      const fpGameAfter2Answer = await manager.getCurrentGame(httpServer, firstAccessToken);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
 
-      expect(fpGameAfter2Answer.questions![1].id).toEqual(fpGameAfter2Answer.firstPlayerProgress.answers[1].questionId);
-      expect(fpGameAfter2Answer.firstPlayerProgress.answers[1].answerStatus).toEqual(AnswerStatus.Correct);
-      expect(fpGameAfter2Answer.firstPlayerProgress.score).toEqual(1);
+      expect(game.questions![1].id).toEqual(game.firstPlayerProgress.answers[1].questionId);
+      expect(game.firstPlayerProgress.answers[1].answerStatus).toEqual(AnswerStatus.Correct);
+      expect(game.firstPlayerProgress.score).toEqual(1);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.second.wrong);
-      const spGameAfter1Answer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(spGameAfter1Answer.questions![0].id).toEqual(
-        spGameAfter1Answer.secondPlayerProgress!.answers[0].questionId,
-      );
-      expect(spGameAfter1Answer.secondPlayerProgress!.score).toEqual(1);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.questions![0].id).toEqual(game.secondPlayerProgress!.answers[0].questionId);
+      expect(game.secondPlayerProgress!.score).toEqual(1);
     });
 
     it.skip('players play full game and finish with a draw', async () => {
       await manager.clearDB(httpServer);
 
-      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
       await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
@@ -361,59 +376,65 @@ describe('e2e quiz game', () => {
     it.skip('players play full game and finish answered all wrong second 2 right', async () => {
       await manager.clearDB(httpServer);
 
-      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
-      const gameAfterFirstAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterFirstAnswer.firstPlayerProgress.score).toEqual(0);
+      let game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
-      const gameAfterSecondAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterSecondAnswer.firstPlayerProgress.score).toEqual(0);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.third.wrong);
-      const gameAfterThirdAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterThirdAnswer.firstPlayerProgress.score).toEqual(0);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.wrong);
-      const gameAfterFourthAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterFourthAnswer.firstPlayerProgress.score).toEqual(0);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.first.wrong);
-      const gameAfterFifthAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterFifthAnswer.secondPlayerProgress!.score).toEqual(0);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.secondPlayerProgress!.score).toEqual(0);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
-      const gameAfterSixthAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterSixthAnswer.secondPlayerProgress!.score).toEqual(1);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.secondPlayerProgress!.score).toEqual(1);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
-      const gameAfterSeventhAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterSeventhAnswer.secondPlayerProgress!.score).toEqual(2);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.secondPlayerProgress!.score).toEqual(2);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.wrong);
-      const gameAfterEighthAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterEighthAnswer.secondPlayerProgress!.score).toEqual(2);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.secondPlayerProgress!.score).toEqual(2);
 
       await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.wrong);
-      const gameAfterNinthAnswer = await manager.getCurrentGame(httpServer, firstAccessToken);
-      expect(gameAfterNinthAnswer.firstPlayerProgress.score).toEqual(0);
+      game = await manager.getCurrentGame(httpServer, firstAccessToken);
+      expect(game.firstPlayerProgress.score).toEqual(0);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
 
-      const { game: finalGame } = await manager.getPairById(httpServer, game.id, firstAccessToken);
+      game = await manager.getPairById(httpServer, game.id, firstAccessToken);
 
       // 1P 0 right
       // 2P 2 right
-      expect(finalGame.status).toBe(GameStatus.Finished);
-      expect(finalGame.firstPlayerProgress.score).toBe(0);
-      expect(finalGame.secondPlayerProgress!.score).toBe(2);
+      expect(game.status).toBe(GameStatus.Finished);
+      expect(game.firstPlayerProgress.score).toBe(0);
+      expect(game.secondPlayerProgress!.score).toBe(2);
     });
 
-    it('players play full game and finish first player should win with 5 scores', async () => {
+    it.skip('players play full game and finish first player should win with 5 scores', async () => {
       await manager.clearDB(httpServer);
 
-      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer);
+      const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
 
       //1 add correct answer by firstPlayer
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);

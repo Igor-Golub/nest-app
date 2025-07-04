@@ -23,14 +23,14 @@ export class User extends BaseEntity {
   @Column({ default: false })
   public isConfirmed: boolean;
 
-  @OneToOne('Participant', ({ user }: Participant) => user)
-  public participant: Participant;
-
   @OneToOne('Confirmation', (confirmation: Confirmation) => confirmation.owner)
   public confirmation: Confirmation;
 
   @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
   public recovery: Recovery;
+
+  @OneToMany('Participant', ({ user }: Participant) => user)
+  public participants: Participant[];
 
   @OneToMany('Session', (session: Session) => session.owner)
   public sessions: Session[];
