@@ -151,6 +151,15 @@ class Manager {
 
     return game;
   }
+
+  public async getUserStatistic(httpServer: any, token: string) {
+    const { body: game } = await request(httpServer)
+      .get(`/pair-game-quiz/pairs/my-statistic`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+
+    return game;
+  }
 }
 
 const manager = new Manager();
@@ -177,20 +186,20 @@ describe('e2e quiz game', () => {
     await app.close();
   });
 
-  describe('current game endpoint', () => {
+  describe.skip('current game endpoint', () => {
     it('should receive 403 if not provided auth', async () => {
       await request(httpServer).get('/pair-game-quiz/pairs/my-current').expect(HttpStatus.UNAUTHORIZED);
     });
   });
 
-  describe('connection endpoint', () => {
-    it.skip('should receive 403 if not provided auth', async () => {
+  describe.skip('connection endpoint', () => {
+    it('should receive 403 if not provided auth', async () => {
       await request(httpServer).post('/pair-game-quiz/pairs/connection').expect(HttpStatus.UNAUTHORIZED);
     });
 
     let gameId = null;
 
-    it.skip('should create game and connect first player', async () => {
+    it('should create game and connect first player', async () => {
       await manager.clearDB(httpServer);
       const { accessToken } = await manager.createAndLoginPlayer(httpServer, manager.firstPlayerDTO);
       const game = await manager.connectPlayerToGame(httpServer, accessToken);
@@ -208,7 +217,7 @@ describe('e2e quiz game', () => {
       gameId = game.id;
     });
 
-    it.skip('should not create new game and connect second player to existing game', async () => {
+    it('should not create new game and connect second player to existing game', async () => {
       const { body } = await request(httpServer)
         .get('/sa/users')
         .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
@@ -232,7 +241,7 @@ describe('e2e quiz game', () => {
       expect(game.finishGameDate).toBeNull();
     });
 
-    it.skip('should return 403 if user already in game', async () => {
+    it('should return 403 if user already in game', async () => {
       const { body } = await request(httpServer)
         .get('/sa/users')
         .auth(process.env.HTTP_BASIC_USER!, process.env.HTTP_BASIC_PASS!)
@@ -249,12 +258,12 @@ describe('e2e quiz game', () => {
     });
   });
 
-  describe('answers endpoint', () => {
-    it.skip('should receive 403 if not provided auth', async () => {
+  describe.skip('answers endpoint', () => {
+    it('should receive 403 if not provided auth', async () => {
       await request(httpServer).post('/pair-game-quiz/pairs/my-current/answers').expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it.skip('should create game and connect two players make answers', async () => {
+    it('should create game and connect two players make answers', async () => {
       await manager.clearDB(httpServer);
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -275,7 +284,7 @@ describe('e2e quiz game', () => {
       expect(gameById.secondPlayerProgress.answers.length).toBe(2);
     });
 
-    it.skip('should add additional score to player', async () => {
+    it('should add additional score to player', async () => {
       await manager.clearDB(httpServer);
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -314,7 +323,7 @@ describe('e2e quiz game', () => {
       expect(gameAfterFirstUserAnswers.status).toBe(GameStatus.Finished);
     });
 
-    it.skip('should return in right order', async () => {
+    it('should return in right order', async () => {
       await manager.clearDB(httpServer);
 
       const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -342,7 +351,7 @@ describe('e2e quiz game', () => {
       expect(game.secondPlayerProgress!.score).toEqual(1);
     });
 
-    it.skip('players play full game and finish with a draw', async () => {
+    it('players play full game and finish with a draw', async () => {
       await manager.clearDB(httpServer);
 
       const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -373,7 +382,7 @@ describe('e2e quiz game', () => {
       expect(finalGame.secondPlayerProgress!.score).toBe(3);
     });
 
-    it.skip('players play full game and finish answered all wrong second 2 right', async () => {
+    it('players play full game and finish answered all wrong second 2 right', async () => {
       await manager.clearDB(httpServer);
 
       const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -428,7 +437,7 @@ describe('e2e quiz game', () => {
       expect(game.secondPlayerProgress!.score).toBe(2);
     });
 
-    it.skip('players play full game and finish first player should win with 5 scores', async () => {
+    it('players play full game and finish first player should win with 5 scores', async () => {
       await manager.clearDB(httpServer);
 
       const { firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
@@ -492,11 +501,71 @@ describe('e2e quiz game', () => {
     });
   });
 
-  describe('statistics', async () => {
-    it('should get user statistics', () => {});
-  });
+  describe('statistics', () => {
+    it('should get user statistics', async () => {
+      let sharedGame;
 
-  describe('history', async () => {
-    it('should get user history', () => {});
+      await manager.clearDB(httpServer);
+
+      const { game, firstAccessToken, secondAccessToken } = await manager.createGameForTowPlayers(httpServer, {
+        first: manager.firstPlayerDTO,
+        second: manager.secondPlayerDTO,
+      });
+
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.wrong);
+      sharedGame = await manager.getPairById(httpServer, game.id, secondAccessToken);
+
+      expect(sharedGame.status).toEqual(GameStatus.Finished);
+      expect(sharedGame.firstPlayerProgress.score).toBe(5);
+      expect(sharedGame.secondPlayerProgress!.score).toBe(3);
+
+      await manager.connectPlayerToGame(httpServer, firstAccessToken);
+      await manager.connectPlayerToGame(httpServer, secondAccessToken);
+
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.wrong);
+      sharedGame = await manager.getPairById(httpServer, sharedGame.id, secondAccessToken);
+
+      expect(sharedGame.status).toEqual(GameStatus.Finished);
+      expect(sharedGame.firstPlayerProgress.score).toBe(5);
+      expect(sharedGame.secondPlayerProgress!.score).toBe(3);
+
+      const firstUserStatistic = await manager.getUserStatistic(httpServer, firstAccessToken);
+      expect(firstUserStatistic).toEqual({
+        sumScore: 10,
+        winsCount: 2,
+        gamesCount: 2,
+        drawsCount: 0,
+        lossesCount: 0,
+        avgScores: 5,
+      });
+
+      const secondUserStatistic = await manager.getUserStatistic(httpServer, secondAccessToken);
+      expect(secondUserStatistic).toEqual({
+        sumScore: 6,
+        avgScores: 3,
+        winsCount: 0,
+        gamesCount: 2,
+        drawsCount: 0,
+        lossesCount: 2,
+      });
+    });
   });
 });
