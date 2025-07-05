@@ -111,21 +111,45 @@ export class GameViewModel {
 }
 
 export class StatisticViewModel {
-  @ApiProperty({ type: Number, nullable: false, description: 'Sum scores of all games' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'Sum scores of all games',
+  })
   public sumScore: number;
 
-  @ApiProperty({ type: Number, nullable: false, description: 'Average score of all games rounded to 2 decimal places' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'Average score of all games rounded to 2 decimal places',
+  })
   public avgScores: number;
 
-  @ApiProperty({ type: Number, nullable: false, description: 'All played games count' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'All played games count',
+  })
   public gamesCount: number;
 
-  @ApiProperty({ type: Number, nullable: false, description: 'Wins count' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'Wins count',
+  })
   public winsCount: number;
 
-  @ApiProperty({ type: Number, nullable: false, description: 'Losses count' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'Losses count',
+  })
   public lossesCount: number;
 
-  @ApiProperty({ type: Number, nullable: false, description: 'Draws count' })
+  @ApiProperty({
+    type: Number,
+    nullable: false,
+    description: 'Draws count',
+  })
   public drawsCount: number;
 }

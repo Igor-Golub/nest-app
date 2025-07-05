@@ -154,7 +154,16 @@ class Manager {
 
   public async getUserStatistic(httpServer: any, token: string) {
     const { body: game } = await request(httpServer)
-      .get(`/pair-game-quiz/pairs/my-statistic`)
+      .get(`/pair-game-quiz/users/my-statistic`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(HttpStatus.OK);
+
+    return game;
+  }
+
+  public async getUserHistory(httpServer: any, token: string) {
+    const { body: game } = await request(httpServer)
+      .get(`/pair-game-quiz/pairs/my`)
       .set('Authorization', `Bearer ${token}`)
       .expect(HttpStatus.OK);
 
@@ -501,7 +510,7 @@ describe('e2e quiz game', () => {
     });
   });
 
-  describe('statistics', () => {
+  describe('statistics and history', () => {
     it('should get user statistics', async () => {
       let sharedGame;
 
@@ -529,7 +538,7 @@ describe('e2e quiz game', () => {
       expect(sharedGame.secondPlayerProgress!.score).toBe(3);
 
       await manager.connectPlayerToGame(httpServer, firstAccessToken);
-      await manager.connectPlayerToGame(httpServer, secondAccessToken);
+      sharedGame = await manager.connectPlayerToGame(httpServer, secondAccessToken);
 
       await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
       await manager.answer(httpServer, firstAccessToken, manager.answers.second.right);
@@ -547,25 +556,48 @@ describe('e2e quiz game', () => {
       expect(sharedGame.firstPlayerProgress.score).toBe(5);
       expect(sharedGame.secondPlayerProgress!.score).toBe(3);
 
+      await manager.connectPlayerToGame(httpServer, firstAccessToken);
+      sharedGame = await manager.connectPlayerToGame(httpServer, secondAccessToken);
+
+      await manager.answer(httpServer, firstAccessToken, manager.answers.first.right);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.second.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.third.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fourth.wrong);
+      await manager.answer(httpServer, firstAccessToken, manager.answers.fifth.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.first.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.second.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.third.wrong);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fourth.right);
+      await manager.answer(httpServer, secondAccessToken, manager.answers.fifth.wrong);
+      sharedGame = await manager.getPairById(httpServer, sharedGame.id, secondAccessToken);
+
+      expect(sharedGame.status).toEqual(GameStatus.Finished);
+      expect(sharedGame.firstPlayerProgress.score).toBe(2);
+      expect(sharedGame.secondPlayerProgress!.score).toBe(2);
+
       const firstUserStatistic = await manager.getUserStatistic(httpServer, firstAccessToken);
       expect(firstUserStatistic).toEqual({
-        sumScore: 10,
+        sumScore: 12,
         winsCount: 2,
-        gamesCount: 2,
-        drawsCount: 0,
+        avgScores: 4,
+        gamesCount: 3,
+        drawsCount: 1,
         lossesCount: 0,
-        avgScores: 5,
       });
 
       const secondUserStatistic = await manager.getUserStatistic(httpServer, secondAccessToken);
       expect(secondUserStatistic).toEqual({
-        sumScore: 6,
-        avgScores: 3,
+        sumScore: 8,
         winsCount: 0,
-        gamesCount: 2,
-        drawsCount: 0,
+        gamesCount: 3,
+        drawsCount: 1,
         lossesCount: 2,
+        avgScores: 2.67,
       });
+
+      const result = await manager.getUserHistory(httpServer, firstAccessToken);
+
+      expect(result.totalCount).toBe(3);
     });
   });
 });

@@ -4,3 +4,4 @@ export { QuestionQueryRepo } from './question.query.repo';
 export { QuestionRepo } from './question.repo';
 export { AnswerQueryRepo } from './answer.query.repo';
 export { StatisticsQueryRepo } from './statistics.query.repo';
+export { HistoryQueryRepo } from './history.query.repo';

@@ -5,11 +5,12 @@ import { GameController, AdminQuizController } from './api';
 import { Game, Answer, Stats, Question, Participant } from './domain';
 import { TransactionService } from '../../infrastructure/services/transaction.service';
 import {
-  GameQueryRepo,
-  QuestionQueryRepo,
   GameRepo,
   QuestionRepo,
+  GameQueryRepo,
   AnswerQueryRepo,
+  HistoryQueryRepo,
+  QuestionQueryRepo,
   StatisticsQueryRepo,
 } from './infrastructure';
 import {
@@ -38,6 +39,7 @@ import {
     GameQueryRepo,
     AnswerQueryRepo,
     QuestionQueryRepo,
+    HistoryQueryRepo,
     MatchmakingService,
     StatisticsQueryRepo,
     AnswerCommandHandler,

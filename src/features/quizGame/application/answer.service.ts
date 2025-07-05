@@ -17,92 +17,99 @@ export class AnswerService {
   public async answerToQuestion(gameId: string, userId: string, inputAnswer: string) {
     return this.transactionService.runInTransaction(this.dataSource, async (queryRunner) => {
       const game = await this.gameRepo.findFullGameOrFail(queryRunner, gameId);
-      const { current, second } = this.getCurrentAnsSecondPlayers(game, userId);
-      const question = this.getGameQuestionByIndex(game, current.answers.length);
+      const { current: currentPlayer, second: secondPlayer } = this.getCurrentAndSecondPlayers(game, userId);
+
+      const question = this.getGameQuestionByIndex(game, currentPlayer.answers.length);
 
       const isCorrect = question.answers.includes(inputAnswer);
       const answerStatus = isCorrect ? AnswerStatus.Correct : AnswerStatus.Incorrect;
 
-      const answer = queryRunner.manager.create(Answer, { participant: current, question, status: answerStatus });
+      const answer = queryRunner.manager.create(Answer, { participant: currentPlayer, question, status: answerStatus });
 
       await queryRunner.manager.save(answer);
 
       if (isCorrect) {
-        await this.updatePlayerScore(queryRunner, current.id, 1);
+        await this.incrementPlayerScore(queryRunner, currentPlayer.id, 1);
       }
 
       if (await this.gameRepo.checkIsGameFinished(game.id)) {
-        const hasSecondPlayerCorrectAnswer = second.answers.some(({ status }) => status === AnswerStatus.Correct);
-
-        const currentPlayerScores = isCorrect ? current.score : current.score + 1;
-        const secondPlayerScores = hasSecondPlayerCorrectAnswer ? second.score + 1 : second.score;
-
-        await this.giveBonusPoints(queryRunner, second);
-        await this.handleUpdateGameResultsForParticipants(
-          queryRunner,
-          current,
-          second,
-          currentPlayerScores,
-          secondPlayerScores,
-        );
-        await this.finishGame(queryRunner, game.id);
+        await this.finalizeGame(queryRunner, game.id, currentPlayer, secondPlayer, isCorrect);
       }
 
       return answer;
     });
   }
 
-  private async handleUpdateGameResultsForParticipants(
+  private async finalizeGame(
+    queryRunner: QueryRunner,
+    gameId: string,
+    currentPlayer: Participant,
+    secondPlayer: Participant,
+    isLastAnswerCorrect: boolean,
+  ) {
+    const currentPlayerScore = isLastAnswerCorrect ? currentPlayer.score + 1 : currentPlayer.score;
+    const secondPlayerScore = this.hasCorrectAnswer(secondPlayer) ? secondPlayer.score + 1 : secondPlayer.score;
+
+    if (this.hasCorrectAnswer(secondPlayer)) {
+      await this.incrementPlayerScore(queryRunner, secondPlayer.id, 1);
+    }
+
+    await this.updateGameResults(queryRunner, currentPlayer, secondPlayer, currentPlayerScore, secondPlayerScore);
+    await this.markGameAsFinished(queryRunner, gameId);
+  }
+
+  private async updateGameResults(
     queryRunner: QueryRunner,
     currentPlayer: Participant,
     secondPlayer: Participant,
-    currentPlayerScores: number,
-    secondPlayerScores: number,
+    currentScore: number,
+    secondScore: number,
   ) {
-    let player1Result: PlayerResultOfGame = PlayerResultOfGame.Draw;
-    let player2Result: PlayerResultOfGame = PlayerResultOfGame.Draw;
+    const [currentResult, secondResult] = this.calculateResults(currentScore, secondScore);
 
-    if (currentPlayerScores > secondPlayerScores) {
-      player1Result = PlayerResultOfGame.Won;
-      player2Result = PlayerResultOfGame.Lost;
-    } else if (currentPlayerScores < secondPlayerScores) {
-      player1Result = PlayerResultOfGame.Lost;
-      player2Result = PlayerResultOfGame.Won;
+    await queryRunner.manager.update(Participant, currentPlayer.id, { resultOfGame: currentResult });
+    await queryRunner.manager.update(Participant, secondPlayer.id, { resultOfGame: secondResult });
+  }
+
+  private calculateResults(currentScore: number, secondScore: number): [PlayerResultOfGame, PlayerResultOfGame] {
+    if (currentScore > secondScore) {
+      return [PlayerResultOfGame.Won, PlayerResultOfGame.Lost];
+    } else if (currentScore < secondScore) {
+      return [PlayerResultOfGame.Lost, PlayerResultOfGame.Won];
+    } else {
+      return [PlayerResultOfGame.Draw, PlayerResultOfGame.Draw];
     }
-
-    await queryRunner.manager.update(Participant, currentPlayer.id, { resultOfGame: player1Result });
-    await queryRunner.manager.update(Participant, secondPlayer.id, { resultOfGame: player2Result });
   }
 
-  private async giveBonusPoints(queryRunner: QueryRunner, secondPlayer: Participant) {
-    const hasSecondPlayerCorrectAnswer = secondPlayer.answers.some(({ status }) => status === AnswerStatus.Correct);
-
-    if (hasSecondPlayerCorrectAnswer) await this.updatePlayerScore(queryRunner, secondPlayer.id, 1);
-  }
-
-  private async updatePlayerScore(queryRunner: QueryRunner, playerId: string, points: number) {
+  private async incrementPlayerScore(queryRunner: QueryRunner, playerId: string, points: number) {
     await queryRunner.manager.increment(Participant, { id: playerId }, 'score', points);
   }
 
-  private async finishGame(queryRunner: QueryRunner, gameId: string) {
-    await queryRunner.manager.update(Game, gameId, {
-      finishedAt: new Date(),
-      status: GameStatus.Finished,
-    });
+  private async markGameAsFinished(queryRunner: QueryRunner, gameId: string) {
+    await queryRunner.manager.update(Game, gameId, { finishedAt: new Date(), status: GameStatus.Finished });
   }
 
-  private getGameQuestionByIndex(game: Game, targetIndex: number) {
-    const question = game.questions.find((_, index) => index === targetIndex);
-    if (!question) throw new DomainError(`Question by index not found`, HttpStatus.BAD_REQUEST);
+  private hasCorrectAnswer(participant: Participant): boolean {
+    return participant.answers.some(({ status }) => status === AnswerStatus.Correct);
+  }
+
+  private getGameQuestionByIndex(game: Game, index: number) {
+    const question = game.questions[index];
+
+    if (!question) {
+      throw new DomainError('Question by index not found', HttpStatus.BAD_REQUEST);
+    }
 
     return question;
   }
 
-  private getCurrentAnsSecondPlayers(game: Game, userId: string) {
+  private getCurrentAndSecondPlayers(game: Game, userId: string) {
     const current = game.participants.find((p) => p.user.id === userId);
     const second = game.participants.find((p) => p.user.id !== userId);
 
-    if (!current || !second) throw new DomainError(`Connect failed`, HttpStatus.BAD_REQUEST);
+    if (!current || !second) {
+      throw new DomainError('Connect failed', HttpStatus.BAD_REQUEST);
+    }
 
     return { current, second };
   }

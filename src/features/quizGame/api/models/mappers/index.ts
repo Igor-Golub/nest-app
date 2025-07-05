@@ -58,9 +58,9 @@ export class GameMapManager {
       startGameDate: game.startedAt,
       finishGameDate: game.finishedAt,
       pairCreatedDate: game.createdAt,
-      firstPlayerProgress: this.mapPlayerToView(firstPlayer),
-      questions: secondPlayer ? game.questions.map(this.mapQuestionsToView) : null,
-      secondPlayerProgress: secondPlayer ? this.mapPlayerToView(secondPlayer) : null,
+      firstPlayerProgress: GameMapManager.mapPlayerToView(firstPlayer),
+      questions: secondPlayer ? game.questions.map(GameMapManager.mapQuestionsToView) : null,
+      secondPlayerProgress: secondPlayer ? GameMapManager.mapPlayerToView(secondPlayer) : null,
     };
   }
 }

@@ -23,7 +23,8 @@ import { StatisticViewModel } from '../models/output';
 import { AnswerModel, PairParam } from '../models/input';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
-import { AnswerQueryRepo, GameQueryRepo, StatisticsQueryRepo } from '../../infrastructure';
+import { AnswerQueryRepo, GameQueryRepo, StatisticsQueryRepo, HistoryQueryRepo } from '../../infrastructure';
+import { QueryParams } from '../../../../common/decorators/validate';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -33,13 +34,22 @@ export class GameController {
     private readonly commandBus: CommandBus,
     private readonly gameQueryRepo: GameQueryRepo,
     private readonly answerQueryRepo: AnswerQueryRepo,
+    private readonly historyQueryRepo: HistoryQueryRepo,
     private readonly statisticsQueryRepo: StatisticsQueryRepo,
   ) {}
+
+  @ApiOperation({ summary: 'Get all user games (include current)' })
+  @ApiUnauthorizedResponse({ description: 'User unauthorized' })
+  @ApiOkResponse({ description: 'User history games and current' })
+  @Get('pairs/my')
+  async history(@CurrentUserId() userId: string, @Param() queryParams: QueryParams) {
+    return this.historyQueryRepo.getHistoryAndCurrent(queryParams, userId);
+  }
 
   @ApiOperation({ summary: 'Get current user statistic' })
   @ApiUnauthorizedResponse({ description: 'User unauthorized' })
   @ApiOkResponse({ description: 'User statistic', type: StatisticViewModel })
-  @Get('pairs/my-statistic')
+  @Get('users/my-statistic')
   async statistic(@CurrentUserId() userId: string) {
     return this.statisticsQueryRepo.getUserStatistic(userId);
   }
