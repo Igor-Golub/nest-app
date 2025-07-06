@@ -20,9 +20,10 @@ export class HistoryQueryRepo {
       finishGameDate: 'finishedAt',
     };
 
-    const allowedSortFields = ['createdAt', 'status', 'startGameDate', 'finishGameDate'];
+    const mappedSortField = mapperFields[query.sortBy] || query.sortBy;
+    const allowedSortFields = ['createdAt', 'status', 'startedAt', 'finishedAt'];
 
-    const sortBy = allowedSortFields.includes(mapperFields[query.sortBy] ?? query.sortBy) ? query.sortBy : 'createdAt';
+    const sortBy = allowedSortFields.includes(mappedSortField) ? mappedSortField : 'createdAt';
     const sortDirection = query.sortDirection.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
     const gameIdsForUser = await this.participantRepo
@@ -33,29 +34,49 @@ export class HistoryQueryRepo {
 
     const gameIds = gameIdsForUser.map((item) => item.gameId);
 
-    const [games, totalCount] = await this.gameRepo
+    if (gameIds.length === 0) {
+      return PaginatedViewDto.mapToView({
+        totalCount: 0,
+        size: query.pageSize,
+        page: query.pageNumber,
+        items: [],
+      });
+    }
+
+    const gamesQuery = this.gameRepo.createQueryBuilder('game').where('game.id IN (:...gameIds)', { gameIds });
+
+    gamesQuery.orderBy(`game.${sortBy}`, sortDirection);
+
+    gamesQuery.addOrderBy('game.createdAt', 'DESC');
+
+    const totalCount = await gamesQuery.getCount();
+    const gamesPaginated = await gamesQuery
+      .skip((query.pageNumber - 1) * query.pageSize)
+      .take(query.pageSize)
+      .getMany();
+
+    const paginatedGameIds = gamesPaginated.map((game) => game.id);
+
+    const gamesWithRelations = await this.gameRepo
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('game.participants', 'participants')
       .leftJoinAndSelect('participants.answers', 'answers')
       .leftJoinAndSelect('participants.user', 'user')
       .leftJoinAndSelect('answers.question', 'question')
-      .where('game.id IN (:...gameIds)', { gameIds })
-      .orderBy({
-        'participants.createdAt': 'ASC',
-        'questions.createdAt': 'ASC',
-        'answers.createdAt': 'ASC',
-      })
-      .orderBy(`game.${sortBy}`, sortDirection)
-      .skip((query.pageNumber - 1) * query.pageSize)
-      .take(query.pageSize)
-      .getManyAndCount();
+      .where('game.id IN (:...paginatedGameIds)', { paginatedGameIds })
+      .orderBy('participants.createdAt', 'ASC')
+      .addOrderBy('questions.createdAt', 'ASC')
+      .addOrderBy('answers.createdAt', 'ASC')
+      .getMany();
+
+    const sortedGames = paginatedGameIds.map((id) => gamesWithRelations.find((game) => game.id === id)).filter(Boolean);
 
     return PaginatedViewDto.mapToView({
       totalCount,
       size: query.pageSize,
       page: query.pageNumber,
-      items: games.map(GameMapManager.mapGameToView),
+      items: sortedGames.map(GameMapManager.mapGameToView),
     });
   }
 }
