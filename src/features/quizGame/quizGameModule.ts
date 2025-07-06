@@ -15,10 +15,7 @@ import {
 } from './infrastructure';
 import {
   GameService,
-  StatsService,
-  TimerService,
   AnswerService,
-  MatchmakingService,
   AnswerCommandHandler,
   ConnectCommandHandler,
   DeleteQuestionHandler,
@@ -32,15 +29,12 @@ import {
   providers: [
     GameRepo,
     GameService,
-    StatsService,
     QuestionRepo,
-    TimerService,
     AnswerService,
     GameQueryRepo,
     AnswerQueryRepo,
     QuestionQueryRepo,
     HistoryQueryRepo,
-    MatchmakingService,
     StatisticsQueryRepo,
     AnswerCommandHandler,
     ConnectCommandHandler,
