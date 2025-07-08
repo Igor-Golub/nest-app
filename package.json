@@ -23,10 +23,13 @@
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d typeorm.config.ts"
   },
   "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@nestjs/apollo": "^13.1.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/cqrs": "^10.2.7",
+    "@nestjs/graphql": "^13.1.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^10.0.6",
     "@nestjs/passport": "^10.0.3",
@@ -43,6 +46,7 @@
     "cookie-parser": "^1.4.6",
     "cross-env": "^7.0.3",
     "date-fns": "^3.6.0",
+    "graphql": "^16.11.0",
     "mongoose": "^8.3.3",
     "nodemailer": "^6.9.14",
     "npm": "^10.7.0",

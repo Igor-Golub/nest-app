@@ -1,0 +1,16 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type BlogViewModel {
+  id: String!
+  createdAt: String!
+  name: String!
+  websiteUrl: String!
+  description: String!
+  isMembership: Boolean!
+}
+
+type Query {
+  blog(id: String!): BlogViewModel
+}

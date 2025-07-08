@@ -39,6 +39,7 @@ import { Post } from './posts/domain/post.entity';
 import { PostLike } from './posts/domain/postLikes.entity';
 import { AdminBlogsController } from './blogs/api/admin/adminBlogs.controller';
 import { AdminPostsController } from './posts/api/admin/adminPosts.controller';
+import { BlogsResolver } from './blogs/api/graphql/blogs.resolver';
 
 const blogsProviders = [
   BlogsRepository,
@@ -49,6 +50,7 @@ const blogsProviders = [
   CreateBlogPostHandler,
   UpdateBlogPostHandler,
   DeleteBlogPostHandler,
+  BlogsResolver,
 ];
 
 const postsProviders = [

@@ -1,9 +1,12 @@
 // import of this config module must be on the top of imports
 import { configModule } from './config';
+import { join } from 'path';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { dbOptions } from './core/dbOptions';
 import { AuthModule } from './features/auth';
 import { UsersModule } from './features/users';
@@ -35,10 +38,14 @@ import { AccessTokenExistMiddleware, LoggingMiddleware, UploadMiddleware } from 
       imports: [CoreModule],
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => ({
-        // logging: [coreConfig.postgresLoggingLevel],
+        logging: [coreConfig.postgresLoggingLevel],
         autoLoadEntities: true,
         ...dbOptions,
       }),
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     UsersModule,
     AuthModule,
