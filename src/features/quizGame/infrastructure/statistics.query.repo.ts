@@ -4,14 +4,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Participant } from '../domain';
 import { PlayerResultOfGame } from './enums';
 import { StatisticViewModel } from '../api/models/output';
+import { UsersTopQueryParams } from '../api/models/input';
+import { PaginatedViewDto } from '../../../common/dto/base.paginated.view-dto';
 
 @Injectable()
 export class StatisticsQueryRepo {
   constructor(@InjectRepository(Participant) private participantRepo: Repository<Participant>) {}
 
+  public async getTopUsers(query: UsersTopQueryParams) {
+    return PaginatedViewDto.mapToView({
+      items: [],
+      size: query.pageSize,
+      page: query.pageNumber,
+      totalCount: 0,
+    });
+  }
+
   public async getUserStatistic(userId: string): Promise<StatisticViewModel> {
     const participants = await this.participantRepo.find({ where: { user: { id: userId } } });
 
+    return this.calcStatisticForUser(participants);
+  }
+
+  private calcStatisticForUser(participants: Participant[]) {
     const calcResults = participants.reduce<Omit<StatisticViewModel, 'avgScores' | 'gamesCount'>>(
       (results, participant) => {
         results.sumScore += participant.score;

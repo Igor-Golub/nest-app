@@ -8,6 +8,7 @@ import {
   Controller,
   HttpStatus,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -20,14 +21,13 @@ import { CommandBus } from '@nestjs/cqrs';
 import { GameMapManager } from '../models/mappers';
 import { JwtAuthGuard } from '../../../auth/guards';
 import { StatisticViewModel } from '../models/output';
-import { AnswerModel, PairParam } from '../models/input';
 import { CurrentUserId } from '../../../../common/pipes';
 import { AnswerCommand, ConnectCommand } from '../../application';
-import { AnswerQueryRepo, GameQueryRepo, StatisticsQueryRepo, HistoryQueryRepo } from '../../infrastructure';
 import { QueryParams } from '../../../../common/decorators/validate';
+import { AnswerModel, PairParam, UsersTopQueryParams } from '../models/input';
+import { AnswerQueryRepo, GameQueryRepo, StatisticsQueryRepo, HistoryQueryRepo } from '../../infrastructure';
 
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz')
 export class GameController {
   constructor(
@@ -38,9 +38,17 @@ export class GameController {
     private readonly statisticsQueryRepo: StatisticsQueryRepo,
   ) {}
 
+  @ApiOperation({ summary: 'Get users top' })
+  @ApiOkResponse({ description: 'Return paginated top of users' })
+  @Get('users/top')
+  async topUsers(@Query() queryParams: UsersTopQueryParams) {
+    return this.statisticsQueryRepo.getTopUsers(queryParams);
+  }
+
   @ApiOperation({ summary: 'Get all user games (include current)' })
   @ApiUnauthorizedResponse({ description: 'User unauthorized' })
   @ApiOkResponse({ description: 'User history games and current' })
+  @UseGuards(JwtAuthGuard)
   @Get('pairs/my')
   async history(@CurrentUserId() userId: string, @Param() queryParams: QueryParams) {
     return this.historyQueryRepo.getHistoryAndCurrent(queryParams, userId);
@@ -49,23 +57,22 @@ export class GameController {
   @ApiOperation({ summary: 'Get current user statistic' })
   @ApiUnauthorizedResponse({ description: 'User unauthorized' })
   @ApiOkResponse({ description: 'User statistic', type: StatisticViewModel })
+  @UseGuards(JwtAuthGuard)
   @Get('users/my-statistic')
   async statistic(@CurrentUserId() userId: string) {
     return this.statisticsQueryRepo.getUserStatistic(userId);
   }
 
-  @ApiOperation({
-    summary: 'Get user game',
-  })
+  @ApiOperation({ summary: 'Get user game' })
+  @UseGuards(JwtAuthGuard)
   @Get('pairs/my-current')
   async myCurrent(@CurrentUserId() userId: string) {
     const game = await this.gameQueryRepo.findByParticipantId(userId);
     return GameMapManager.mapGameToView(game);
   }
 
-  @ApiOperation({
-    summary: 'Get game by id',
-  })
+  @ApiOperation({ summary: 'Get game by id' })
+  @UseGuards(JwtAuthGuard)
   @Get('pairs/:id')
   async pairs(@CurrentUserId() userId: string, @Param() { id }: PairParam) {
     await this.gameQueryRepo.isGameExist(id);
@@ -77,15 +84,10 @@ export class GameController {
     return GameMapManager.mapGameToView(game);
   }
 
-  @ApiOperation({
-    summary: 'Connect user to game',
-  })
-  @ApiOkResponse({
-    description: 'Game connected or created',
-  })
-  @ApiForbiddenResponse({
-    description: 'User already in game',
-  })
+  @ApiOperation({ summary: 'Connect user to game' })
+  @ApiOkResponse({ description: 'Game connected or created' })
+  @ApiForbiddenResponse({ description: 'User already in game' })
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('pairs/connection')
   async connect(@CurrentUserId() userId: string) {
@@ -98,15 +100,10 @@ export class GameController {
     return GameMapManager.mapGameToView(game);
   }
 
-  @ApiOperation({
-    summary: 'Send answer for next not answered question in active game',
-  })
-  @ApiOkResponse({
-    description: 'Answer saved',
-  })
-  @ApiForbiddenResponse({
-    description: 'User not in game or Game not ready yet or Answered for all queries',
-  })
+  @ApiOperation({ summary: 'Send answer for next not answered question in active game' })
+  @ApiOkResponse({ description: 'Answer saved' })
+  @ApiForbiddenResponse({ description: 'User not in game or Game not ready yet or Answered for all queries' })
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('pairs/my-current/answers')
   async answer(@CurrentUserId() userId: string, @Body() { answer: inputAnswer }: AnswerModel) {

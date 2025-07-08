@@ -1,7 +1,17 @@
-import { ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsUUID,
+  IsArray,
+  IsNumber,
+  IsString,
+  IsBoolean,
+  IsOptional,
+  ArrayMinSize,
+  ArrayNotEmpty,
+} from 'class-validator';
 import { PublishedStatus } from '../../../infrastructure/enums';
 import { QueryParams } from '../../../../../common/decorators/validate';
-import { IsStringWithExpectedLength, Trim } from '../../../../../common/decorators';
+import { IsStringWithExpectedLength, ToNumber, Trim } from '../../../../../common/decorators';
 
 export class PairParam {
   @IsUUID()
@@ -43,4 +53,19 @@ export class PublishQuestionModel {
 export class AnswerModel {
   @IsString()
   answer: string;
+}
+
+export class UsersTopQueryParams {
+  @IsArray()
+  sort: string[] = [];
+
+  @ToNumber(10)
+  @IsNumber()
+  @IsOptional()
+  pageSize: number = 10;
+
+  @ToNumber(1)
+  @IsNumber()
+  @IsOptional()
+  pageNumber: number = 1;
 }
