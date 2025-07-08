@@ -2,15 +2,27 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Represents a blog with all its properties and metadata"""
 type BlogViewModel {
+  """Unique identifier (UUID) of the blog"""
   id: String!
+
+  """Timestamp when the blog was created"""
   createdAt: String!
+
+  """The display name of the blog (3-15 characters)"""
   name: String!
+
+  """The main website URL associated with the blog"""
   websiteUrl: String!
+
+  """Detailed description of the blog content"""
   description: String!
+
+  """Indicates if this is a premium membership blog"""
   isMembership: Boolean!
 }
 
 type Query {
-  blog(id: String!): BlogViewModel
+  blog(blogId: String!): BlogViewModel
 }
