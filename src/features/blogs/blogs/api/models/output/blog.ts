@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Field, ObjectType } from '@nestjs/graphql';
+import { PostViewModel } from '../../../../posts/api/models/output';
 
 @ObjectType({
   description: 'Represents a blog with all its properties and metadata',
@@ -15,7 +16,7 @@ export class BlogViewModel {
     example: 'f1a2b3c4-5678-90ab-cdef-1234567890ab',
     description: 'The unique identifier for the blog in UUID format',
   })
-  id: string;
+  public id: string;
 
   @Field({
     description: 'Timestamp when the blog was created',
@@ -27,7 +28,7 @@ export class BlogViewModel {
     example: '2024-06-08T12:34:56.789Z',
     description: 'ISO 8601 timestamp of when the blog was created',
   })
-  createdAt: string;
+  public createdAt: string;
 
   @Field({
     description: 'The display name of the blog (3-15 characters)',
@@ -40,7 +41,7 @@ export class BlogViewModel {
     example: 'Tech Insights',
     description: 'The name of the blog, used for display purposes',
   })
-  name: string;
+  public name: string;
 
   @Field({
     description: 'The main website URL associated with the blog',
@@ -68,7 +69,7 @@ export class BlogViewModel {
     description: 'Detailed description of what the blog is about',
     example: 'A blog about cutting-edge technology and software development trends',
   })
-  description: string;
+  public description: string;
 
   @Field({
     description: 'Indicates if this is a premium membership blog',
@@ -79,5 +80,10 @@ export class BlogViewModel {
     required: true,
     description: 'Flag indicating if this blog requires membership to access premium content',
   })
-  isMembership: boolean;
+  public isMembership: boolean;
+
+  @Field(() => [PostViewModel], {
+    description: 'List of posts in this blog',
+  })
+  public posts?: PostViewModel[];
 }

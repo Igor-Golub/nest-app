@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type PostViewModel {
+  """Unique identifier (UUID) of the post"""
+  id: String!
+
+  """The display title of the post"""
+  title: String!
+}
+
 """Represents a blog with all its properties and metadata"""
 type BlogViewModel {
   """Unique identifier (UUID) of the blog"""
@@ -21,6 +29,7 @@ type BlogViewModel {
 
   """Indicates if this is a premium membership blog"""
   isMembership: Boolean!
+  posts: [PostViewModel!]!
 }
 
 type Query {

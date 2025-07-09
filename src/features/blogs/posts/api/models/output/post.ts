@@ -1,3 +1,4 @@
+import { Field, ObjectType } from '@nestjs/graphql';
 import { LikeStatus } from '../../../../../../common/enums';
 
 interface Like {
@@ -22,4 +23,17 @@ export interface PostViewModelWithLikes {
   createdAt: string;
   shortDescription: string;
   extendedLikesInfo: LikesInfo;
+}
+
+@ObjectType()
+export class PostViewModel {
+  @Field({
+    description: 'Unique identifier (UUID) of the post',
+  })
+  id: string;
+
+  @Field({
+    description: 'The display title of the post',
+  })
+  title: string;
 }
