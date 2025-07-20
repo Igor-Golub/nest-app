@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { QueryRunner, Repository } from 'typeorm';
-import { Answer, Game, Participant, Question } from '../domain';
+import { Answer, Game, GameStats, Participant, Question } from '../domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DomainError, RepositoryError } from '../../../core/errors';
 import { GameStatus } from './enums';
@@ -12,6 +12,7 @@ export class GameRepo {
     @InjectRepository(Participant) private readonly participantRepo: Repository<Participant>,
     @InjectRepository(Question) private readonly questionRepo: Repository<Question>,
     @InjectRepository(Answer) private readonly answerRepo: Repository<Answer>,
+    @InjectRepository(GameStats) private readonly gameStatsRepo: Repository<GameStats>,
   ) {}
 
   public async checkAmountOfAnswers(gameId: string, userId: string) {
@@ -79,9 +80,13 @@ export class GameRepo {
   }
 
   public async drop() {
-    await this.answerRepo.delete({});
-    await this.questionRepo.delete({});
-    await this.participantRepo.delete({});
-    await this.gameRepo.delete({});
+    await Promise.all([
+      this.gameStatsRepo.deleteAll(),
+      this.answerRepo.deleteAll(),
+      this.answerRepo.deleteAll(),
+      this.questionRepo.deleteAll(),
+      this.participantRepo.deleteAll(),
+      this.gameRepo.deleteAll(),
+    ]);
   }
 }

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameController, AdminQuizController } from './api';
-import { Game, Answer, Stats, Question, Participant } from './domain';
+import { Game, Answer, GameStats, Question, Participant } from './domain';
 import { TransactionService } from '../../infrastructure/services/transaction.service';
 import {
   GameRepo,
@@ -25,7 +25,7 @@ import {
 } from './application';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([Game, Answer, Stats, Question, Participant])],
+  imports: [CqrsModule, TypeOrmModule.forFeature([Game, Answer, GameStats, Question, Participant])],
   providers: [
     GameRepo,
     GameService,

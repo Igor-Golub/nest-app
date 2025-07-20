@@ -8,6 +8,8 @@ import {
   IsOptional,
   ArrayMinSize,
   ArrayNotEmpty,
+  ValidateIf,
+  Matches,
 } from 'class-validator';
 import { PublishedStatus } from '../../../infrastructure/enums';
 import { QueryParams } from '../../../../../common/decorators/validate';
@@ -56,7 +58,9 @@ export class AnswerModel {
 }
 
 export class UsersTopQueryParams {
+  @IsOptional()
   @IsArray()
+  @ValidateIf((_, value) => Array.isArray(value))
   sort: string[] = [];
 
   @ToNumber(10)

@@ -6,7 +6,7 @@ import type { Session } from '../../auth/domain/session.entity';
 import type { PostComment } from '../../blogs/comments/domain/postComment.entity';
 import type { PostLike } from '../../blogs/posts/domain/postLikes.entity';
 import type { CommentLike } from '../../blogs/comments/domain/commentLike.entity';
-import type { Participant } from '../../quizGame/domain';
+import type { GameStats, Participant } from '../../quizGame/domain';
 
 @Entity()
 export class User extends BaseEntity {
@@ -28,6 +28,9 @@ export class User extends BaseEntity {
 
   @OneToOne('Recovery', (recovery: Recovery) => recovery.owner)
   public recovery: Recovery;
+
+  @OneToOne('GameStats', ({ user }: GameStats) => user)
+  public gameStats: GameStats;
 
   @OneToMany('Participant', ({ user }: Participant) => user)
   public participants: Participant[];

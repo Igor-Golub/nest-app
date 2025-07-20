@@ -52,6 +52,6 @@ export class UsersRepository {
   }
 
   public async drop() {
-    return this.repository.delete({});
+    return this.repository.deleteAll();
   }
 }

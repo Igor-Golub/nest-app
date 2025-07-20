@@ -40,6 +40,6 @@ export class BlogsRepository {
   }
 
   public async drop() {
-    await this.repository.delete({});
+    await this.repository.deleteAll();
   }
 }

@@ -2,7 +2,7 @@ import { GameRepo } from '../infrastructure';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { DomainError } from '../../../core/errors';
-import { Answer, Game, Participant } from '../domain';
+import { Answer, Game, GameStats, Participant } from '../domain';
 import { AnswerStatus, GameStatus, PlayerResultOfGame } from '../infrastructure/enums';
 import { TransactionService } from '../../../infrastructure/services/transaction.service';
 
@@ -68,7 +68,38 @@ export class AnswerService {
     const [currentResult, secondResult] = this.calculateResults(currentScore, secondScore);
 
     await queryRunner.manager.update(Participant, currentPlayer.id, { resultOfGame: currentResult });
+
+    const currentStats = await queryRunner.manager.findOne(GameStats, {
+      where: { user: { id: currentPlayer.user.id } },
+    });
+
+    if (currentStats) {
+      await queryRunner.manager.update(GameStats, currentStats.id, {
+        gamesCount: currentStats.gamesCount + 1,
+        sumScore: currentStats.sumScore + currentScore,
+        avgScores: +((currentStats.sumScore + currentScore) / (currentStats.gamesCount + 1)).toFixed(2),
+        ...(currentResult === PlayerResultOfGame.Won && { winsCount: currentStats.winsCount + 1 }),
+        ...(currentResult === PlayerResultOfGame.Draw && { drawsCount: currentStats.drawsCount + 1 }),
+        ...(currentResult === PlayerResultOfGame.Lost && { lossesCount: currentStats.lossesCount + 1 }),
+      });
+    }
+
     await queryRunner.manager.update(Participant, secondPlayer.id, { resultOfGame: secondResult });
+
+    const secondStats = await queryRunner.manager.findOne(GameStats, {
+      where: { user: { id: secondPlayer.user.id } },
+    });
+
+    if (secondStats) {
+      await queryRunner.manager.update(GameStats, secondStats.id, {
+        gamesCount: secondStats.gamesCount + 1,
+        sumScore: secondStats.sumScore + currentScore,
+        avgScores: +((secondStats.sumScore + currentScore) / (secondStats.gamesCount + 1)).toFixed(2),
+        ...(secondResult === PlayerResultOfGame.Won && { winsCount: secondStats.winsCount + 1 }),
+        ...(secondResult === PlayerResultOfGame.Draw && { drawsCount: secondStats.drawsCount + 1 }),
+        ...(secondResult === PlayerResultOfGame.Lost && { lossesCount: secondStats.lossesCount + 1 }),
+      });
+    }
   }
 
   private calculateResults(currentScore: number, secondScore: number): [PlayerResultOfGame, PlayerResultOfGame] {

@@ -3,7 +3,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainError } from '../../../core/errors';
 import { User } from '../../users/domain/user.entity';
 import { GameRepo, QuestionRepo } from '../infrastructure';
-import { Game, Participant } from '../domain';
+import { Game, GameStats, Participant } from '../domain';
 import { GameStatus } from '../infrastructure/enums';
 import { TransactionService } from '../../../infrastructure/services/transaction.service';
 
@@ -38,6 +38,17 @@ export class GameService {
       });
 
       await queryRunner.manager.save(participant);
+
+      const gameStats = await queryRunner.manager.findOne(GameStats, {
+        where: {
+          user: { id: relatedUser.id },
+        },
+      });
+
+      if (!gameStats) {
+        const newGameStats = queryRunner.manager.create(GameStats, { user: relatedUser });
+        await queryRunner.manager.save(newGameStats);
+      }
 
       await queryRunner.manager.update(Game, game.id, {
         startedAt: new Date(),
@@ -75,6 +86,15 @@ export class GameService {
       });
 
       await queryRunner.manager.save(participant);
+
+      const gameStats = await queryRunner.manager.findOne(GameStats, {
+        where: { user: { id: relatedUser.id } },
+      });
+
+      if (!gameStats) {
+        const newGameStats = queryRunner.manager.create(GameStats, { user: relatedUser });
+        await queryRunner.manager.save(newGameStats);
+      }
 
       return this.gameRepo.findFullGameOrFail(queryRunner, game.id);
     });
